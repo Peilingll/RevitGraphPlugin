@@ -1,0 +1,16 @@
+# Working drafts (not for publication)
+doc_process/
+
+# Visual Studio / .NET build output
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# Rider / JetBrains
+.idea/
+
+# NuGet
+*.nupkg
+packages/
