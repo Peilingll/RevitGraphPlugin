@@ -2,17 +2,15 @@
 
 A Revit 2025 add-in that translates native Revit elements into IFC entities and persists them as a Neo4j property graph. The graph schema follows the polymorphic `[:rel {rel_type, list_index}]` model from ConMan2, enabling round-trip and version-diff workflows over the IFC entity tree.
 
-> **Status:** early development. Documentation and design specification are in place; source code has not yet landed.
-
 ## Stack
 
-| Component | Version |
-|---|---|
-| Host | Autodesk Revit 2025 |
-| Runtime | .NET 8 |
-| Graph DB | Neo4j 5.x (local Neo4j Desktop) |
-| IFC library | GeometryGym.Ifc (IFC4X3) |
-| Driver | Neo4j.Driver (NuGet) |
+| Component   | Version                         |
+| ----------- | ------------------------------- |
+| Host        | Autodesk Revit 2025             |
+| Runtime     | .NET 8                          |
+| Graph DB    | Neo4j 5.x (local Neo4j Desktop) |
+| IFC library | GeometryGym.Ifc (IFC4X3)        |
+| Driver      | Neo4j.Driver (NuGet)            |
 
 ## Repository layout
 
@@ -45,7 +43,32 @@ Add-in registration: drop a `.addin` manifest into `%AppData%\Autodesk\Revit\Add
 
 ## Build
 
-Build instructions will be added once the Visual Studio project is committed (Stage 0).
+```powershell
+dotnet restore
+dotnet build RevitGraphPlugin.sln -c Debug
+```
+
+The Debug build runs a post-build target that copies `RevitGraphPlugin.dll`, the `.addin` manifest, and runtime NuGet dependencies (`Neo4j.Driver.dll`, `GeometryGymIFC.dll`, ...) into `%AppData%\Autodesk\Revit\Addins\2025\`. RevitAPI / RevitAPIUI are referenced with `Private=false` and **not** copied — Revit loads them from its own install directory.
+
+Override the Revit install path if it is not at the project default:
+
+```powershell
+$env:RevitInstallPath2025 = "C:\Program Files\Autodesk\Revit 2025\"
+dotnet build RevitGraphPlugin.sln -c Debug
+```
+
+### Neo4j connectivity smoke test
+
+Set Neo4j credentials via environment variables (no hard-coded credentials anywhere in the repo):
+
+```powershell
+$env:NEO4J_URI      = "neo4j://127.0.0.1:7687"  # optional, this is the default
+$env:NEO4J_USER     = "neo4j"                   # optional, this is the default
+$env:NEO4J_PASSWORD = "<your-password>"
+dotnet run --project tools/Neo4jSmokeTest
+```
+
+A successful run prints `hello = 1` and exits with code `0`.
 
 ## Validation
 
