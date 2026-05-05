@@ -1,0 +1,32 @@
+[
+  {
+    "n.EntityType": "IfcWall",
+    "n.p21_id": 70,
+    "n.Tag": "f8006b7c-4710-45c2-a91f-79968894f673-0004cc41",
+    "n.kind": "Primary"
+  },
+  {
+    "n.EntityType": "IfcOpeningElement",
+    "n.p21_id": 214,
+    "n.Tag": "",
+    "n.kind": "Primary"
+  },
+  {
+    "n.EntityType": "IfcRelVoidsElement",
+    "n.p21_id": 215,
+    "n.Tag": null,
+    "n.kind": "Connection"
+  },
+  {
+    "n.EntityType": "IfcWindow",
+    "n.p21_id": 216,
+    "n.Tag": "f8006b7c-4710-45c2-a91f-79968894f673-0004cc87",
+    "n.kind": "Primary"
+  },
+  {
+    "n.EntityType": "IfcRelFillsElement",
+    "n.p21_id": 218,
+    "n.Tag": null,
+    "n.kind": "Connection"
+  }
+]
