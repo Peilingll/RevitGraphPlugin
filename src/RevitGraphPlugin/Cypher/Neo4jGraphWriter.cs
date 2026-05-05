@@ -5,30 +5,61 @@ namespace RevitGraphPlugin.Cypher;
 
 /// <summary>
 /// Three-phase write per ConMan2 (related-work.md §2.3 / design.md §4 Stage 2):
-///   phase 1: MERGE node identities (label set by kind, key = p21_id + timestamp)
-///   phase 2: SET properties on those nodes
+///   phase 1: MERGE node identities (split by <see cref="MergeStrategy"/> —
+///            Tag-keyed for IfcElement primaries, GlobalId-keyed for
+///            IfcRelationship connections, p21_id-keyed for everything else)
+///   phase 1.5: detach old outgoing edges of Tag-keyed primaries that already
+///            existed in the graph (so Phase 3 can repopulate them cleanly)
+///   phase 2: SET property bags
 ///   phase 3: MERGE [:rel {rel_type, list_index}] edges
+///
+/// Tag/GlobalId-keyed strategies are Stage 5's fix for the p21_id-collision
+/// bug documented in <c>doc/known-issues.md</c>: stable identifiers prevent
+/// MERGE from latching onto the wrong node when IFC construction order shifts
+/// between exports.
+///
+/// Tag UNWIND runs first so primary nodes' p21_id is updated *before* any
+/// p21_id-keyed UNWIND has a chance to MERGE on a stale value.
 ///
 /// All Cypher is parameterised — no string concatenation of payload values
 /// (related-work.md §3.4 item 2).
 /// </summary>
 public static class Neo4jGraphWriter
 {
-    /// <summary>
-    /// Phase 1 — every node carries the <c>:GenericNode</c> label (covers the
-    /// composite index) plus <c>EntityType</c> and <c>kind</c> as properties.
-    /// Per-type / per-kind dynamic LABELS would need APOC's
-    /// <c>apoc.create.addLabels</c>; deferred until Neo4j-with-APOC is a hard
-    /// dependency. Property-based filtering on <c>EntityType</c> is enough for
-    /// the queries in design.md §4 Stage 5.
-    /// </summary>
-    private const string Phase1MergeNode = @"
+    private const string Phase1MergeByTag = @"
+        UNWIND $rows AS row
+        MERGE (n:GenericNode {Tag: row.tag, timestamp: row.timestamp})
+        SET n.EntityType = row.entity_type,
+            n.kind = row.kind_label,
+            n.p21_id = row.p21_id,
+            n.GlobalId = row.global_id";
+
+    private const string Phase1MergeByGlobalId = @"
+        UNWIND $rows AS row
+        MERGE (n:GenericNode {GlobalId: row.global_id, timestamp: row.timestamp})
+        SET n.EntityType = row.entity_type,
+            n.kind = row.kind_label,
+            n.p21_id = row.p21_id";
+
+    private const string Phase1MergeByP21Id = @"
         UNWIND $rows AS row
         MERGE (n:GenericNode {p21_id: row.p21_id, timestamp: row.timestamp})
         SET n.EntityType = row.entity_type,
             n.kind = row.kind_label
         FOREACH (_ IN CASE WHEN row.global_id IS NOT NULL THEN [1] ELSE [] END |
             SET n.GlobalId = row.global_id)";
+
+    /// <summary>
+    /// Phase 1.5 — for each Tag-keyed primary that already exists in the
+    /// graph, drop its outgoing <c>:rel</c> edges so Phase 3 can re-emit them
+    /// without duplicating. Inbound edges (from relationship nodes) are
+    /// preserved; the relationships themselves are responsible for refreshing
+    /// their own outgoing edges via the cascade-delete-then-re-add path.
+    /// </summary>
+    private const string DetachOutgoingForTaggedPrimaries = @"
+        UNWIND $tags AS tag
+        MATCH (n:GenericNode {Tag: tag, timestamp: $timestamp})-[r:rel]->()
+        DELETE r";
 
     private const string Phase2SetProperties = @"
         UNWIND $rows AS row
@@ -90,25 +121,77 @@ public static class Neo4jGraphWriter
         await using var session = driver.AsyncSession();
         await session.ExecuteWriteAsync(async tx =>
         {
-            await Phase1Async(tx, batch);
+            await Phase1ByTagAsync(tx, batch);
+            await Phase1ByGlobalIdAsync(tx, batch);
+            await DetachOutgoingForTaggedPrimariesAsync(tx, batch, timestamp);
+            await Phase1ByP21IdAsync(tx, batch);
             await Phase2Async(tx, batch, timestamp);
             await Phase3Async(tx, batch, timestamp);
             return 0;
         });
     }
 
-    private static async Task Phase1Async(IAsyncQueryRunner tx, GraphBatch batch)
+    private static async Task Phase1ByTagAsync(IAsyncQueryRunner tx, GraphBatch batch)
     {
-        var rows = batch.Nodes.Select(n => new Dictionary<string, object?>
-        {
-            ["p21_id"] = n.P21Id,
-            ["timestamp"] = n.Timestamp,
-            ["entity_type"] = n.EntityType,
-            ["kind_label"] = n.Kind.ToString(),  // Primary | Secondary | Connection | Inline
-            ["global_id"] = n.GlobalId,
-        }).ToList();
+        var rows = batch.Nodes
+            .Where(n => n.MergeStrategy == MergeStrategy.ByTag)
+            .Select(n => new Dictionary<string, object?>
+            {
+                ["tag"] = n.Tag!,
+                ["p21_id"] = n.P21Id,
+                ["timestamp"] = n.Timestamp,
+                ["entity_type"] = n.EntityType,
+                ["kind_label"] = n.Kind.ToString(),
+                ["global_id"] = n.GlobalId,
+            }).ToList();
         if (rows.Count == 0) return;
-        var cursor = await tx.RunAsync(Phase1MergeNode, new { rows });
+        var cursor = await tx.RunAsync(Phase1MergeByTag, new { rows });
+        await cursor.ConsumeAsync();
+    }
+
+    private static async Task Phase1ByGlobalIdAsync(IAsyncQueryRunner tx, GraphBatch batch)
+    {
+        var rows = batch.Nodes
+            .Where(n => n.MergeStrategy == MergeStrategy.ByGlobalId)
+            .Select(n => new Dictionary<string, object?>
+            {
+                ["global_id"] = n.GlobalId!,
+                ["p21_id"] = n.P21Id,
+                ["timestamp"] = n.Timestamp,
+                ["entity_type"] = n.EntityType,
+                ["kind_label"] = n.Kind.ToString(),
+            }).ToList();
+        if (rows.Count == 0) return;
+        var cursor = await tx.RunAsync(Phase1MergeByGlobalId, new { rows });
+        await cursor.ConsumeAsync();
+    }
+
+    private static async Task DetachOutgoingForTaggedPrimariesAsync(
+        IAsyncQueryRunner tx, GraphBatch batch, int timestamp)
+    {
+        var tags = batch.Nodes
+            .Where(n => n.MergeStrategy == MergeStrategy.ByTag)
+            .Select(n => n.Tag!)
+            .ToList();
+        if (tags.Count == 0) return;
+        var cursor = await tx.RunAsync(DetachOutgoingForTaggedPrimaries, new { tags, timestamp });
+        await cursor.ConsumeAsync();
+    }
+
+    private static async Task Phase1ByP21IdAsync(IAsyncQueryRunner tx, GraphBatch batch)
+    {
+        var rows = batch.Nodes
+            .Where(n => n.MergeStrategy == MergeStrategy.ByP21Id)
+            .Select(n => new Dictionary<string, object?>
+            {
+                ["p21_id"] = n.P21Id,
+                ["timestamp"] = n.Timestamp,
+                ["entity_type"] = n.EntityType,
+                ["kind_label"] = n.Kind.ToString(),
+                ["global_id"] = n.GlobalId,
+            }).ToList();
+        if (rows.Count == 0) return;
+        var cursor = await tx.RunAsync(Phase1MergeByP21Id, new { rows });
         await cursor.ConsumeAsync();
     }
 
