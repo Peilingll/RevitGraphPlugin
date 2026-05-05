@@ -1,18 +1,15 @@
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+using RevitGraphPlugin.Conversion;
+using RevitGraphPlugin.Cypher;
+using RevitGraphPlugin.Mapping;
 
 namespace RevitGraphPlugin;
 
 [Transaction(TransactionMode.ReadOnly)]
 public class SyncCommand : IExternalCommand
 {
-    private const string MergeProjectCypher = @"
-        MERGE (p:Project {RevitProjectId: $id})
-        SET p.Name = $name,
-            p.Number = $number,
-            p.timestamp = 0";
-
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
         var doc = commandData.Application.ActiveUIDocument?.Document;
@@ -29,42 +26,43 @@ public class SyncCommand : IExternalCommand
             return Result.Failed;
         }
 
-        var info = doc.ProjectInformation;
-        var revitProjectId = !string.IsNullOrEmpty(info?.UniqueId)
-            ? info.UniqueId
-            : doc.PathName;
-        var name = info?.Name ?? "(unnamed)";
-        var number = info?.Number ?? "";
-
-        var task = Task.Run(() =>
-            WriteProjectNodeAsync(connector.Driver, revitProjectId, name, number));
-
-        if (!task.Wait(TimeSpan.FromSeconds(10)))
+        // Phase A — convert Revit elements to an IFC database (on UI thread,
+        // because Revit API requires it).
+        RevitToIfcExporter.Result export;
+        try
         {
-            message = "Neo4j write timed out after 10s. Is the database running?";
+            export = new RevitToIfcExporter().Export(doc);
+        }
+        catch (Exception ex)
+        {
+            message = $"Revit→IFC export failed: {ex.Message}";
             return Result.Failed;
         }
 
-        if (task.IsFaulted)
-        {
-            message = $"Neo4j write failed: {task.Exception?.GetBaseException().Message}";
-            return Result.Failed;
-        }
+        var batch = IfcGraphMapper.MapAll(export.Database);
 
-        TaskDialog.Show("RevitGraphPlugin", $"Project '{name}' synced to Neo4j.");
-        return Result.Succeeded;
-    }
-
-    private static async Task WriteProjectNodeAsync(
-        Neo4j.Driver.IDriver driver, string id, string name, string number)
-    {
-        await using var session = driver.AsyncSession();
-        await session.ExecuteWriteAsync(async tx =>
+        // Phase B — write to Neo4j off the UI thread, with a timeout (Stage 1
+        // freeze fix carries over: never block the UI on the driver).
+        var writeTask = Task.Run(async () =>
         {
-            var cursor = await tx.RunAsync(
-                MergeProjectCypher,
-                new { id, name, number });
-            return await cursor.ConsumeAsync();
+            await Neo4jSchema.EnsureAsync(connector.Driver);
+            await Neo4jGraphWriter.WriteAsync(connector.Driver, batch);
         });
+
+        if (!writeTask.Wait(TimeSpan.FromSeconds(60)))
+        {
+            message = "Neo4j write timed out after 60s. Is the database running?";
+            return Result.Failed;
+        }
+        if (writeTask.IsFaulted)
+        {
+            message = $"Neo4j write failed: {writeTask.Exception?.GetBaseException().Message}";
+            return Result.Failed;
+        }
+
+        TaskDialog.Show("RevitGraphPlugin",
+            $"Synced {export.WallCount} wall(s) and {export.WindowCount} window(s).\n" +
+            $"Wrote {batch.Nodes.Count} nodes and {batch.Edges.Count} edges.");
+        return Result.Succeeded;
     }
 }
