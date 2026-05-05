@@ -41,6 +41,50 @@ public static class Neo4jGraphWriter
         MATCH (b:GenericNode {p21_id: row.to_p21,   timestamp: $timestamp})
         MERGE (a)-[r:rel {rel_type: row.rel_type, list_index: row.list_index}]->(b)";
 
+    /// <summary>
+    /// Stage 4 — DETACH DELETE every <c>:GenericNode</c> identified by
+    /// <paramref name="tag"/>. Wall scope: matches the wall only. Edges that
+    /// pointed to the wall (e.g. relationships' <c>RelatingBuildingElement</c>
+    /// edges) are dropped by <c>DETACH DELETE</c> but their owning relationship
+    /// nodes survive — orphans cleanup is deferred.
+    /// </summary>
+    private const string DeleteWallByTagCypher = @"
+        MATCH (w:GenericNode {Tag: $tag, timestamp: $timestamp})
+        DETACH DELETE w";
+
+    /// <summary>
+    /// Stage 4 — Cascade for window deletion (design.md §4 Stage 5 step 3
+    /// expectation: window + its synthesised opening + both IfcRel* go,
+    /// the wall persists). Walks back through RelFills to opening, then
+    /// through RelVoids reachable from the same opening.
+    /// </summary>
+    private const string DeleteWindowCascadeCypher = @"
+        MATCH (w:GenericNode {Tag: $tag, timestamp: $timestamp})
+        OPTIONAL MATCH (relFill:GenericNode)-[:rel {rel_type: 'RelatedBuildingElement'}]->(w)
+        OPTIONAL MATCH (relFill)-[:rel {rel_type: 'RelatingOpeningElement'}]->(opening:GenericNode)
+        OPTIONAL MATCH (relVoid:GenericNode)-[:rel {rel_type: 'RelatedOpeningElement'}]->(opening)
+        DETACH DELETE w, relFill, opening, relVoid";
+
+    public static async Task DeleteWallByTagAsync(IDriver driver, string tag, int timestamp = 0)
+    {
+        await using var session = driver.AsyncSession();
+        await session.ExecuteWriteAsync(async tx =>
+        {
+            var cursor = await tx.RunAsync(DeleteWallByTagCypher, new { tag, timestamp });
+            return await cursor.ConsumeAsync();
+        });
+    }
+
+    public static async Task DeleteWindowCascadeAsync(IDriver driver, string tag, int timestamp = 0)
+    {
+        await using var session = driver.AsyncSession();
+        await session.ExecuteWriteAsync(async tx =>
+        {
+            var cursor = await tx.RunAsync(DeleteWindowCascadeCypher, new { tag, timestamp });
+            return await cursor.ConsumeAsync();
+        });
+    }
+
     public static async Task WriteAsync(IDriver driver, GraphBatch batch, int timestamp = 0)
     {
         await using var session = driver.AsyncSession();
