@@ -36,14 +36,18 @@ public class SyncCommand : IExternalCommand
         var name = info?.Name ?? "(unnamed)";
         var number = info?.Number ?? "";
 
-        try
+        var task = Task.Run(() =>
+            WriteProjectNodeAsync(connector.Driver, revitProjectId, name, number));
+
+        if (!task.Wait(TimeSpan.FromSeconds(10)))
         {
-            WriteProjectNodeAsync(connector.Driver, revitProjectId, name, number)
-                .GetAwaiter().GetResult();
+            message = "Neo4j write timed out after 10s. Is the database running?";
+            return Result.Failed;
         }
-        catch (Exception ex)
+
+        if (task.IsFaulted)
         {
-            message = $"Neo4j write failed: {ex.Message}";
+            message = $"Neo4j write failed: {task.Exception?.GetBaseException().Message}";
             return Result.Failed;
         }
 

@@ -19,7 +19,11 @@ internal sealed class Neo4jConnector : IDisposable
                 "NEO4J_PASSWORD environment variable is required. " +
                 "Set it as a User environment variable so Revit inherits it.");
 
-        var driver = GraphDatabase.Driver(uri, AuthTokens.Basic(user, password));
+        var driver = GraphDatabase.Driver(uri, AuthTokens.Basic(user, password), o =>
+        {
+            o.WithConnectionTimeout(TimeSpan.FromSeconds(5));
+            o.WithMaxConnectionPoolSize(20);
+        });
         return new Neo4jConnector(driver);
     }
 
