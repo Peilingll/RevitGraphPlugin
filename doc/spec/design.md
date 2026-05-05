@@ -2,14 +2,14 @@
 
 ## 1. Requirements
 
-| Requirement | Value |
-|---|---|
-| Host platform | Revit 2025 (Autodesk SDK on .NET 8) |
-| Graph schema | ConMan2-style polymorphic relations (`[:rel {rel_type, list_index}]`) |
-| Trigger | Revit `DocumentChanged` (add / delete / modify) |
-| Primary backend | Neo4j 5.x |
-| Optional secondary view | RDF projection via Neosemantics (`n10s`), deferred |
-| First validation case | "Place a window on a wall" |
+| Requirement             | Value                                                                 |
+| ----------------------- | --------------------------------------------------------------------- |
+| Host platform           | Revit 2025 (Autodesk SDK on .NET 8)                                   |
+| Graph schema            | ConMan2-style polymorphic relations (`[:rel {rel_type, list_index}]`) |
+| Trigger                 | Revit `DocumentChanged` (add / delete / modify)                       |
+| Primary backend         | Neo4j 5.x                                                             |
+| Optional secondary view | RDF projection via Neosemantics (`n10s`), deferred                    |
+| First validation case   | "Place a window on a wall"                                            |
 
 The schema choice follows the rationale developed in `related-work.md §5`. The validation case is chosen because it exercises the three canonical IFC relation classes in one scenario (containment, voiding, filling), without requiring a large element-converter surface.
 
@@ -17,12 +17,12 @@ The schema choice follows the rationale developed in `related-work.md §5`. The 
 
 ## 2. Knowledge-graph library evaluation
 
-| Option | Nature | Fit |
-|---|---|---|
-| **RDFLib** | RDF / OWL triples, W3C semantic-web canonical stack | ★★★ Suitable for an IFC semantic layer (IfcOWL exists), but heavyweight to introduce up-front |
-| **NetworkX** | In-memory Python graph, no persistence | ★ Analysis only; unfit as source-of-truth |
-| **Kùzu / Memgraph** | Embedded graph DBs with Cypher compatibility | ★★ Only relevant if Neo4j is rejected |
-| **Neosemantics (`n10s`)** | Official Neo4j plugin exposing an RDF view of a property graph | ★★★ **Recommended** — single store, RDF projection on demand |
+| Option                    | Nature                                                         | Fit                                                                                           |
+| ------------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| **RDFLib**                | RDF / OWL triples, W3C semantic-web canonical stack            | ★★★ Suitable for an IFC semantic layer (IfcOWL exists), but heavyweight to introduce up-front |
+| **NetworkX**              | In-memory Python graph, no persistence                         | ★ Analysis only; unfit as source-of-truth                                                     |
+| **Kùzu / Memgraph**       | Embedded graph DBs with Cypher compatibility                   | ★★ Only relevant if Neo4j is rejected                                                         |
+| **Neosemantics (`n10s`)** | Official Neo4j plugin exposing an RDF view of a property graph | ★★★**Recommended** — single store, RDF projection on demand                                   |
 
 **Decision.** Ship a single Neo4j backend first; layer `n10s` if and when IfcOWL semantic reasoning is needed. Reject premature dual-write: SpaceTracker's Neo4j + SQLite implementation has its SQLite path disabled (`_blockExecution = true`) precisely because the synchronisation cost outgrew the benefit.
 
@@ -79,7 +79,7 @@ Components:
 
 ## 4. Implementation roadmap
 
-### Stage 0 — Environment bootstrap (½ day)
+### Stage 0 — Environment bootstrap
 
 1. Create `D:\Hiwi\RevitGraphPlugin` as the project root (already in place).
 2. In Visual Studio, create a Class Library and reference:
@@ -91,7 +91,7 @@ Components:
 
 > Note: Revit 2025 targets **.NET 8**, not .NET Framework 4.8. Confirm against the installed Autodesk 2025 SDK before configuring the project file.
 
-### Stage 1 — Plugin skeleton (1 day)
+### Stage 1 — Plugin skeleton
 
 - `class RevitGraphApp : IExternalApplication`.
 - `OnStartup` — register `DocumentChanged`; initialise `Neo4jConnector` with a **singleton `IDriver`** (avoiding the per-query construction pattern documented in `related-work.md §3.4`).
@@ -99,7 +99,7 @@ Components:
 - A single ribbon button that triggers a manual "Sync current document" — keeps the test loop short before incremental sync exists.
 - **Verification.** Open Revit, click the ribbon button, observe a `Project` node in Neo4j.
 
-### Stage 2 — `IfcGraphMapper` core (2–3 days)
+### Stage 2 — `IfcGraphMapper` core
 
 This stage ports the ConMan2 design from Python to C#:
 
@@ -110,14 +110,14 @@ This stage ports the ConMan2 design from Python to C#:
 - **Parameterised Cypher only:** `MATCH (n {p21_id: $pid})`. String concatenation is prohibited (avoid the SpaceTracker injection class).
 - Initial scope: `IfcWall`, `IfcWindow`, `IfcOpeningElement`. Do not generalise across the full IFC entity set in this stage.
 
-### Stage 3 — Revit-to-IFC converters (2–3 days)
+### Stage 3 — Revit-to-IFC converters
 
 - Initial element scope: `Wall` and `Window`.
 - `WallConverter.cs` — `Autodesk.Revit.DB.Wall` → `IfcWall` with `IfcLocalPlacement` and a simplified `IfcPolygonalFaceSet` BRep.
 - `WindowConverter.cs` — `FamilyInstance(OST_Windows)` → `IfcWindow`, with the host wall yielding `IfcOpeningElement` plus the relationships `IfcRelVoidsElement` and `IfcRelFillsElement`.
 - Geometry follows IfcInfraToolKit's `AddSolidGeometryAsBRep` pattern (centroid translation, shared `IfcCartesianPointList3D`).
 
-### Stage 4 — Incremental synchronisation (2 days)
+### Stage 4 — Incremental synchronisation
 
 `DocumentChanged` is partitioned into three branches:
 
@@ -127,7 +127,7 @@ This stage ports the ConMan2 design from Python to C#:
 
 Temporal versioning (ConMan2's `timestamp` mechanism beyond the literal `0`) is **deferred**. The single-version path must be stable before snapshotting is layered on.
 
-### Stage 5 — End-to-end validation: window on wall (½ day)
+### Stage 5 — End-to-end validation: window on wall
 
 Concrete validation script:
 
@@ -148,13 +148,13 @@ Concrete validation script:
 
 ## 5. First-week task table
 
-| Day | Task |
-|---|---|
-| 1 | Stage 0 — environment bootstrap; verify Revit 2026 .NET runtime |
-| 2 | Stage 1 — skeleton + ribbon button + Neo4j hello-world |
-| 3–4 | Stage 2 — `IfcGraphMapper` driving a single `IfcWall` end-to-end through three-phase write |
-| 5 | Stage 3 — `WallConverter` (minimal BRep acceptable) |
-| Weekend | `IfcWindow` plus the opening / void / fill relation triple |
+| Day     | Task                                                                                      |
+| ------- | ----------------------------------------------------------------------------------------- |
+| 1       | Stage 0 — environment bootstrap; verify Revit 2026 .NET runtime                           |
+| 2       | Stage 1 — skeleton + ribbon button + Neo4j hello-world                                    |
+| 3–4     | Stage 2 —`IfcGraphMapper` driving a single `IfcWall` end-to-end through three-phase write |
+| 5       | Stage 3 —`WallConverter` (minimal BRep acceptable)                                        |
+| Weekend | `IfcWindow` plus the opening / void / fill relation triple                                |
 
 ---
 
@@ -167,7 +167,7 @@ Concrete validation script:
    - spatial containment (wall contains opening),
    - aggregation / voiding (opening voids wall),
    - filling (window fills opening).
-   Other element types are largely variants of the same patterns.
+     Other element types are largely variants of the same patterns.
 
 ---
 
