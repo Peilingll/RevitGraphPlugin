@@ -57,18 +57,32 @@ $env:RevitInstallPath2025 = "C:\Program Files\Autodesk\Revit 2025\"
 dotnet build RevitGraphPlugin.sln -c Debug
 ```
 
-### Neo4j connectivity smoke test
+### Neo4j credentials
 
-Set Neo4j credentials via environment variables (no hard-coded credentials anywhere in the repo):
+The plugin reads three environment variables; only `NEO4J_PASSWORD` is required.
+
+| Variable | Default | Notes |
+| --- | --- | --- |
+| `NEO4J_URI` | `neo4j://127.0.0.1:7687` | matches Neo4j Desktop 2026 default |
+| `NEO4J_USER` | `neo4j` | |
+| `NEO4J_PASSWORD` | — | required, no default |
+
+**For the smoke test (process scope, this PowerShell only):**
 
 ```powershell
-$env:NEO4J_URI      = "neo4j://127.0.0.1:7687"  # optional, this is the default
-$env:NEO4J_USER     = "neo4j"                   # optional, this is the default
 $env:NEO4J_PASSWORD = "<your-password>"
 dotnet run --project tools/Neo4jSmokeTest
 ```
 
-A successful run prints `hello = 1` and exits with code `0`.
+**For Revit (User scope, persistent — Revit is launched outside any shell):**
+
+```powershell
+[Environment]::SetEnvironmentVariable("NEO4J_PASSWORD", "<your-password>", "User")
+```
+
+Set this once per machine; Revit launched via Start menu / desktop shortcut inherits User-scope variables. Process-scope (`$env:`) is *not* visible to Revit. After setting, restart any already-open Revit / VS / terminal so they pick up the new value.
+
+A successful smoke run prints `hello = 1` and exits with code `0`.
 
 ## Validation
 
