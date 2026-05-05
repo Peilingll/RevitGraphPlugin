@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>RevitGraphPlugin.Tools.IfcWriteTest</RootNamespace>
+    <AssemblyName>IfcWriteTest</AssemblyName>
+    <NoWarn>$(NoWarn);NU1701;MSB3277</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\RevitGraphPlugin\RevitGraphPlugin.csproj">
+      <!-- This tool runs without Revit; skip RevitAPI references that the
+           main project carries for its IExternalApplication/Command code. -->
+      <Private>true</Private>
+    </ProjectReference>
+  </ItemGroup>
+
+</Project>
