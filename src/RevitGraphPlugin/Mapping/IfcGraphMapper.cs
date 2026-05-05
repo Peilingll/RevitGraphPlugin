@@ -79,6 +79,7 @@ public static class IfcGraphMapper
             ["Name"] = PropertyNormaliser.Normalise(w.Name),
             ["Description"] = PropertyNormaliser.Normalise(w.Description),
             ["PredefinedType"] = PropertyNormaliser.Normalise(w.PredefinedType.ToString()),
+            ["Tag"] = PropertyNormaliser.Normalise(w.Tag),
         };
         ctx.Nodes.Add(new GraphNode(GraphNodeKind.Primary, "IfcWall", w.StepId, Timestamp, w.GlobalId, props));
         EmitProductReferences(w, ctx);
@@ -93,6 +94,7 @@ public static class IfcGraphMapper
             ["OverallHeight"] = PropertyNormaliser.Normalise(w.OverallHeight),
             ["OverallWidth"] = PropertyNormaliser.Normalise(w.OverallWidth),
             ["PredefinedType"] = PropertyNormaliser.Normalise(w.PredefinedType.ToString()),
+            ["Tag"] = PropertyNormaliser.Normalise(w.Tag),
         };
         ctx.Nodes.Add(new GraphNode(GraphNodeKind.Primary, "IfcWindow", w.StepId, Timestamp, w.GlobalId, props));
         EmitProductReferences(w, ctx);
@@ -105,6 +107,7 @@ public static class IfcGraphMapper
             ["Name"] = PropertyNormaliser.Normalise(o.Name),
             ["Description"] = PropertyNormaliser.Normalise(o.Description),
             ["PredefinedType"] = PropertyNormaliser.Normalise(o.PredefinedType.ToString()),
+            ["Tag"] = PropertyNormaliser.Normalise(o.Tag),
         };
         ctx.Nodes.Add(new GraphNode(GraphNodeKind.Primary, "IfcOpeningElement", o.StepId, Timestamp, o.GlobalId, props));
         EmitProductReferences(o, ctx);
