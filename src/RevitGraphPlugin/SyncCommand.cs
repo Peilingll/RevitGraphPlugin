@@ -4,6 +4,7 @@ using Autodesk.Revit.UI;
 using RevitGraphPlugin.Conversion;
 using RevitGraphPlugin.Cypher;
 using RevitGraphPlugin.Mapping;
+using RevitGraphPlugin.Sync;
 
 namespace RevitGraphPlugin;
 
@@ -59,6 +60,15 @@ public class SyncCommand : IExternalCommand
             message = $"Neo4j write failed: {writeTask.Exception?.GetBaseException().Message}";
             return Result.Failed;
         }
+
+        // Populate the incremental-sync state map so subsequent
+        // DocumentChanged delete events can resolve ElementId → UniqueId/Kind.
+        RevitGraphApp.SyncState.Clear();
+        foreach (var wall in new FilteredElementCollector(doc).OfClass(typeof(Wall)).Cast<Wall>())
+            RevitGraphApp.SyncState.Record(wall.Id, wall.UniqueId, ElementKind.Wall);
+        foreach (var window in new FilteredElementCollector(doc)
+            .OfCategory(BuiltInCategory.OST_Windows).OfClass(typeof(FamilyInstance)).Cast<FamilyInstance>())
+            RevitGraphApp.SyncState.Record(window.Id, window.UniqueId, ElementKind.Window);
 
         TaskDialog.Show("RevitGraphPlugin",
             $"Synced {export.WallCount} wall(s) and {export.WindowCount} window(s).\n" +

@@ -1,6 +1,7 @@
 using System.Reflection;
 using Autodesk.Revit.DB.Events;
 using Autodesk.Revit.UI;
+using RevitGraphPlugin.Sync;
 
 namespace RevitGraphPlugin;
 
@@ -10,6 +11,8 @@ public class RevitGraphApp : IExternalApplication
     private const string RibbonPanel = "Sync";
 
     internal static Neo4jConnector? Connector { get; private set; }
+    internal static ElementSyncState SyncState { get; } = new();
+    private static IncrementalSync? _incremental;
 
     public Result OnStartup(UIControlledApplication application)
     {
@@ -23,6 +26,7 @@ public class RevitGraphApp : IExternalApplication
             return Result.Failed;
         }
 
+        _incremental = new IncrementalSync(SyncState);
         application.ControlledApplication.DocumentChanged += OnDocumentChanged;
         BuildRibbon(application);
         return Result.Succeeded;
@@ -33,12 +37,23 @@ public class RevitGraphApp : IExternalApplication
         application.ControlledApplication.DocumentChanged -= OnDocumentChanged;
         Connector?.Dispose();
         Connector = null;
+        _incremental = null;
+        SyncState.Clear();
         return Result.Succeeded;
     }
 
     private static void OnDocumentChanged(object? sender, DocumentChangedEventArgs e)
     {
-        // Stage 4 will partition added / modified / deleted ElementIds here.
+        if (_incremental is null || Connector is null) return;
+        try
+        {
+            _incremental.Handle(e, Connector.Driver);
+        }
+        catch
+        {
+            // DocumentChanged runs on the Revit UI thread; throwing here can
+            // destabilise the document. Swallow until proper logging lands.
+        }
     }
 
     private static void BuildRibbon(UIControlledApplication application)
