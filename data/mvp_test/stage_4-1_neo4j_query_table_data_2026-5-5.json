@@ -1,0 +1,22 @@
+[
+  {
+    "n": {
+      "identity": 39,
+      "labels": [
+        "GenericNode"
+      ],
+      "properties": {
+        "EntityType": "IfcWall",
+        "Description": "",
+        "kind": "Primary",
+        "Tag": "69a168f4-bd5c-4af4-912d-606dddb35c62-0004cd3a",
+        "p21_id": 50,
+        "PredefinedType": "NOTDEFINED",
+        "Name": "Wall-Ext_102Bwk-75Ins-100LBlk-12P",
+        "timestamp": 0,
+        "GlobalId": "35MFcj4HzDthqB6zZOiubS"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:39"
+    }
+  }
+]

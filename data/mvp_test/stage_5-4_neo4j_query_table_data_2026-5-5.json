@@ -1,0 +1,170 @@
+[
+  {
+    "p": {
+      "start": {
+        "identity": 42,
+        "labels": [
+          "GenericNode"
+        ],
+        "properties": {
+          "EntityType": "IfcWall",
+          "Description": "",
+          "kind": "Primary",
+          "Tag": "0ed677d6-4a56-4833-ad13-75bb94e19307-0004cc22",
+          "p21_id": 70,
+          "PredefinedType": "NOTDEFINED",
+          "Name": "Wall-Ext_102Bwk-75Ins-100LBlk-12P",
+          "timestamp": 0,
+          "GlobalId": "3amLjO8RjDk8PgaqttN5WF"
+        },
+        "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:42"
+      },
+      "end": {
+        "identity": 108,
+        "labels": [
+          "GenericNode"
+        ],
+        "properties": {
+          "EntityType": "IfcLocalPlacement",
+          "kind": "Secondary",
+          "p21_id": 62,
+          "timestamp": 0
+        },
+        "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:108"
+      },
+      "segments": [
+        {
+          "start": {
+            "identity": 42,
+            "labels": [
+              "GenericNode"
+            ],
+            "properties": {
+              "EntityType": "IfcWall",
+              "Description": "",
+              "kind": "Primary",
+              "Tag": "0ed677d6-4a56-4833-ad13-75bb94e19307-0004cc22",
+              "p21_id": 70,
+              "PredefinedType": "NOTDEFINED",
+              "Name": "Wall-Ext_102Bwk-75Ins-100LBlk-12P",
+              "timestamp": 0,
+              "GlobalId": "3amLjO8RjDk8PgaqttN5WF"
+            },
+            "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:42"
+          },
+          "relationship": {
+            "identity": 6919780827454767212,
+            "start": 42,
+            "end": 108,
+            "type": "rel",
+            "properties": {
+              "rel_type": "ObjectPlacement",
+              "list_index": -1
+            },
+            "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6919780827454767212",
+            "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:42",
+            "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:108"
+          },
+          "end": {
+            "identity": 108,
+            "labels": [
+              "GenericNode"
+            ],
+            "properties": {
+              "EntityType": "IfcLocalPlacement",
+              "kind": "Secondary",
+              "p21_id": 62,
+              "timestamp": 0
+            },
+            "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:108"
+          }
+        }
+      ],
+      "length": 1.0
+    }
+  },
+  {
+    "p": {
+      "start": {
+        "identity": 42,
+        "labels": [
+          "GenericNode"
+        ],
+        "properties": {
+          "EntityType": "IfcWall",
+          "Description": "",
+          "kind": "Primary",
+          "Tag": "0ed677d6-4a56-4833-ad13-75bb94e19307-0004cc22",
+          "p21_id": 70,
+          "PredefinedType": "NOTDEFINED",
+          "Name": "Wall-Ext_102Bwk-75Ins-100LBlk-12P",
+          "timestamp": 0,
+          "GlobalId": "3amLjO8RjDk8PgaqttN5WF"
+        },
+        "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:42"
+      },
+      "end": {
+        "identity": 115,
+        "labels": [
+          "GenericNode"
+        ],
+        "properties": {
+          "EntityType": "IfcProductDefinitionShape",
+          "kind": "Secondary",
+          "p21_id": 69,
+          "timestamp": 0
+        },
+        "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:115"
+      },
+      "segments": [
+        {
+          "start": {
+            "identity": 42,
+            "labels": [
+              "GenericNode"
+            ],
+            "properties": {
+              "EntityType": "IfcWall",
+              "Description": "",
+              "kind": "Primary",
+              "Tag": "0ed677d6-4a56-4833-ad13-75bb94e19307-0004cc22",
+              "p21_id": 70,
+              "PredefinedType": "NOTDEFINED",
+              "Name": "Wall-Ext_102Bwk-75Ins-100LBlk-12P",
+              "timestamp": 0,
+              "GlobalId": "3amLjO8RjDk8PgaqttN5WF"
+            },
+            "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:42"
+          },
+          "relationship": {
+            "identity": 6919780827454767219,
+            "start": 42,
+            "end": 115,
+            "type": "rel",
+            "properties": {
+              "rel_type": "Representation",
+              "list_index": -1
+            },
+            "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6919780827454767219",
+            "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:42",
+            "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:115"
+          },
+          "end": {
+            "identity": 115,
+            "labels": [
+              "GenericNode"
+            ],
+            "properties": {
+              "EntityType": "IfcProductDefinitionShape",
+              "kind": "Secondary",
+              "p21_id": 69,
+              "timestamp": 0
+            },
+            "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:115"
+          }
+        }
+      ],
+      "length": 1.0
+    }
+  }
+]
