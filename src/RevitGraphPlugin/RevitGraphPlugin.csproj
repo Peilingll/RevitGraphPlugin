@@ -7,8 +7,8 @@
     <UseWPF>false</UseWPF>
     <UseWindowsForms>false</UseWindowsForms>
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
-    <ImplicitUsingsNamespace>false</ImplicitUsingsNamespace>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AssemblyName>RevitGraphPlugin</AssemblyName>
     <RootNamespace>RevitGraphPlugin</RootNamespace>
