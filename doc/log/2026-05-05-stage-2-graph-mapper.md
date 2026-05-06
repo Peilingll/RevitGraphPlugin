@@ -9,14 +9,14 @@ Port the ConMan2 graph schema and write pipeline from Python to C#. The delivera
 
 ## What was delivered
 
-| File | Role |
-| --- | --- |
-| `src/RevitGraphPlugin/Graph/{GraphNode, GraphEdge, GraphBatch}.cs` | Pure-C# data structures mirroring ConMan2's `GenericNode` + polymorphic edge. |
-| `src/RevitGraphPlugin/Mapping/PropertyNormaliser.cs` | `None → "$"`, list-of-primitives → tuple-string (related-work.md §2.4). |
-| `src/RevitGraphPlugin/Mapping/IfcGraphMapper.cs` | Hand-coded handlers for `IfcWall`, `IfcWindow`, `IfcOpeningElement`, `IfcRelVoidsElement`, `IfcRelFillsElement`. Anything else falls through to a `Secondary` emit. |
-| `src/RevitGraphPlugin/Cypher/Neo4jSchema.cs` | Idempotent `CREATE INDEX IF NOT EXISTS` for `(:GenericNode {p21_id, timestamp})`. |
-| `src/RevitGraphPlugin/Cypher/Neo4jGraphWriter.cs` | Three-phase async write: MERGE nodes → SET properties → MERGE `[:rel]` edges. All parameterised, batched via `UNWIND`. |
-| `tools/IfcWriteTest/` | Console harness — builds the Stage 5 "window on wall" scenario in-memory via GeometryGym.Ifc, runs the mapper + writer, prints the resulting batch. |
+| File                                                                 | Role                                                                                                                                                                            |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/RevitGraphPlugin/Graph/{GraphNode, GraphEdge, GraphBatch}.cs` | Pure-C# data structures mirroring ConMan2's `GenericNode` + polymorphic edge.                                                                                                 |
+| `src/RevitGraphPlugin/Mapping/PropertyNormaliser.cs`               | `None → "$"`, list-of-primitives → tuple-string (related-work.md §2.4).                                                                                                    |
+| `src/RevitGraphPlugin/Mapping/IfcGraphMapper.cs`                   | Hand-coded handlers for `IfcWall`, `IfcWindow`, `IfcOpeningElement`, `IfcRelVoidsElement`, `IfcRelFillsElement`. Anything else falls through to a `Secondary` emit. |
+| `src/RevitGraphPlugin/Cypher/Neo4jSchema.cs`                       | Idempotent `CREATE INDEX IF NOT EXISTS` for `(:GenericNode {p21_id, timestamp})`.                                                                                           |
+| `src/RevitGraphPlugin/Cypher/Neo4jGraphWriter.cs`                  | Three-phase async write: MERGE nodes → SET properties → MERGE `[:rel]` edges. All parameterised, batched via `UNWIND`.                                                    |
+| `tools/IfcWriteTest/`                                              | Console harness — builds the Stage 5 "window on wall" scenario in-memory via GeometryGym.Ifc, runs the mapper + writer, prints the resulting batch.                            |
 
 ## Decisions and rationale
 
@@ -27,6 +27,7 @@ Spec is unambiguous: *"Initial scope: IfcWall, IfcWindow, IfcOpeningElement. Do 
 ### Edges are STEP-21-forward only
 
 `IfcRelVoidsElement` emits two outgoing edges:
+
 - `[:rel {rel_type:"RelatingBuildingElement"}]` → `IfcWall`
 - `[:rel {rel_type:"RelatedOpeningElement"}]` → `IfcOpeningElement`
 
@@ -96,9 +97,9 @@ Stage 2 verifies the *middle* of the pipeline only. The test harness's IFC entit
 
 ## Anti-patterns avoided
 
-| # | Anti-pattern | Avoided by |
-| --- | --- | --- |
-| 2 | Cypher injection | Every query parameterised via `UNWIND $rows`. |
+| # | Anti-pattern     | Avoided by                                                                     |
+| - | ---------------- | ------------------------------------------------------------------------------ |
+| 2 | Cypher injection | Every query parameterised via `UNWIND $rows`.                                |
 | 3 | Per-query driver | Writer takes an `IDriver` injected by the caller (the singleton in Stage 1). |
 
 ## Open issues parked for later

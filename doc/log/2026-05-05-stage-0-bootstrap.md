@@ -9,12 +9,12 @@ Stand up a buildable Revit 2025 add-in skeleton (`net8.0-windows`, x64) that loa
 
 ## Environment
 
-| Component | Value |
-| --- | --- |
-| Revit 2025 | `D:\Autodesk\Revit 2025\` (non-standard install path; all `RevitAPI*.dll` present) |
-| .NET SDK | `8.0.403` (pinned via `global.json`, `rollForward: latestPatch`) |
-| Add-ins folder | `%AppData%\Autodesk\Revit\Addins\2025\` |
-| Neo4j Desktop | Downloaded by user; database creation / start pending |
+| Component      | Value                                                                                  |
+| -------------- | -------------------------------------------------------------------------------------- |
+| Revit 2025     | `D:\Autodesk\Revit 2025\` (non-standard install path; all `RevitAPI*.dll` present) |
+| .NET SDK       | `8.0.403` (pinned via `global.json`, `rollForward: latestPatch`)                 |
+| Add-ins folder | `%AppData%\Autodesk\Revit\Addins\2025\`                                              |
+| Neo4j Desktop  | Downloaded by user; database creation / start pending                                  |
 
 ## Decisions and rationale
 
@@ -42,15 +42,15 @@ A future `dotnet 9.x` install on the developer machine would silently roll the b
 
 ## Verification results
 
-| Step | Result |
-| --- | --- |
-| 1. `dotnet --version` | `8.0.403` |
-| 2. `dotnet build RevitGraphPlugin.sln -c Debug` | 0 errors, 4 warnings (all `NU1701`, see footnote) |
-| 3. `RevitAPI.dll` not copied to bin | confirmed |
-| 4. Addins folder populated | `RevitGraphPlugin.dll`, `RevitGraphPlugin.addin`, `Neo4j.Driver.dll`, `GeometryGymIFC.dll`, `Newtonsoft.Json.dll`, `Microsoft.Bcl.AsyncInterfaces.dll`, `System.IO.Pipelines.dll` present |
-| 5. Revit launch test | pending (Revit launch not part of CI; manual verification deferred to next session) |
-| 6. Neo4j Desktop database created and running | passed (after troubleshooting, see below) |
-| 7. `dotnet run --project tools/Neo4jSmokeTest` returns `hello = 1` | passed |
+| Step                                                                  | Result                                                                                                                                                                                                  |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.`dotnet --version`                                                | `8.0.403`                                                                                                                                                                                             |
+| 2.`dotnet build RevitGraphPlugin.sln -c Debug`                      | 0 errors, 4 warnings (all `NU1701`, see footnote)                                                                                                                                                     |
+| 3.`RevitAPI.dll` not copied to bin                                  | confirmed                                                                                                                                                                                               |
+| 4. Addins folder populated                                            | `RevitGraphPlugin.dll`, `RevitGraphPlugin.addin`, `Neo4j.Driver.dll`, `GeometryGymIFC.dll`, `Newtonsoft.Json.dll`, `Microsoft.Bcl.AsyncInterfaces.dll`, `System.IO.Pipelines.dll` present |
+| 5. Revit launch test                                                  | pending (Revit launch not part of CI; manual verification deferred to next session)                                                                                                                     |
+| 6. Neo4j Desktop database created and running                         | passed (after troubleshooting, see below)                                                                                                                                                               |
+| 7.`dotnet run --project tools/Neo4jSmokeTest` returns `hello = 1` | passed                                                                                                                                                                                                  |
 
 ### Footnote on the 4 warnings
 
@@ -102,4 +102,4 @@ After all three resolutions, the smoke test prints `Connecting to neo4j://127.0.
 
 ## Next step
 
-Stage 1 — replace the empty `OnStartup` / `OnShutdown` bodies with `DocumentChanged` registration and a singleton `Neo4jConnector` (per `related-work.md §3.4`'s prohibition on per-query driver construction), and add a single ribbon button that triggers a manual sync. Verification: a `Project` node appears in Neo4j after clicking the button.
+Stage 1 — replace the empty `OnStartup` / `OnShutdown` bodies with `DocumentChanged` registration and a singleton `Neo4jConnector` (per `related-work.md §3.4`'s prohibition on per-query driver construction), and add a single ribbon button that triggers a manual sync. Verification: a `Project` node appears in Neo4j after clicking the button.mi
