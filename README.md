@@ -12,19 +12,81 @@ A Revit 2025 add-in that translates native Revit elements into IFC entities and 
 | IFC library | GeometryGym.Ifc (IFC4X3)        |
 | Driver      | Neo4j.Driver (NuGet)            |
 
+## Pipeline
+
+```
+User draws / modifies / deletes element
+              |
+              v
+    Revit DocumentChanged event
+              |
+              v
+    IncrementalSync handler   (or SyncCommand for manual full sync)
+              |
+              v
+    WallConverter / WindowConverter   (hand-coded per Revit element type)
+              |
+              v
+    IFC entity tree            (in-memory, GeometryGym.Ifc)
+              |
+              v
+    IfcGraphMapper walks the tree
+              |
+              v
+    GraphNode + GraphEdge      (ConMan2 polymorphic schema)
+              |
+              v
+    Neo4jGraphWriter           (three-phase + 1.5 MERGE)
+              |
+              v
+            Neo4j
+```
+
 ## Repository layout
 
 ```
 RevitGraphPlugin/
+├── src/
+│   └── RevitGraphPlugin/
+│       ├── RevitGraphApp.cs              # IExternalApplication entry; ribbon + DocumentChanged hook
+│       ├── SyncCommand.cs                # Manual "Sync current doc" full-document command
+│       ├── Neo4jConnector.cs             # Singleton IDriver from environment variables
+│       ├── RevitGraphPlugin.addin        # Revit add-in manifest
+│       ├── RevitGraphPlugin.csproj       # .NET 8 / x64 build, Revit API + NuGet
+│       ├── Conversion/
+│       │   ├── RevitToIfcExporter.cs     # Walks Revit document; dispatches to per-type converters
+│       │   ├── WallConverter.cs          # Revit Wall -> IfcWall (BRep + IfcLocalPlacement)
+│       │   ├── WindowConverter.cs        # Window FamilyInstance -> IfcWindow + IfcOpeningElement + IfcRel*
+│       │   └── GeometryHelpers.cs        # Solid -> tessellated IfcPolygonalFaceSet (centroid, feet -> mm)
+│       ├── Mapping/
+│       │   ├── IfcGraphMapper.cs         # Walks IFC entity tree -> GraphNode + GraphEdge
+│       │   └── PropertyNormaliser.cs     # ConMan2 normalisation (null -> "$", list -> "(a,b,c)")
+│       ├── Graph/
+│       │   ├── GraphNode.cs              # Node record; derives MergeStrategy (Tag / GlobalId / P21Id)
+│       │   ├── GraphEdge.cs              # Edge record (from, to, rel_type, list_index)
+│       │   └── GraphBatch.cs             # Immutable (nodes, edges) container
+│       ├── Cypher/
+│       │   ├── Neo4jGraphWriter.cs       # ERGE nodes, SET properties, MERGE edges
+│       │   └── Neo4jSchema.cs            # Composite indexes on (p21_id | Tag | GlobalId, timestamp)
+│       └── Sync/
+│           ├── IncrementalSync.cs        # DocumentChanged handler: add / modify / delete dispatch
+│           ├── ElementSyncState.cs       # Session map: ElementId -> (UniqueId, ElementKind)
+│           └── ElementKind.cs            # Enum: Wall, Window
+├── tools/
+│   ├── IfcWriteTest/
+│   └── Neo4jSmokeTest/
 ├── doc/
 │   ├── spec/
-│   │   ├── related-work.md   # ConMan2 / SpaceTracker / IfcInfraToolKit study
-│   │   └── design.md         # System architecture and roadmap
-│   └── log/                  # Development log (reserved)
+│   │   ├── design.md
+│   │   └── related-work.md
+│   ├── log/
+│   └── known-issues.md
+├── data/
+│   └── mvp_test/
+├── RevitGraphPlugin.sln
+├── global.json
 └── README.md
 ```
-
-Source code (`src/`, `*.csproj`) will be added during Stage 0 of the roadmap.
 
 ## Documentation
 
@@ -61,11 +123,11 @@ dotnet build RevitGraphPlugin.sln -c Debug
 
 The plugin reads three environment variables; only `NEO4J_PASSWORD` is required.
 
-| Variable | Default | Notes |
-| --- | --- | --- |
-| `NEO4J_URI` | `neo4j://127.0.0.1:7687` | matches Neo4j Desktop 2026 default |
-| `NEO4J_USER` | `neo4j` | |
-| `NEO4J_PASSWORD` | — | required, no default |
+| Variable         | Default                  | Notes                              |
+| ---------------- | ------------------------ | ---------------------------------- |
+| `NEO4J_URI`      | `neo4j://127.0.0.1:7687` | matches Neo4j Desktop 2026 default |
+| `NEO4J_USER`     | `neo4j`                  |                                    |
+| `NEO4J_PASSWORD` | —                        | required, no default               |
 
 **For the smoke test (process scope, this PowerShell only):**
 
@@ -80,7 +142,7 @@ dotnet run --project tools/Neo4jSmokeTest
 [Environment]::SetEnvironmentVariable("NEO4J_PASSWORD", "<your-password>", "User")
 ```
 
-Set this once per machine; Revit launched via Start menu / desktop shortcut inherits User-scope variables. Process-scope (`$env:`) is *not* visible to Revit. After setting, restart any already-open Revit / VS / terminal so they pick up the new value.
+Set this once per machine; Revit launched via Start menu / desktop shortcut inherits User-scope variables. Process-scope (`$env:`) is _not_ visible to Revit. After setting, restart any already-open Revit / VS / terminal so they pick up the new value.
 
 A successful smoke run prints `hello = 1` and exits with code `0`.
 
