@@ -2,7 +2,12 @@
 
 A Revit 2025 add-in that translates native Revit elements into IFC entities and persists them as a Neo4j property graph, enabling round-trip and version-diff workflows.
 
-**Current state:** environment + Neo4j-connection skeleton. The Revit-to-IFC-to-Neo4j pipeline is being redesigned (v2). The previous MVP implementation is preserved on the `archive/v1-mvp` branch.
+**Current state:** environment + Neo4j-connection skeleton. The IFC basic skeleton for an empty Revit project is written to Neo4j; per-element subgraphs (Wall, Window, …) are not yet emitted.
+
+```
+ Revit Document  →  IFC entity tree  →  Graph nodes/edges  →  Cypher MERGE
+ (Revit API)       (GeometryGym)      (ConMan2 schema)     (Neo4j.Driver)
+```
 
 ## Stack
 
@@ -21,7 +26,7 @@ RevitGraphPlugin/
 ├── src/
 │   └── RevitGraphPlugin/
 │       ├── RevitGraphApp.cs            # IExternalApplication: lifecycle + ribbon
-│       ├── SyncCommand.cs              # IExternalCommand: button handler (currently a connectivity smoke test)
+│       ├── SyncCommand.cs              # IExternalCommand: button handler
 │       ├── Neo4jConnector.cs           # IDriver factory from environment variables
 │       ├── RevitGraphPlugin.addin      # Revit add-in manifest
 │       └── RevitGraphPlugin.csproj     # .NET 8 / x64; references Revit API + NuGet
@@ -32,9 +37,9 @@ RevitGraphPlugin/
 │       └── related-work.md             # Lit review of reference projects
 ├── data/
 │   └── samples/                        # IFC sample dataset for diff-driven discovery
-│       ├── ifc/                        # 7 IFC4 snapshots (00_empty → 06_deleted_window)
+│       ├── ifc/                        # IFC4 snapshots
 │       ├── rvt/                        # Source Revit project for re-export
-│       ├── cypher/                     # ConMan2 import results (JSON + screenshots)
+│       ├── cypher/                     # ConMan2 import results
 │       └── README.md                   # what each snapshot represents and intended diffs
 ├── RevitGraphPlugin.sln
 ├── global.json                         # Pins .NET SDK 8.0.403
@@ -47,8 +52,6 @@ RevitGraphPlugin/
 2. `RevitGraphApp.OnStartup` builds a Neo4j driver from environment variables (`NEO4J_URI`, `NEO4J_USER`, `NEO4J_PASSWORD`) and registers a `RevitGraphPlugin` ribbon tab with a single button.
 3. Pressing the button runs `SyncCommand`, which calls `VerifyConnectivityAsync` off the UI thread (10 s timeout) and shows a `Neo4j connection OK.` TaskDialog on success.
 4. `OnShutdown` disposes the driver.
-
-The graph-write pipeline (Revit → IFC → graph nodes → Cypher) is **not implemented in this branch.** It is being redesigned. See `archive/v1-mvp` for the previous attempt.
 
 ## Branches
 
@@ -108,12 +111,6 @@ A successful run prints `hello = 1` and exits with code `0`. Use this to confirm
 ```
 
 Set this once per machine; Revit launched via Start menu / desktop shortcut inherits User-scope variables. Process-scope (`$env:`) is _not_ visible to Revit. After setting, restart any already-open Revit / VS / terminal so they pick up the new value.
-
-## Documentation
-
-- [`doc/spec/related-work.md`](doc/spec/related-work.md) — comparative analysis of three reference projects: ConMan2 (Neo4j schema), SpaceTracker (Revit add-in architecture), IfcInfraToolKit (geometry export).
-
-The v2 design specification and stage logs will be added under `doc/` as the rebuild progresses.
 
 ## Acknowledgements
 
