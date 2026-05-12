@@ -15,17 +15,37 @@ All snapshots are exported from a **single Revit project** (`SampleProject_1.rvt
 
 All seven snapshots were exported in a single Revit session without restarting, to maximise ID stability.
 
+## Layout
+
+```
+data/samples/
+├── ifc/        # IFC4 snapshots exported from Revit
+├── rvt/        # Source Revit project (for re-export)
+├── cypher/     # Per-snapshot ConMan2 import results (JSON + Neo4j Browser screenshots)
+└── README.md   # this file
+```
+
 ## Snapshots
 
 | File | Step | Cumulative model state |
 | ---- | ---- | ----------------------- |
-| `00_empty.ifc` | 0 | Empty project (Revit defaults: Level 1, Level 2; no elements) |
-| `01_one_wall.ifc` | 1 | + Wall A (generic wall on Level 1) |
-| `02_two_walls.ifc` | 2 | + Wall B |
-| `03_wall_with_window.ifc` | 3 | + Window hosted on Wall A |
-| `04_modified_wall.ifc` | 4 | Wall A length extended |
-| `05_deleted_wall.ifc` | 5 | Wall B removed |
-| `06_deleted_window.ifc` | 6 | Window removed |
+| `ifc/00_empty.ifc` | 0 | Empty project (Revit defaults: Level 1, Level 2; no elements) |
+| `ifc/01_one_wall.ifc` | 1 | + Wall A (generic wall on Level 1) |
+| `ifc/02_two_walls.ifc` | 2 | + Wall B |
+| `ifc/03_wall_with_window.ifc` | 3 | + Window hosted on Wall A |
+| `ifc/04_modified_wall.ifc` | 4 | Wall A length extended |
+| `ifc/05_deleted_wall.ifc` | 5 | Wall B removed |
+| `ifc/06_deleted_window.ifc` | 6 | Window removed |
+| `rvt/SampleProject_1.rvt` | — | Source Revit project (final state) |
+
+## ConMan2 import results
+
+`cypher/` holds the result of importing each `.ifc` into Neo4j via ConMan2:
+- `cypher/00_empty_neo4j_query_table_data.json` + `00_empty.png` — graph for the empty project (~62 nodes)
+- `cypher/01_one_wall_neo4j_query_table_data.json` + `01_one_wall.png` — graph after adding a wall (~192 nodes)
+- `cypher/diff_00 vs 01 neo4j_query_table_data.json` + `.png` — diff of the two (the wall subgraph plus boundary nodes)
+
+These act as the ground truth that the plugin's Cypher output must match.
 
 ## Intended diffs
 

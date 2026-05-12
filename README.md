@@ -31,7 +31,11 @@ RevitGraphPlugin/
 │   └── spec/
 │       └── related-work.md             # Lit review of reference projects
 ├── data/
-│   └── mvp_test/                       # v1 verification snapshots (kept for reference)
+│   └── samples/                        # IFC sample dataset for diff-driven discovery
+│       ├── ifc/                        # 7 IFC4 snapshots (00_empty → 06_deleted_window)
+│       ├── rvt/                        # Source Revit project for re-export
+│       ├── cypher/                     # ConMan2 import results (JSON + screenshots)
+│       └── README.md                   # what each snapshot represents and intended diffs
 ├── RevitGraphPlugin.sln
 ├── global.json                         # Pins .NET SDK 8.0.403
 └── README.md
