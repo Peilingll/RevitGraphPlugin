@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>RevitGraphPlugin</Name>
+    <Assembly>RevitGraphPlugin.dll</Assembly>
+    <FullClassName>RevitGraphPlugin.RevitGraphApp</FullClassName>
+    <ClientId>9F1B6C2A-7E8D-4B3C-A1F0-2D5E9C4B7A6E</ClientId>
+    <VendorId>HIWI</VendorId>
+    <VendorDescription>RevitGraphPlugin (TUM Hiwi)</VendorDescription>
+  </AddIn>
+</RevitAddIns>

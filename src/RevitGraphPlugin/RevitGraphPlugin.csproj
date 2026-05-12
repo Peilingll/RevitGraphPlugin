@@ -1,0 +1,64 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <PlatformTarget>x64</PlatformTarget>
+    <Platforms>x64</Platforms>
+    <UseWPF>false</UseWPF>
+    <UseWindowsForms>false</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AssemblyName>RevitGraphPlugin</AssemblyName>
+    <RootNamespace>RevitGraphPlugin</RootNamespace>
+    <Configurations>Debug;Release</Configurations>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <!-- Revit 2025 DLLs reference dozens of in-process assemblies (CefSharp, Autodesk.UI.*) that Revit
+         itself supplies at runtime. NETCore's reference resolver warns about every one (MSB3277).
+         Suppress here; we already pin Private=false so nothing is copied. -->
+    <NoWarn>$(NoWarn);MSB3277</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Override via environment variable or Directory.Build.props if Revit is installed elsewhere. -->
+    <RevitInstallPath2025 Condition="'$(RevitInstallPath2025)' == ''">D:\Autodesk\Revit 2025\</RevitInstallPath2025>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="RevitAPI">
+      <HintPath>$(RevitInstallPath2025)RevitAPI.dll</HintPath>
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </Reference>
+    <Reference Include="RevitAPIUI">
+      <HintPath>$(RevitInstallPath2025)RevitAPIUI.dll</HintPath>
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Neo4j.Driver" Version="5.26.0" />
+    <PackageReference Include="GeometryGymIFC" Version="0.1.22" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="RevitGraphPlugin.addin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Target Name="DeployToRevitAddins" AfterTargets="Build" Condition="'$(Configuration)' == 'Debug'">
+    <PropertyGroup>
+      <RevitAddinsDir>$(APPDATA)\Autodesk\Revit\Addins\2025\</RevitAddinsDir>
+    </PropertyGroup>
+    <ItemGroup>
+      <DeployFiles Include="$(TargetDir)*.dll;$(TargetDir)*.pdb;$(TargetDir)*.addin" />
+    </ItemGroup>
+    <MakeDir Directories="$(RevitAddinsDir)" />
+    <Copy SourceFiles="@(DeployFiles)" DestinationFolder="$(RevitAddinsDir)" SkipUnchangedFiles="true" />
+    <Message Importance="high" Text="RevitGraphPlugin deployed to $(RevitAddinsDir)" />
+  </Target>
+
+</Project>

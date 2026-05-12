@@ -14,3 +14,7 @@ obj/
 # NuGet
 *.nupkg
 packages/
+
+# MSBuild logs / test output
+*.binlog
+TestResults/

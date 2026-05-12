@@ -4,11 +4,11 @@
 
 The plugin under design targets a Revit 2026 → IFC → Neo4j pipeline: native Revit elements are translated into IFC entities and persisted as a property graph. Three prior projects each cover a distinct slice of this pipeline and serve as reference implementations.
 
-| Project                            | Role                                                | Primary contribution                                                       |
-| ---------------------------------- | --------------------------------------------------- | -------------------------------------------------------------------------- |
-| **ConMan2** (Sebastian Esser)      | IFC ↔ Neo4j round-trip, version diff and patch      | Neo4j graph schema design                                                  |
-| **SpaceTracker** (Sebastian Esser) | Revit add-in that mirrors Revit elements into Neo4j | Revit integration architecture (`IExternalApplication`, `DocumentChanged`) |
-| **IfcInfraToolKit** (TUM CMS)      | Dynamo / Civil3D → IFC geometry exporter            | Concrete Revit-geometry → IFC entity mapping                               |
+| Project                     | Role                                                | Primary contribution                                                           |
+| --------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------ |
+| **ConMan2**          | IFC ↔ Neo4j round-trip, version diff and patch     | Neo4j graph schema design                                                      |
+| **SpaceTracker**      | Revit add-in that mirrors Revit elements into Neo4j | Revit integration architecture (`IExternalApplication`, `DocumentChanged`) |
+| **IfcInfraToolKit**  | Dynamo / Civil3D → IFC geometry exporter           | Concrete Revit-geometry → IFC entity mapping                                  |
 
 The remainder of this chapter summarises each project's relevant internals and concludes with a comparative analysis that frames the design space for the new plugin.
 
@@ -68,8 +68,8 @@ A single polymorphic edge type is used:
   application.ControlledApplication.DocumentChanged
       += new EventHandler<DocumentChangedEventArgs>(documentChanged);
   ```
-
 - Event branches:
+
   - `DocumentCreated` / `DocumentOpened` → full graph rebuild (preceded by `MATCH (n) DETACH DELETE n`).
   - `DocumentChanged` → incremental update; added/deleted/modified `ElementId`s are extracted and forwarded to `extractor.UpdateGraph(...)` (`SpaceTrackerClass.cs:65-74`).
 - Tracked element types: `Level`, `Room`, `Wall`, `Door`.
@@ -87,14 +87,14 @@ Edges carry no properties; semantics are encoded entirely in the relationship na
 
 ### 3.3 Key files
 
-| File                   | Role                                                          |
-| ---------------------- | ------------------------------------------------------------- |
-| `SpaceTrackerClass.cs` | Lifecycle and event registration                              |
-| `SpaceExtractor.cs`    | `CreateInitialGraph` / `UpdateGraph` / `DeleteExistingGraph`  |
-| `Neo4jConnector.cs`    | Driver lifecycle, sync and async Cypher execution             |
-| `SQLiteConnector.cs`   | SQLite mirror (currently disabled via `_blockExecution=true`) |
-| `CommandManager.cs`    | `ObservableCollection`-based command queue                    |
-| `SpaceTracker.addin`   | Revit manifest                                                |
+| File                     | Role                                                               |
+| ------------------------ | ------------------------------------------------------------------ |
+| `SpaceTrackerClass.cs` | Lifecycle and event registration                                   |
+| `SpaceExtractor.cs`    | `CreateInitialGraph` / `UpdateGraph` / `DeleteExistingGraph` |
+| `Neo4jConnector.cs`    | Driver lifecycle, sync and async Cypher execution                  |
+| `SQLiteConnector.cs`   | SQLite mirror (currently disabled via `_blockExecution=true`)    |
+| `CommandManager.cs`    | `ObservableCollection`-based command queue                       |
+| `SpaceTracker.addin`   | Revit manifest                                                     |
 
 ### 3.4 Technical debt to avoid
 
@@ -157,14 +157,14 @@ IfcLocalPlacement → IfcAxis2Placement3D  (attached under site.ObjectPlacement)
 
 ## 5. Comparative analysis
 
-| Dimension          | ConMan2                                            | SpaceTracker                                                |
-| ------------------ | -------------------------------------------------- | ----------------------------------------------------------- |
+| Dimension          | ConMan2                                              | SpaceTracker                                                      |
+| ------------------ | ---------------------------------------------------- | ----------------------------------------------------------------- |
 | Relationship model | Single polymorphic `[:rel {rel_type, list_index}]` | Named edges (`[:CONTAINS]`, `[:BOUNDS]`, `[:CONTAINED_IN]`) |
-| Semantic carrier   | Edge property `rel_type`                           | Relationship name                                           |
-| List ordering      | Preserved via `list_index`                         | Not tracked (schema is intentionally flat)                  |
-| Primary use case   | IFC ↔ Neo4j round-trip plus diff / patch           | Revit document-change tracking                              |
-| Domain coverage    | Full IFC graph (60+ entity types)                  | Spatial hierarchy: 4 element types                          |
-| Trigger model      | STEP-file traversal                                | Revit `DocumentChanged` event                               |
+| Semantic carrier   | Edge property `rel_type`                           | Relationship name                                                 |
+| List ordering      | Preserved via `list_index`                         | Not tracked (schema is intentionally flat)                        |
+| Primary use case   | IFC ↔ Neo4j round-trip plus diff / patch            | Revit document-change tracking                                    |
+| Domain coverage    | Full IFC graph (60+ entity types)                    | Spatial hierarchy: 4 element types                                |
+| Trigger model      | STEP-file traversal                                  | Revit `DocumentChanged` event                                   |
 
 The new plugin must commit to a point in the design space delimited by these two extremes:
 
@@ -173,9 +173,3 @@ The new plugin must commit to a point in the design space delimited by these two
 - **Hybrid** — adopt the ConMan2 three-tier node taxonomy and polymorphic edge as the canonical store, then materialise an additional named-edge layer (`CONTAINS`, `BOUNDS`) as an index for the hottest queries.
 
 The geometry pipeline can adopt IfcInfraToolKit verbatim regardless of which schema choice is made: GeometryGym.Ifc, `IfcPolygonalFaceSet` for solids, `IfcTriangulatedFaceSet` for meshes, and `IfcLocalPlacement` rooted at site.
-
----
-
-## 6. Provenance
-
-This chapter consolidates seven subagent research transcripts produced during a 2026-02-19 study session, archived locally outside the repository. The transcripts cover both source-code analysis and upstream GitHub inspection for each of the three reference projects, plus a cross-project comparison pass between ConMan2 and SpaceTracker.
