@@ -12,20 +12,26 @@ public class SyncCommand : IExternalCommand
         var connector = RevitGraphApp.Connector;
         if (connector is null)
         {
-            message = "Neo4j connector not initialised.";
+            TaskDialog.Show("RevitGraphPlugin", "Neo4j connector not initialised.");
             return Result.Failed;
         }
 
         // Driver calls can block; never run them on Revit's UI thread.
         var task = Task.Run(async () => await connector.Driver.VerifyConnectivityAsync());
-        if (!task.Wait(TimeSpan.FromSeconds(10)))
+        try
         {
-            message = "Neo4j connectivity check timed out after 10s.";
-            return Result.Failed;
+            if (!task.Wait(TimeSpan.FromSeconds(10)))
+            {
+                TaskDialog.Show("RevitGraphPlugin", "Neo4j connectivity check timed out after 10 s.");
+                return Result.Failed;
+            }
         }
-        if (task.IsFaulted)
+        catch (Exception ex)
         {
-            message = $"Neo4j connectivity failed: {task.Exception?.GetBaseException().Message}";
+            // Task.Wait rethrows the task's exception wrapped in AggregateException;
+            // GetBaseException unwraps to the original driver error (auth / connection / etc.).
+            TaskDialog.Show("RevitGraphPlugin",
+                $"Neo4j connectivity failed:\n{ex.GetBaseException().Message}");
             return Result.Failed;
         }
 
