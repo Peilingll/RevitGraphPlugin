@@ -1,6 +1,8 @@
 # RevitGraphPlugin
 
-A Revit 2025 add-in that translates native Revit elements into IFC entities and persists them as a Neo4j property graph. The graph schema follows the polymorphic `[:rel {rel_type, list_index}]` model from ConMan2, enabling round-trip and version-diff workflows over the IFC entity tree.
+A Revit 2025 add-in that translates native Revit elements into IFC entities and persists them as a Neo4j property graph, enabling round-trip and version-diff workflows.
+
+**Current state:** environment + Neo4j-connection skeleton. The Revit-to-IFC-to-Neo4j pipeline is being redesigned (v2). The previous MVP implementation is preserved on the `archive/v1-mvp` branch.
 
 ## Stack
 
@@ -12,96 +14,53 @@ A Revit 2025 add-in that translates native Revit elements into IFC entities and 
 | IFC library | GeometryGym.Ifc (IFC4X3)        |
 | Driver      | Neo4j.Driver (NuGet)            |
 
-## Pipeline
-
-```
-User draws / modifies / deletes element
-              |
-              v
-    Revit DocumentChanged event
-              |
-              v
-    IncrementalSync handler   (or SyncCommand for manual full sync)
-              |
-              v
-    WallConverter / WindowConverter   (hand-coded per Revit element type)
-              |
-              v
-    IFC entity tree            (in-memory, GeometryGym.Ifc)
-              |
-              v
-    IfcGraphMapper walks the tree
-              |
-              v
-    GraphNode + GraphEdge      (ConMan2 polymorphic schema)
-              |
-              v
-    Neo4jGraphWriter           (three-phase + 1.5 MERGE)
-              |
-              v
-            Neo4j
-```
-
 ## Repository layout
 
 ```
 RevitGraphPlugin/
 ├── src/
 │   └── RevitGraphPlugin/
-│       ├── RevitGraphApp.cs              # IExternalApplication entry; ribbon + DocumentChanged hook
-│       ├── SyncCommand.cs                # Manual "Sync current doc" full-document command
-│       ├── Neo4jConnector.cs             # Singleton IDriver from environment variables
-│       ├── RevitGraphPlugin.addin        # Revit add-in manifest
-│       ├── RevitGraphPlugin.csproj       # .NET 8 / x64 build, Revit API + NuGet
-│       ├── Conversion/
-│       │   ├── RevitToIfcExporter.cs     # Walks Revit document; dispatches to per-type converters
-│       │   ├── WallConverter.cs          # Revit Wall -> IfcWall (BRep + IfcLocalPlacement)
-│       │   ├── WindowConverter.cs        # Window FamilyInstance -> IfcWindow + IfcOpeningElement + IfcRel*
-│       │   └── GeometryHelpers.cs        # Solid -> tessellated IfcPolygonalFaceSet (centroid, feet -> mm)
-│       ├── Mapping/
-│       │   ├── IfcGraphMapper.cs         # Walks IFC entity tree -> GraphNode + GraphEdge
-│       │   └── PropertyNormaliser.cs     # ConMan2 normalisation (null -> "$", list -> "(a,b,c)")
-│       ├── Graph/
-│       │   ├── GraphNode.cs              # Node record; derives MergeStrategy (Tag / GlobalId / P21Id)
-│       │   ├── GraphEdge.cs              # Edge record (from, to, rel_type, list_index)
-│       │   └── GraphBatch.cs             # Immutable (nodes, edges) container
-│       ├── Cypher/
-│       │   ├── Neo4jGraphWriter.cs       # ERGE nodes, SET properties, MERGE edges
-│       │   └── Neo4jSchema.cs            # Composite indexes on (p21_id | Tag | GlobalId, timestamp)
-│       └── Sync/
-│           ├── IncrementalSync.cs        # DocumentChanged handler: add / modify / delete dispatch
-│           ├── ElementSyncState.cs       # Session map: ElementId -> (UniqueId, ElementKind)
-│           └── ElementKind.cs            # Enum: Wall, Window
+│       ├── RevitGraphApp.cs            # IExternalApplication: lifecycle + ribbon
+│       ├── SyncCommand.cs              # IExternalCommand: button handler (currently a connectivity smoke test)
+│       ├── Neo4jConnector.cs           # IDriver factory from environment variables
+│       ├── RevitGraphPlugin.addin      # Revit add-in manifest
+│       └── RevitGraphPlugin.csproj     # .NET 8 / x64; references Revit API + NuGet
 ├── tools/
-│   ├── IfcWriteTest/
-│   └── Neo4jSmokeTest/
+│   └── Neo4jSmokeTest/                 # Standalone console: verifies Neo4j env + connection outside Revit
 ├── doc/
-│   ├── spec/
-│   │   ├── design.md
-│   │   └── related-work.md
-│   ├── log/
-│   └── known-issues.md
+│   └── spec/
+│       └── related-work.md             # Lit review of reference projects
 ├── data/
-│   └── mvp_test/
+│   └── mvp_test/                       # v1 verification snapshots (kept for reference)
 ├── RevitGraphPlugin.sln
-├── global.json
+├── global.json                         # Pins .NET SDK 8.0.403
 └── README.md
 ```
 
-## Documentation
+## Runtime flow (current skeleton)
 
-- [`doc/spec/related-work.md`](doc/spec/related-work.md) — comparative analysis of three reference projects: ConMan2 (Neo4j schema), SpaceTracker (Revit add-in architecture), IfcInfraToolKit (geometry export).
-- [`doc/spec/design.md`](doc/spec/design.md) — design specification, five-stage implementation roadmap, validation case ("place a window on a wall").
+1. Revit 2025 loads `RevitGraphPlugin.addin` from `%AppData%\Autodesk\Revit\Addins\2025\`.
+2. `RevitGraphApp.OnStartup` builds a Neo4j driver from environment variables (`NEO4J_URI`, `NEO4J_USER`, `NEO4J_PASSWORD`) and registers a `RevitGraphPlugin` ribbon tab with a single button.
+3. Pressing the button runs `SyncCommand`, which calls `VerifyConnectivityAsync` off the UI thread (10 s timeout) and shows a `Neo4j connection OK.` TaskDialog on success.
+4. `OnShutdown` disposes the driver.
+
+The graph-write pipeline (Revit → IFC → graph nodes → Cypher) is **not implemented in this branch.** It is being redesigned. See `archive/v1-mvp` for the previous attempt.
+
+## Branches
+
+- `feat/dev` — active rebuild (current skeleton).
+- `archive/v1-mvp` — preserved v1 MVP (Revit → IFC → Graph → Neo4j five-stage pipeline). Kept for reference; not intended for merge.
+- `main` — initial commit only; the first rebuild milestone will be merged here via PR.
 
 ## Development environment
 
 Prerequisites:
 
-1. **Revit 2025** — installed at `D:\Autodesk\Revit 2025\` (project default; adjust the `.csproj` reference paths if installed elsewhere). Education licence is sufficient.
-2. **Visual Studio 2022** (17.8 or newer) with the .NET 8 SDK.
-3. **Neo4j Desktop** with a local 5.x database, bolt URL accessible from the dev machine.
+1. **Revit 2025** — installed at `D:\Autodesk\Revit 2025\` (project default; adjust via `RevitInstallPath2025` env var if installed elsewhere). Education licence is sufficient.
+2. **.NET 8 SDK** — 8.0.403 (pinned by `global.json`).
+3. **Neo4j Desktop** with a local 5.x instance reachable via `neo4j://`.
 
-Add-in registration: drop a `.addin` manifest into `%AppData%\Autodesk\Revit\Addins\2025\` pointing to the build output DLL.
+Add-in registration is automatic for Debug builds (see Build below).
 
 ## Build
 
@@ -110,18 +69,18 @@ dotnet restore
 dotnet build RevitGraphPlugin.sln -c Debug
 ```
 
-The Debug build runs a post-build target that copies `RevitGraphPlugin.dll`, the `.addin` manifest, and runtime NuGet dependencies (`Neo4j.Driver.dll`, `GeometryGymIFC.dll`, ...) into `%AppData%\Autodesk\Revit\Addins\2025\`. RevitAPI / RevitAPIUI are referenced with `Private=false` and **not** copied — Revit loads them from its own install directory.
+The Debug build runs a post-build target that copies `RevitGraphPlugin.dll`, its `.addin` manifest, and runtime NuGet dependencies (`Neo4j.Driver.dll`, `GeometryGymIFC.dll`, …) into `%AppData%\Autodesk\Revit\Addins\2025\`. `RevitAPI` / `RevitAPIUI` are referenced with `Private=false` — Revit loads them from its own install directory.
 
-Override the Revit install path if it is not at the project default:
+Override the Revit install path if it differs:
 
 ```powershell
 $env:RevitInstallPath2025 = "C:\Program Files\Autodesk\Revit 2025\"
 dotnet build RevitGraphPlugin.sln -c Debug
 ```
 
-### Neo4j credentials
+## Neo4j credentials
 
-The plugin reads three environment variables; only `NEO4J_PASSWORD` is required.
+The plugin and `Neo4jSmokeTest` both read three environment variables; only `NEO4J_PASSWORD` is required.
 
 | Variable         | Default                  | Notes                              |
 | ---------------- | ------------------------ | ---------------------------------- |
@@ -129,14 +88,16 @@ The plugin reads three environment variables; only `NEO4J_PASSWORD` is required.
 | `NEO4J_USER`     | `neo4j`                  |                                    |
 | `NEO4J_PASSWORD` | —                        | required, no default               |
 
-**For the smoke test (process scope, this PowerShell only):**
+**Smoke test (process scope, current PowerShell only):**
 
 ```powershell
 $env:NEO4J_PASSWORD = "<your-password>"
 dotnet run --project tools/Neo4jSmokeTest
 ```
 
-**For Revit (User scope, persistent — Revit is launched outside any shell):**
+A successful run prints `hello = 1` and exits with code `0`. Use this to confirm Neo4j is reachable before launching Revit.
+
+**Revit (User scope, persistent — Revit is launched outside any shell):**
 
 ```powershell
 [Environment]::SetEnvironmentVariable("NEO4J_PASSWORD", "<your-password>", "User")
@@ -144,11 +105,11 @@ dotnet run --project tools/Neo4jSmokeTest
 
 Set this once per machine; Revit launched via Start menu / desktop shortcut inherits User-scope variables. Process-scope (`$env:`) is _not_ visible to Revit. After setting, restart any already-open Revit / VS / terminal so they pick up the new value.
 
-A successful smoke run prints `hello = 1` and exits with code `0`.
+## Documentation
 
-## Validation
+- [`doc/spec/related-work.md`](doc/spec/related-work.md) — comparative analysis of three reference projects: ConMan2 (Neo4j schema), SpaceTracker (Revit add-in architecture), IfcInfraToolKit (geometry export).
 
-The first end-to-end test case is "place a window on a wall" — see [`doc/spec/design.md` §4 Stage 5](doc/spec/design.md) for the expected Cypher subgraph and behavioural assertions.
+The v2 design specification and stage logs will be added under `doc/` as the rebuild progresses.
 
 ## Acknowledgements
 
