@@ -29,6 +29,12 @@ public static class BoilerplateBuilder
         if (!string.IsNullOrWhiteSpace(projInfo.Name))   project.LongName = projInfo.Name;
         if (!string.IsNullOrWhiteSpace(projInfo.Status)) project.Phase    = projInfo.Status;
 
+        // ggifc's default for a freshly-constructed OwnerHistory is ChangeAction = ADDED.
+        // Revit's IFC exporter emits NOCHANGE for the project-level OwnerHistory; align so
+        // plugin output matches the ConMan2 baseline.
+        if (project.OwnerHistory != null)
+            project.OwnerHistory.ChangeAction = IfcChangeActionEnum.NOCHANGE;
+
         // -- Units: metric (matches Revit's IFC 4 Reference View export).
         var lengthUnit = new IfcSIUnit(db, IfcUnitEnum.LENGTHUNIT, IfcSIPrefix.NONE, IfcSIUnitName.METRE);
         var areaUnit   = new IfcSIUnit(db, IfcUnitEnum.AREAUNIT,   IfcSIPrefix.NONE, IfcSIUnitName.SQUARE_METRE);

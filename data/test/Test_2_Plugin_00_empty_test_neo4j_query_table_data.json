@@ -1,0 +1,2411 @@
+[
+  {
+    "n": {
+      "identity": 0,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcProject",
+        "ObjectType": "$",
+        "Description": "$",
+        "Phase": "Project Status",
+        "LongName": "Project Name",
+        "p21_id": "#1",
+        "Name": "Project Name",
+        "timestamp": "1",
+        "GlobalId": "2$1LAsj$T3CPRLiPX39YYL"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:0"
+    },
+    "r": {
+      "identity": 1157425104234217472,
+      "start": 0,
+      "end": 13,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217472",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:0",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13"
+    },
+    "m": {
+      "identity": 13,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": 1778624836,
+        "CreationDate": 1778624836,
+        "ChangeAction": "NOCHANGE",
+        "State": "NOTDEFINED",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13"
+    }
+  },
+  {
+    "n": {
+      "identity": 0,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcProject",
+        "ObjectType": "$",
+        "Description": "$",
+        "Phase": "Project Status",
+        "LongName": "Project Name",
+        "p21_id": "#1",
+        "Name": "Project Name",
+        "timestamp": "1",
+        "GlobalId": "2$1LAsj$T3CPRLiPX39YYL"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:0"
+    },
+    "r": {
+      "identity": 1155173304420532224,
+      "start": 0,
+      "end": 17,
+      "type": "rel",
+      "properties": {
+        "rel_type": "UnitsInContext",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532224",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:0",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:17"
+    },
+    "m": {
+      "identity": 17,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcUnitAssignment",
+        "p21_id": "#11",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:17"
+    }
+  },
+  {
+    "n": {
+      "identity": 0,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcProject",
+        "ObjectType": "$",
+        "Description": "$",
+        "Phase": "Project Status",
+        "LongName": "Project Name",
+        "p21_id": "#1",
+        "Name": "Project Name",
+        "timestamp": "1",
+        "GlobalId": "2$1LAsj$T3CPRLiPX39YYL"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:0"
+    },
+    "r": {
+      "identity": 1152921504606846976,
+      "start": 0,
+      "end": 18,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RepresentationContexts",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846976",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:0",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:18"
+    },
+    "m": {
+      "identity": 18,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcGeometricRepresentationContext",
+        "ContextType": "Model",
+        "Precision": 0.0001,
+        "ContextIdentifier": "$",
+        "p21_id": "#12",
+        "CoordinateSpaceDimension": 3,
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:18"
+    }
+  },
+  {
+    "n": {
+      "identity": 1,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "Description": "$",
+        "SiteAddress": "$",
+        "LandTitleNumber": "$",
+        "Representation": "$",
+        "CompositionType": "NOTDEFINED",
+        "Name": "Default Site",
+        "GlobalId": "2rwo_VsyT6RvUmJ3w2FYHi",
+        "EntityType": "IfcSite",
+        "ObjectType": "$",
+        "LongName": "$",
+        "RefElevation": NaN,
+        "RefLatitude": "$",
+        "RefLongitude": "$",
+        "p21_id": "#23",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:1"
+    },
+    "r": {
+      "identity": 1155173304420532225,
+      "start": 1,
+      "end": 13,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532225",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:1",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13"
+    },
+    "m": {
+      "identity": 13,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": 1778624836,
+        "CreationDate": 1778624836,
+        "ChangeAction": "NOCHANGE",
+        "State": "NOTDEFINED",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13"
+    }
+  },
+  {
+    "n": {
+      "identity": 1,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "Description": "$",
+        "SiteAddress": "$",
+        "LandTitleNumber": "$",
+        "Representation": "$",
+        "CompositionType": "NOTDEFINED",
+        "Name": "Default Site",
+        "GlobalId": "2rwo_VsyT6RvUmJ3w2FYHi",
+        "EntityType": "IfcSite",
+        "ObjectType": "$",
+        "LongName": "$",
+        "RefElevation": NaN,
+        "RefLatitude": "$",
+        "RefLongitude": "$",
+        "p21_id": "#23",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:1"
+    },
+    "r": {
+      "identity": 1152921504606846977,
+      "start": 1,
+      "end": 66,
+      "type": "rel",
+      "properties": {
+        "rel_type": "ObjectPlacement",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846977",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:1",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:66"
+    },
+    "m": {
+      "identity": 66,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "PlacementRelTo": "$",
+        "p21_id": "#22",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:66"
+    }
+  },
+  {
+    "n": {
+      "identity": 2,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "Description": "$",
+        "BuildingAddress": "$",
+        "Representation": "$",
+        "CompositionType": "NOTDEFINED",
+        "Name": "Default Building",
+        "GlobalId": "3rBMV2KE5Djgsbtk4UId06",
+        "EntityType": "IfcBuilding",
+        "ObjectType": "$",
+        "LongName": "$",
+        "p21_id": "#28",
+        "ElevationOfTerrain": NaN,
+        "timestamp": "1",
+        "ElevationOfRefHeight": NaN
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2"
+    },
+    "r": {
+      "identity": 1152921504606846978,
+      "start": 2,
+      "end": 13,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846978",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13"
+    },
+    "m": {
+      "identity": 13,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": 1778624836,
+        "CreationDate": 1778624836,
+        "ChangeAction": "NOCHANGE",
+        "State": "NOTDEFINED",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13"
+    }
+  },
+  {
+    "n": {
+      "identity": 2,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "Description": "$",
+        "BuildingAddress": "$",
+        "Representation": "$",
+        "CompositionType": "NOTDEFINED",
+        "Name": "Default Building",
+        "GlobalId": "3rBMV2KE5Djgsbtk4UId06",
+        "EntityType": "IfcBuilding",
+        "ObjectType": "$",
+        "LongName": "$",
+        "p21_id": "#28",
+        "ElevationOfTerrain": NaN,
+        "timestamp": "1",
+        "ElevationOfRefHeight": NaN
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2"
+    },
+    "r": {
+      "identity": 6919780827454767173,
+      "start": 2,
+      "end": 69,
+      "type": "rel",
+      "properties": {
+        "rel_type": "ObjectPlacement",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6919780827454767173",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:69"
+    },
+    "m": {
+      "identity": 69,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#27",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:69"
+    }
+  },
+  {
+    "n": {
+      "identity": 3,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuildingStorey",
+        "ObjectType": "$",
+        "Elevation": 0.0,
+        "Description": "$",
+        "LongName": "$",
+        "Representation": "$",
+        "p21_id": "#33",
+        "CompositionType": "NOTDEFINED",
+        "Name": "Level 0",
+        "timestamp": "1",
+        "GlobalId": "3Zu5Bv0LOHrPC10026FoUj"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:3"
+    },
+    "r": {
+      "identity": 1155173304420532227,
+      "start": 3,
+      "end": 13,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532227",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:3",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13"
+    },
+    "m": {
+      "identity": 13,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": 1778624836,
+        "CreationDate": 1778624836,
+        "ChangeAction": "NOCHANGE",
+        "State": "NOTDEFINED",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13"
+    }
+  },
+  {
+    "n": {
+      "identity": 3,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuildingStorey",
+        "ObjectType": "$",
+        "Elevation": 0.0,
+        "Description": "$",
+        "LongName": "$",
+        "Representation": "$",
+        "p21_id": "#33",
+        "CompositionType": "NOTDEFINED",
+        "Name": "Level 0",
+        "timestamp": "1",
+        "GlobalId": "3Zu5Bv0LOHrPC10026FoUj"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:3"
+    },
+    "r": {
+      "identity": 1152921504606846979,
+      "start": 3,
+      "end": 72,
+      "type": "rel",
+      "properties": {
+        "rel_type": "ObjectPlacement",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846979",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:3",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:72"
+    },
+    "m": {
+      "identity": 72,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#32",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:72"
+    }
+  },
+  {
+    "n": {
+      "identity": 4,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuildingStorey",
+        "ObjectType": "$",
+        "Elevation": 4.0,
+        "Description": "$",
+        "LongName": "$",
+        "Representation": "$",
+        "p21_id": "#38",
+        "CompositionType": "NOTDEFINED",
+        "Name": "Level 1",
+        "timestamp": "1",
+        "GlobalId": "15Z0v90RiHrPC20026FoUj"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:4"
+    },
+    "r": {
+      "identity": 1155173304420532228,
+      "start": 4,
+      "end": 13,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532228",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:4",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13"
+    },
+    "m": {
+      "identity": 13,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": 1778624836,
+        "CreationDate": 1778624836,
+        "ChangeAction": "NOCHANGE",
+        "State": "NOTDEFINED",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13"
+    }
+  },
+  {
+    "n": {
+      "identity": 4,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuildingStorey",
+        "ObjectType": "$",
+        "Elevation": 4.0,
+        "Description": "$",
+        "LongName": "$",
+        "Representation": "$",
+        "p21_id": "#38",
+        "CompositionType": "NOTDEFINED",
+        "Name": "Level 1",
+        "timestamp": "1",
+        "GlobalId": "15Z0v90RiHrPC20026FoUj"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:4"
+    },
+    "r": {
+      "identity": 1152921504606846980,
+      "start": 4,
+      "end": 75,
+      "type": "rel",
+      "properties": {
+        "rel_type": "ObjectPlacement",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846980",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:4",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:75"
+    },
+    "m": {
+      "identity": 75,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#37",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:75"
+    }
+  },
+  {
+    "n": {
+      "identity": 5,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelAggregates",
+        "Description": "$",
+        "p21_id": "#24",
+        "Name": "$",
+        "timestamp": "1",
+        "GlobalId": "0kSsZgVbv3DeZg9L61R5j3"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:5"
+    },
+    "r": {
+      "identity": 6924284427082137600,
+      "start": 5,
+      "end": 0,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatingObject",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6924284427082137600",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:5",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:0"
+    },
+    "m": {
+      "identity": 0,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcProject",
+        "ObjectType": "$",
+        "Description": "$",
+        "Phase": "Project Status",
+        "LongName": "Project Name",
+        "p21_id": "#1",
+        "Name": "Project Name",
+        "timestamp": "1",
+        "GlobalId": "2$1LAsj$T3CPRLiPX39YYL"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:0"
+    }
+  },
+  {
+    "n": {
+      "identity": 5,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelAggregates",
+        "Description": "$",
+        "p21_id": "#24",
+        "Name": "$",
+        "timestamp": "1",
+        "GlobalId": "0kSsZgVbv3DeZg9L61R5j3"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:5"
+    },
+    "r": {
+      "identity": 6922032627268452353,
+      "start": 5,
+      "end": 1,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatedObjects",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6922032627268452353",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:5",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:1"
+    },
+    "m": {
+      "identity": 1,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "Description": "$",
+        "SiteAddress": "$",
+        "LandTitleNumber": "$",
+        "Representation": "$",
+        "CompositionType": "NOTDEFINED",
+        "Name": "Default Site",
+        "GlobalId": "2rwo_VsyT6RvUmJ3w2FYHi",
+        "EntityType": "IfcSite",
+        "ObjectType": "$",
+        "LongName": "$",
+        "RefElevation": NaN,
+        "RefLatitude": "$",
+        "RefLongitude": "$",
+        "p21_id": "#23",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:1"
+    }
+  },
+  {
+    "n": {
+      "identity": 5,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelAggregates",
+        "Description": "$",
+        "p21_id": "#24",
+        "Name": "$",
+        "timestamp": "1",
+        "GlobalId": "0kSsZgVbv3DeZg9L61R5j3"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:5"
+    },
+    "r": {
+      "identity": 1152921504606846981,
+      "start": 5,
+      "end": 13,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846981",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:5",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13"
+    },
+    "m": {
+      "identity": 13,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": 1778624836,
+        "CreationDate": 1778624836,
+        "ChangeAction": "NOCHANGE",
+        "State": "NOTDEFINED",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13"
+    }
+  },
+  {
+    "n": {
+      "identity": 6,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelAggregates",
+        "Description": "$",
+        "p21_id": "#29",
+        "Name": "$",
+        "timestamp": "1",
+        "GlobalId": "1EUvEjTbj72x6vuDF2mgxW"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:6"
+    },
+    "r": {
+      "identity": 6924284427082137601,
+      "start": 6,
+      "end": 1,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatingObject",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6924284427082137601",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:6",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:1"
+    },
+    "m": {
+      "identity": 1,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "Description": "$",
+        "SiteAddress": "$",
+        "LandTitleNumber": "$",
+        "Representation": "$",
+        "CompositionType": "NOTDEFINED",
+        "Name": "Default Site",
+        "GlobalId": "2rwo_VsyT6RvUmJ3w2FYHi",
+        "EntityType": "IfcSite",
+        "ObjectType": "$",
+        "LongName": "$",
+        "RefElevation": NaN,
+        "RefLatitude": "$",
+        "RefLongitude": "$",
+        "p21_id": "#23",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:1"
+    }
+  },
+  {
+    "n": {
+      "identity": 6,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelAggregates",
+        "Description": "$",
+        "p21_id": "#29",
+        "Name": "$",
+        "timestamp": "1",
+        "GlobalId": "1EUvEjTbj72x6vuDF2mgxW"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:6"
+    },
+    "r": {
+      "identity": 6919780827454767106,
+      "start": 6,
+      "end": 2,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatedObjects",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6919780827454767106",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:6",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2"
+    },
+    "m": {
+      "identity": 2,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "Description": "$",
+        "BuildingAddress": "$",
+        "Representation": "$",
+        "CompositionType": "NOTDEFINED",
+        "Name": "Default Building",
+        "GlobalId": "3rBMV2KE5Djgsbtk4UId06",
+        "EntityType": "IfcBuilding",
+        "ObjectType": "$",
+        "LongName": "$",
+        "p21_id": "#28",
+        "ElevationOfTerrain": NaN,
+        "timestamp": "1",
+        "ElevationOfRefHeight": NaN
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2"
+    }
+  },
+  {
+    "n": {
+      "identity": 6,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelAggregates",
+        "Description": "$",
+        "p21_id": "#29",
+        "Name": "$",
+        "timestamp": "1",
+        "GlobalId": "1EUvEjTbj72x6vuDF2mgxW"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:6"
+    },
+    "r": {
+      "identity": 1152921504606846982,
+      "start": 6,
+      "end": 13,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846982",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:6",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13"
+    },
+    "m": {
+      "identity": 13,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": 1778624836,
+        "CreationDate": 1778624836,
+        "ChangeAction": "NOCHANGE",
+        "State": "NOTDEFINED",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13"
+    }
+  },
+  {
+    "n": {
+      "identity": 7,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelAggregates",
+        "Description": "$",
+        "p21_id": "#34",
+        "Name": "$",
+        "timestamp": "1",
+        "GlobalId": "18Th4B8TDBtAB4Yx8KPMGf"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:7"
+    },
+    "r": {
+      "identity": 6922032627268452354,
+      "start": 7,
+      "end": 2,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatingObject",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6922032627268452354",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:7",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2"
+    },
+    "m": {
+      "identity": 2,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "Description": "$",
+        "BuildingAddress": "$",
+        "Representation": "$",
+        "CompositionType": "NOTDEFINED",
+        "Name": "Default Building",
+        "GlobalId": "3rBMV2KE5Djgsbtk4UId06",
+        "EntityType": "IfcBuilding",
+        "ObjectType": "$",
+        "LongName": "$",
+        "p21_id": "#28",
+        "ElevationOfTerrain": NaN,
+        "timestamp": "1",
+        "ElevationOfRefHeight": NaN
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2"
+    }
+  },
+  {
+    "n": {
+      "identity": 7,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelAggregates",
+        "Description": "$",
+        "p21_id": "#34",
+        "Name": "$",
+        "timestamp": "1",
+        "GlobalId": "18Th4B8TDBtAB4Yx8KPMGf"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:7"
+    },
+    "r": {
+      "identity": 6922032627268452355,
+      "start": 7,
+      "end": 3,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatedObjects",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6922032627268452355",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:7",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:3"
+    },
+    "m": {
+      "identity": 3,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuildingStorey",
+        "ObjectType": "$",
+        "Elevation": 0.0,
+        "Description": "$",
+        "LongName": "$",
+        "Representation": "$",
+        "p21_id": "#33",
+        "CompositionType": "NOTDEFINED",
+        "Name": "Level 0",
+        "timestamp": "1",
+        "GlobalId": "3Zu5Bv0LOHrPC10026FoUj"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:3"
+    }
+  },
+  {
+    "n": {
+      "identity": 7,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelAggregates",
+        "Description": "$",
+        "p21_id": "#34",
+        "Name": "$",
+        "timestamp": "1",
+        "GlobalId": "18Th4B8TDBtAB4Yx8KPMGf"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:7"
+    },
+    "r": {
+      "identity": 1152921504606846983,
+      "start": 7,
+      "end": 4,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatedObjects",
+        "list_index": 1
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846983",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:7",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:4"
+    },
+    "m": {
+      "identity": 4,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuildingStorey",
+        "ObjectType": "$",
+        "Elevation": 4.0,
+        "Description": "$",
+        "LongName": "$",
+        "Representation": "$",
+        "p21_id": "#38",
+        "CompositionType": "NOTDEFINED",
+        "Name": "Level 1",
+        "timestamp": "1",
+        "GlobalId": "15Z0v90RiHrPC20026FoUj"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:4"
+    }
+  },
+  {
+    "n": {
+      "identity": 7,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelAggregates",
+        "Description": "$",
+        "p21_id": "#34",
+        "Name": "$",
+        "timestamp": "1",
+        "GlobalId": "18Th4B8TDBtAB4Yx8KPMGf"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:7"
+    },
+    "r": {
+      "identity": 1155173304420532231,
+      "start": 7,
+      "end": 13,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532231",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:7",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13"
+    },
+    "m": {
+      "identity": 13,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": 1778624836,
+        "CreationDate": 1778624836,
+        "ChangeAction": "NOCHANGE",
+        "State": "NOTDEFINED",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13"
+    }
+  },
+  {
+    "n": {
+      "identity": 10,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPersonAndOrganization",
+        "Roles": "$",
+        "p21_id": "#4",
+        "Name": "Unknown Sandy",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:10"
+    },
+    "r": {
+      "identity": 1152921504606846986,
+      "start": 10,
+      "end": 8,
+      "type": "rel",
+      "properties": {
+        "rel_type": "ThePerson",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846986",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:10",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:8"
+    },
+    "m": {
+      "identity": 8,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPerson",
+        "Addresses": "$",
+        "FamilyName": "$",
+        "PrefixTitles": "$",
+        "GivenName": "$",
+        "Identification": "Sandy",
+        "Roles": "$",
+        "p21_id": "#2",
+        "SuffixTitles": "$",
+        "MiddleNames": "$",
+        "Name": "Sandy",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:8"
+    }
+  },
+  {
+    "n": {
+      "identity": 10,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPersonAndOrganization",
+        "Roles": "$",
+        "p21_id": "#4",
+        "Name": "Unknown Sandy",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:10"
+    },
+    "r": {
+      "identity": 1155173304420532234,
+      "start": 10,
+      "end": 9,
+      "type": "rel",
+      "properties": {
+        "rel_type": "TheOrganization",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532234",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:10",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:9"
+    },
+    "m": {
+      "identity": 9,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOrganization",
+        "Addresses": "$",
+        "Description": "$",
+        "Identification": "$",
+        "Roles": "$",
+        "p21_id": "#3",
+        "Name": "Unknown",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:9"
+    }
+  },
+  {
+    "n": {
+      "identity": 12,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcApplication",
+        "Version": " v0.1.22.0",
+        "ApplicationFullName": "GeometryGymIFC v0.1.22.0",
+        "p21_id": "#6",
+        "ApplicationIdentifier": "GeometryGymIFC v0.1.22.0",
+        "Name": "GeometryGymIFC v0.1.22.0",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:12"
+    },
+    "r": {
+      "identity": 1152921504606846988,
+      "start": 12,
+      "end": 11,
+      "type": "rel",
+      "properties": {
+        "rel_type": "ApplicationDeveloper",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846988",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:12",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:11"
+    },
+    "m": {
+      "identity": 11,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOrganization",
+        "Addresses": "$",
+        "Description": "$",
+        "Identification": "$",
+        "Roles": "$",
+        "p21_id": "#5",
+        "Name": "Geometry Gym Pty Ltd",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:11"
+    }
+  },
+  {
+    "n": {
+      "identity": 13,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": 1778624836,
+        "CreationDate": 1778624836,
+        "ChangeAction": "NOCHANGE",
+        "State": "NOTDEFINED",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13"
+    },
+    "r": {
+      "identity": 6922032627268452362,
+      "start": 13,
+      "end": 10,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwningUser",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6922032627268452362",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:10"
+    },
+    "m": {
+      "identity": 10,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPersonAndOrganization",
+        "Roles": "$",
+        "p21_id": "#4",
+        "Name": "Unknown Sandy",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:10"
+    }
+  },
+  {
+    "n": {
+      "identity": 13,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": 1778624836,
+        "CreationDate": 1778624836,
+        "ChangeAction": "NOCHANGE",
+        "State": "NOTDEFINED",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13"
+    },
+    "r": {
+      "identity": 6919780827454767116,
+      "start": 13,
+      "end": 12,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwningApplication",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6919780827454767116",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:12"
+    },
+    "m": {
+      "identity": 12,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcApplication",
+        "Version": " v0.1.22.0",
+        "ApplicationFullName": "GeometryGymIFC v0.1.22.0",
+        "p21_id": "#6",
+        "ApplicationIdentifier": "GeometryGymIFC v0.1.22.0",
+        "Name": "GeometryGymIFC v0.1.22.0",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:12"
+    }
+  },
+  {
+    "n": {
+      "identity": 17,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcUnitAssignment",
+        "p21_id": "#11",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:17"
+    },
+    "r": {
+      "identity": 1152921504606846993,
+      "start": 17,
+      "end": 14,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Units",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846993",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:17",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:14"
+    },
+    "m": {
+      "identity": 14,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcSIUnit",
+        "UnitType": "LENGTHUNIT",
+        "Dimensions": "$",
+        "Prefix": "NONE",
+        "p21_id": "#8",
+        "Name": "METRE",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:14"
+    }
+  },
+  {
+    "n": {
+      "identity": 17,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcUnitAssignment",
+        "p21_id": "#11",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:17"
+    },
+    "r": {
+      "identity": 1155173304420532241,
+      "start": 17,
+      "end": 15,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Units",
+        "list_index": 1
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532241",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:17",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:15"
+    },
+    "m": {
+      "identity": 15,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcSIUnit",
+        "UnitType": "AREAUNIT",
+        "Dimensions": "$",
+        "Prefix": "NONE",
+        "p21_id": "#9",
+        "Name": "SQUARE_METRE",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:15"
+    }
+  },
+  {
+    "n": {
+      "identity": 17,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcUnitAssignment",
+        "p21_id": "#11",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:17"
+    },
+    "r": {
+      "identity": 1157425104234217489,
+      "start": 17,
+      "end": 16,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Units",
+        "list_index": 2
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217489",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:17",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:16"
+    },
+    "m": {
+      "identity": 16,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcSIUnit",
+        "UnitType": "VOLUMEUNIT",
+        "Dimensions": "$",
+        "Prefix": "NONE",
+        "p21_id": "#10",
+        "Name": "CUBIC_METRE",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:16"
+    }
+  },
+  {
+    "n": {
+      "identity": 18,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcGeometricRepresentationContext",
+        "ContextType": "Model",
+        "Precision": 0.0001,
+        "ContextIdentifier": "$",
+        "p21_id": "#12",
+        "CoordinateSpaceDimension": 3,
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:18"
+    },
+    "r": {
+      "identity": 1152921504606846994,
+      "start": 18,
+      "end": 20,
+      "type": "rel",
+      "properties": {
+        "rel_type": "WorldCoordinateSystem",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846994",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:18",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:20"
+    },
+    "m": {
+      "identity": 20,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcAxis2Placement3D",
+        "RefDirection": "$",
+        "p21_id": "#14",
+        "Axis": "$",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:20"
+    }
+  },
+  {
+    "n": {
+      "identity": 18,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcGeometricRepresentationContext",
+        "ContextType": "Model",
+        "Precision": 0.0001,
+        "ContextIdentifier": "$",
+        "p21_id": "#12",
+        "CoordinateSpaceDimension": 3,
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:18"
+    },
+    "r": {
+      "identity": 1155173304420532242,
+      "start": 18,
+      "end": 21,
+      "type": "rel",
+      "properties": {
+        "rel_type": "TrueNorth",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532242",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:18",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:21"
+    },
+    "m": {
+      "identity": 21,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcDirection",
+        "DirectionRatios": "(0,1)",
+        "p21_id": "#15",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:21"
+    }
+  },
+  {
+    "n": {
+      "identity": 20,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcAxis2Placement3D",
+        "RefDirection": "$",
+        "p21_id": "#14",
+        "Axis": "$",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:20"
+    },
+    "r": {
+      "identity": 1152921504606846996,
+      "start": 20,
+      "end": 19,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Location",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846996",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:20",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:19"
+    },
+    "m": {
+      "identity": 19,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcCartesianPoint",
+        "Coordinates": "(0,0,0)",
+        "p21_id": "#13",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:19"
+    }
+  },
+  {
+    "n": {
+      "identity": 22,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcGeometricRepresentationSubContext",
+        "ContextType": "Model",
+        "TargetScale": NaN,
+        "Precision": 1e-8,
+        "ContextIdentifier": "Body",
+        "TargetView": "MODEL_VIEW",
+        "WorldCoordinateSystem": "$",
+        "TrueNorth": "$",
+        "p21_id": "#16",
+        "UserDefinedTargetView": "$",
+        "CoordinateSpaceDimension": 0,
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:22"
+    },
+    "r": {
+      "identity": 6922032627268452370,
+      "start": 22,
+      "end": 18,
+      "type": "rel",
+      "properties": {
+        "rel_type": "ParentContext",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6922032627268452370",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:22",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:18"
+    },
+    "m": {
+      "identity": 18,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcGeometricRepresentationContext",
+        "ContextType": "Model",
+        "Precision": 0.0001,
+        "ContextIdentifier": "$",
+        "p21_id": "#12",
+        "CoordinateSpaceDimension": 3,
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:18"
+    }
+  },
+  {
+    "n": {
+      "identity": 23,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcGeometricRepresentationSubContext",
+        "ContextType": "Model",
+        "TargetScale": NaN,
+        "Precision": 1e-8,
+        "ContextIdentifier": "Axis",
+        "TargetView": "GRAPH_VIEW",
+        "WorldCoordinateSystem": "$",
+        "TrueNorth": "$",
+        "p21_id": "#17",
+        "UserDefinedTargetView": "$",
+        "CoordinateSpaceDimension": 0,
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:23"
+    },
+    "r": {
+      "identity": 6924284427082137618,
+      "start": 23,
+      "end": 18,
+      "type": "rel",
+      "properties": {
+        "rel_type": "ParentContext",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6924284427082137618",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:23",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:18"
+    },
+    "m": {
+      "identity": 18,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcGeometricRepresentationContext",
+        "ContextType": "Model",
+        "Precision": 0.0001,
+        "ContextIdentifier": "$",
+        "p21_id": "#12",
+        "CoordinateSpaceDimension": 3,
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:18"
+    }
+  },
+  {
+    "n": {
+      "identity": 24,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcGeometricRepresentationSubContext",
+        "ContextType": "Model",
+        "TargetScale": NaN,
+        "Precision": 1e-8,
+        "ContextIdentifier": "Box",
+        "TargetView": "MODEL_VIEW",
+        "WorldCoordinateSystem": "$",
+        "TrueNorth": "$",
+        "p21_id": "#18",
+        "UserDefinedTargetView": "$",
+        "CoordinateSpaceDimension": 0,
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:24"
+    },
+    "r": {
+      "identity": 6926536226895822866,
+      "start": 24,
+      "end": 18,
+      "type": "rel",
+      "properties": {
+        "rel_type": "ParentContext",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6926536226895822866",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:24",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:18"
+    },
+    "m": {
+      "identity": 18,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcGeometricRepresentationContext",
+        "ContextType": "Model",
+        "Precision": 0.0001,
+        "ContextIdentifier": "$",
+        "p21_id": "#12",
+        "CoordinateSpaceDimension": 3,
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:18"
+    }
+  },
+  {
+    "n": {
+      "identity": 25,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcGeometricRepresentationSubContext",
+        "ContextType": "Model",
+        "TargetScale": NaN,
+        "Precision": 1e-8,
+        "ContextIdentifier": "FootPrint",
+        "TargetView": "MODEL_VIEW",
+        "WorldCoordinateSystem": "$",
+        "TrueNorth": "$",
+        "p21_id": "#19",
+        "UserDefinedTargetView": "$",
+        "CoordinateSpaceDimension": 0,
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:25"
+    },
+    "r": {
+      "identity": 6928788026709508114,
+      "start": 25,
+      "end": 18,
+      "type": "rel",
+      "properties": {
+        "rel_type": "ParentContext",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6928788026709508114",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:25",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:18"
+    },
+    "m": {
+      "identity": 18,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcGeometricRepresentationContext",
+        "ContextType": "Model",
+        "Precision": 0.0001,
+        "ContextIdentifier": "$",
+        "p21_id": "#12",
+        "CoordinateSpaceDimension": 3,
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:18"
+    }
+  },
+  {
+    "n": {
+      "identity": 65,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcAxis2Placement3D",
+        "RefDirection": "$",
+        "p21_id": "#21",
+        "Axis": "$",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:65"
+    },
+    "r": {
+      "identity": 1152921504606847041,
+      "start": 65,
+      "end": 64,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Location",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606847041",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:65",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:64"
+    },
+    "m": {
+      "identity": 64,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcCartesianPoint",
+        "Coordinates": "(0,0,0)",
+        "p21_id": "#20",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:64"
+    }
+  },
+  {
+    "n": {
+      "identity": 66,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "PlacementRelTo": "$",
+        "p21_id": "#22",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:66"
+    },
+    "r": {
+      "identity": 6919780827454767169,
+      "start": 66,
+      "end": 65,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelativePlacement",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6919780827454767169",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:66",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:65"
+    },
+    "m": {
+      "identity": 65,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcAxis2Placement3D",
+        "RefDirection": "$",
+        "p21_id": "#21",
+        "Axis": "$",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:65"
+    }
+  },
+  {
+    "n": {
+      "identity": 68,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcAxis2Placement3D",
+        "RefDirection": "$",
+        "p21_id": "#26",
+        "Axis": "$",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:68"
+    },
+    "r": {
+      "identity": 1152921504606847044,
+      "start": 68,
+      "end": 67,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Location",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606847044",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:68",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:67"
+    },
+    "m": {
+      "identity": 67,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcCartesianPoint",
+        "Coordinates": "(0,0,0)",
+        "p21_id": "#25",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:67"
+    }
+  },
+  {
+    "n": {
+      "identity": 69,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#27",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:69"
+    },
+    "r": {
+      "identity": 1152921504606847045,
+      "start": 69,
+      "end": 66,
+      "type": "rel",
+      "properties": {
+        "rel_type": "PlacementRelTo",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606847045",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:69",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:66"
+    },
+    "m": {
+      "identity": 66,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "PlacementRelTo": "$",
+        "p21_id": "#22",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:66"
+    }
+  },
+  {
+    "n": {
+      "identity": 69,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#27",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:69"
+    },
+    "r": {
+      "identity": 6919780827454767172,
+      "start": 69,
+      "end": 68,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelativePlacement",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6919780827454767172",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:69",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:68"
+    },
+    "m": {
+      "identity": 68,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcAxis2Placement3D",
+        "RefDirection": "$",
+        "p21_id": "#26",
+        "Axis": "$",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:68"
+    }
+  },
+  {
+    "n": {
+      "identity": 71,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcAxis2Placement3D",
+        "RefDirection": "$",
+        "p21_id": "#31",
+        "Axis": "$",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:71"
+    },
+    "r": {
+      "identity": 1152921504606847047,
+      "start": 71,
+      "end": 70,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Location",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606847047",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:71",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:70"
+    },
+    "m": {
+      "identity": 70,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcCartesianPoint",
+        "Coordinates": "(0,0,0)",
+        "p21_id": "#30",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:70"
+    }
+  },
+  {
+    "n": {
+      "identity": 72,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#32",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:72"
+    },
+    "r": {
+      "identity": 6922032627268452421,
+      "start": 72,
+      "end": 69,
+      "type": "rel",
+      "properties": {
+        "rel_type": "PlacementRelTo",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6922032627268452421",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:72",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:69"
+    },
+    "m": {
+      "identity": 69,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#27",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:69"
+    }
+  },
+  {
+    "n": {
+      "identity": 72,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#32",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:72"
+    },
+    "r": {
+      "identity": 6919780827454767175,
+      "start": 72,
+      "end": 71,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelativePlacement",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6919780827454767175",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:72",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:71"
+    },
+    "m": {
+      "identity": 71,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcAxis2Placement3D",
+        "RefDirection": "$",
+        "p21_id": "#31",
+        "Axis": "$",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:71"
+    }
+  },
+  {
+    "n": {
+      "identity": 74,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcAxis2Placement3D",
+        "RefDirection": "$",
+        "p21_id": "#36",
+        "Axis": "$",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:74"
+    },
+    "r": {
+      "identity": 1152921504606847050,
+      "start": 74,
+      "end": 73,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Location",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606847050",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:74",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:73"
+    },
+    "m": {
+      "identity": 73,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcCartesianPoint",
+        "Coordinates": "(0,0,0)",
+        "p21_id": "#35",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:73"
+    }
+  },
+  {
+    "n": {
+      "identity": 75,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#37",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:75"
+    },
+    "r": {
+      "identity": 6924284427082137669,
+      "start": 75,
+      "end": 69,
+      "type": "rel",
+      "properties": {
+        "rel_type": "PlacementRelTo",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6924284427082137669",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:75",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:69"
+    },
+    "m": {
+      "identity": 69,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#27",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:69"
+    }
+  },
+  {
+    "n": {
+      "identity": 75,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#37",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:75"
+    },
+    "r": {
+      "identity": 6919780827454767178,
+      "start": 75,
+      "end": 74,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelativePlacement",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6919780827454767178",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:75",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:74"
+    },
+    "m": {
+      "identity": 74,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcAxis2Placement3D",
+        "RefDirection": "$",
+        "p21_id": "#36",
+        "Axis": "$",
+        "timestamp": "1"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:74"
+    }
+  }
+]

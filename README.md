@@ -9,6 +9,22 @@ A Revit 2025 add-in that translates native Revit elements into IFC entities and 
  (Revit API)       (GeometryGym)      (ConMan2 schema)     (Neo4j.Driver)
 ```
 
+## Quick start
+
+Assuming Revit 2025 + .NET 8 SDK + Neo4j Desktop are already installed:
+
+```powershell
+# 1. Set Neo4j password (User scope, so Revit launched from the Start menu inherits it).
+[Environment]::SetEnvironmentVariable("NEO4J_PASSWORD", "<your-password>", "User")
+
+# 2. Build. The Debug build auto-deploys the DLL + .addin to
+#    %AppData%\Autodesk\Revit\Addins\2025\.
+dotnet restore
+dotnet build RevitGraphPlugin.sln -c Debug
+```
+
+Then start a Neo4j instance in Neo4j Desktop, launch Revit 2025 from the Start menu, open or create an Architectural project, and click **Sync current doc** on the `RevitGraphPlugin` ribbon. A TaskDialog reports the node and edge counts written to Neo4j.
+
 ## Stack
 
 | Component   | Version                         |
@@ -46,12 +62,15 @@ RevitGraphPlugin/
 └── README.md
 ```
 
-## Runtime flow (current skeleton)
+## Runtime flow
 
 1. Revit 2025 loads `RevitGraphPlugin.addin` from `%AppData%\Autodesk\Revit\Addins\2025\`.
-2. `RevitGraphApp.OnStartup` builds a Neo4j driver from environment variables (`NEO4J_URI`, `NEO4J_USER`, `NEO4J_PASSWORD`) and registers a `RevitGraphPlugin` ribbon tab with a single button.
-3. Pressing the button runs `SyncCommand`, which calls `VerifyConnectivityAsync` off the UI thread (10 s timeout) and shows a `Neo4j connection OK.` TaskDialog on success.
-4. `OnShutdown` disposes the driver.
+2. `RevitGraphApp.OnStartup` builds a Neo4j driver from `NEO4J_URI` / `NEO4J_USER` / `NEO4J_PASSWORD` and registers the "Sync current doc" ribbon button.
+3. The button runs `SyncCommand`:
+   - `BoilerplateBuilder` reads `ProjectInformation` + Levels and constructs an in-memory IFC4 tree via GeometryGym.Ifc (`IfcProject` + `IfcSite` + `IfcBuilding` + `IfcBuildingStorey × N` + `IfcUnitAssignment` + `IfcGeometricRepresentationContext` + 4 SubContexts + the `IfcOwnerHistory` chain).
+   - `CypherEmitter` walks the tree, classifies entities by ConMan2's rules (`PrimaryNode` / `ConnectionNode` / `SecondaryNode`), and `MERGE`s nodes plus `[:rel {rel_type, list_index}]` edges into Neo4j off the UI thread (60 s timeout).
+   - A `TaskDialog` reports node and edge counts.
+4. Per-element subgraphs (Wall, Window, …) are not yet implemented — that is the next stage.
 
 ## Branches
 
@@ -69,25 +88,9 @@ Prerequisites:
 
 Add-in registration is automatic for Debug builds (see Build below).
 
-## Build
-
-```powershell
-dotnet restore
-dotnet build RevitGraphPlugin.sln -c Debug
-```
-
-The Debug build runs a post-build target that copies `RevitGraphPlugin.dll`, its `.addin` manifest, and runtime NuGet dependencies (`Neo4j.Driver.dll`, `GeometryGymIFC.dll`, …) into `%AppData%\Autodesk\Revit\Addins\2025\`. `RevitAPI` / `RevitAPIUI` are referenced with `Private=false` — Revit loads them from its own install directory.
-
-Override the Revit install path if it differs:
-
-```powershell
-$env:RevitInstallPath2025 = "C:\Program Files\Autodesk\Revit 2025\"
-dotnet build RevitGraphPlugin.sln -c Debug
-```
-
 ## Neo4j credentials
 
-The plugin and `Neo4jSmokeTest` both read three environment variables; only `NEO4J_PASSWORD` is required.
+The plugin reads three environment variables; only `NEO4J_PASSWORD` is required.
 
 | Variable         | Default                  | Notes                              |
 | ---------------- | ------------------------ | ---------------------------------- |
@@ -95,22 +98,35 @@ The plugin and `Neo4jSmokeTest` both read three environment variables; only `NEO
 | `NEO4J_USER`     | `neo4j`                  |                                    |
 | `NEO4J_PASSWORD` | —                        | required, no default               |
 
-**Smoke test (process scope, current PowerShell only):**
+## Build notes
+
+The `dotnet build` Debug command in the Quick start runs an after-build target that copies the DLL, `.addin` manifest, and NuGet runtime dependencies (`Neo4j.Driver.dll`, `GeometryGymIFC.dll`, …) into `%AppData%\Autodesk\Revit\Addins\2025\`. `RevitAPI` / `RevitAPIUI` are referenced with `Private=false` — Revit loads them from its own install directory.
+
+Override the Revit install path if it differs from `D:\Autodesk\Revit 2025\`:
 
 ```powershell
-$env:NEO4J_PASSWORD = "<your-password>"
-dotnet run --project tools/Neo4jSmokeTest
+$env:RevitInstallPath2025 = "C:\Program Files\Autodesk\Revit 2025\"
+dotnet build RevitGraphPlugin.sln -c Debug
 ```
 
-A successful run prints `hello = 1` and exits with code `0`. Use this to confirm Neo4j is reachable before launching Revit.
+## Verify and troubleshoot
 
-**Revit (User scope, persistent — Revit is launched outside any shell):**
+After clicking **Sync current doc**, the TaskDialog reports the node and edge counts. Verify the write in Neo4j Browser:
 
-```powershell
-[Environment]::SetEnvironmentVariable("NEO4J_PASSWORD", "<your-password>", "User")
+```cypher
+MATCH (n) RETURN n.EntityType AS entity, count(*) AS n ORDER BY n DESC;
 ```
 
-Set this once per machine; Revit launched via Start menu / desktop shortcut inherits User-scope variables. Process-scope (`$env:`) is _not_ visible to Revit. After setting, restart any already-open Revit / VS / terminal so they pick up the new value.
+Expect `IfcProject`, `IfcSite`, `IfcBuilding`, `IfcBuildingStorey`, `IfcUnitAssignment`, `IfcSIUnit`, `IfcGeometricRepresentationContext`, `IfcGeometricRepresentationSubContext`, plus the placement and ownership chain. Compare counts against [`data/samples/cypher/BASELINE.md`](data/samples/cypher/BASELINE.md).
+
+### Troubleshooting
+
+| Symptom                                      | Likely cause                                                                                                                                                             |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Build fails finding `RevitAPI.dll`           | Revit not at `D:\Autodesk\Revit 2025\` — set `$env:RevitInstallPath2025` before `dotnet build`.                                                                          |
+| Ribbon tab missing after launch              | Debug build did not deploy (Release build skips the deploy target); check `%AppData%\Autodesk\Revit\Addins\2025\` for `RevitGraphPlugin.addin` + `RevitGraphPlugin.dll`. |
+| TaskDialog "Neo4j connector not initialised" | `NEO4J_PASSWORD` not set, or set as process-scope only — re-set with `[Environment]::SetEnvironmentVariable(..., "User")` and restart Revit.                             |
+| TaskDialog "Neo4j connectivity failed"       | Instance not running, password wrong, or backend still warming up — wait 10–20 s after starting the instance.                                                            |
 
 ## Acknowledgements
 

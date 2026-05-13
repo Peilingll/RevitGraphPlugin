@@ -66,6 +66,25 @@ public static class EntityWalker
         "EngagedIn",
         // IfcMaterial-related
         "AssociatedTo", "HasRepresentation", "IsRelatedWith", "RelatesTo",
+        // IfcObjectPlacement / IfcConstraint / IfcExternal* — caught in plugin-vs-baseline diff
+        "PlacesObject", "ReferencedByPlacements",
+        "HasConstraintRelationships",
+        "HasExternalReference", "HasExternalReferences",
+        "ReferencedInStructures",
+    };
+
+    /// <summary>
+    /// ggifc convenience accessors that flatten list-valued IFC attributes into per-axis
+    /// scalars (e.g. <c>IfcCartesianPoint.CoordinateX</c>). The forward IFC attributes
+    /// (<c>Coordinates</c>, <c>DirectionRatios</c>) are emitted as the canonical
+    /// <c>"(x,y,z)"</c> tuple-string; the scalars are redundant and would cause merge
+    /// mismatches against ConMan2.
+    /// </summary>
+    private static readonly HashSet<string> GgIfcConvenienceAccessors = new(StringComparer.Ordinal)
+    {
+        "CoordinateX", "CoordinateY", "CoordinateZ",          // IfcCartesianPoint
+        "DirectionRatioX", "DirectionRatioY", "DirectionRatioZ", // IfcDirection
+        "SIFactor",                                            // IfcSIUnit prefix factor (computed)
     };
 
     /// <summary>
@@ -96,6 +115,7 @@ public static class EntityWalker
 
             if (GgIfcInternals.Contains(name)) continue;
             if (InverseRelationships.Contains(name)) continue;
+            if (GgIfcConvenienceAccessors.Contains(name)) continue;
             if (name == "GlobalId" || name == "EntityType") continue;
 
             // Skip indexers / write-only / has parameters
@@ -139,6 +159,15 @@ public static class EntityWalker
         if (value is Enum enumValue)
         {
             props[name] = enumValue.ToString().ToUpperInvariant();
+            return;
+        }
+
+        // DateTime  →  Unix epoch seconds (matches ConMan2's IfcTimeStamp encoding,
+        // which keeps the raw integer from the .ifc STEP file).
+        if (value is DateTime dt)
+        {
+            var utc = dt.Kind == DateTimeKind.Utc ? dt : dt.ToUniversalTime();
+            props[name] = new DateTimeOffset(utc, TimeSpan.Zero).ToUnixTimeSeconds();
             return;
         }
 
