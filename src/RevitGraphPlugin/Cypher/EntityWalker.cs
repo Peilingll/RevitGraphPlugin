@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Reflection;
 using GeometryGym.Ifc;
+using RevitGraphPlugin.Ifc;
 
 namespace RevitGraphPlugin.Cypher;
 
@@ -26,65 +27,13 @@ public sealed record EntityData(
 public static class EntityWalker
 {
     /// <summary>
-    /// Properties exposed by ggifc's base classes that are NOT IFC schema attributes.
+    /// ggifc framework properties that are not part of any IFC schema. These would
+    /// never appear in <see cref="Ifc4Schema"/>, but checking here short-circuits the
+    /// whitelist lookup and keeps the filter explicit.
     /// </summary>
     private static readonly HashSet<string> GgIfcInternals = new(StringComparer.Ordinal)
     {
         "Database", "Index", "StepId", "StepClassName", "Json", "Guid",
-    };
-
-    /// <summary>
-    /// IFC4 INVERSE relationships. These are derived views back from IfcRel* entities;
-    /// the forward edge is emitted by the relationship entity itself, so skip here to
-    /// avoid double-counting.
-    /// </summary>
-    private static readonly HashSet<string> InverseRelationships = new(StringComparer.Ordinal)
-    {
-        // IfcObjectDefinition
-        "HasAssignments", "Nests", "IsNestedBy", "HasContext",
-        "IsDecomposedBy", "Decomposes", "HasAssociations",
-        // IfcObject
-        "IsDeclaredBy", "Declares", "IsDefinedBy", "IsTypedBy",
-        // IfcProduct
-        "ReferencedBy", "PositionedRelativeTo",
-        // IfcSpatialElement
-        "ContainsElements", "ServicedBySystems", "ReferencesElements",
-        // IfcElement
-        "FillsVoids", "ConnectedTo", "IsInterferedByElements", "InterferesElements",
-        "HasProjections", "HasOpenings", "IsConnectionRealization",
-        "ProvidesBoundaries", "ConnectedFrom", "ContainedInStructure", "HasCoverings",
-        // IfcRepresentationItem
-        "StyledByItem", "LayerAssignment",
-        // IfcRepresentationContext
-        "RepresentationsInContext", "HasSubContexts", "HasCoordinateOperation",
-        // IfcPropertyDefinition / IfcPropertySet
-        "PartOfPset", "PropertyForDependance", "PropertyDependsOn", "PartOfComplex",
-        "Definitions",
-        // IfcTypeObject
-        "Types",
-        // IfcActor
-        "EngagedIn",
-        // IfcMaterial-related
-        "AssociatedTo", "HasRepresentation", "IsRelatedWith", "RelatesTo",
-        // IfcObjectPlacement / IfcConstraint / IfcExternal* — caught in plugin-vs-baseline diff
-        "PlacesObject", "ReferencedByPlacements",
-        "HasConstraintRelationships",
-        "HasExternalReference", "HasExternalReferences",
-        "ReferencedInStructures",
-    };
-
-    /// <summary>
-    /// ggifc convenience accessors that flatten list-valued IFC attributes into per-axis
-    /// scalars (e.g. <c>IfcCartesianPoint.CoordinateX</c>). The forward IFC attributes
-    /// (<c>Coordinates</c>, <c>DirectionRatios</c>) are emitted as the canonical
-    /// <c>"(x,y,z)"</c> tuple-string; the scalars are redundant and would cause merge
-    /// mismatches against ConMan2.
-    /// </summary>
-    private static readonly HashSet<string> GgIfcConvenienceAccessors = new(StringComparer.Ordinal)
-    {
-        "CoordinateX", "CoordinateY", "CoordinateZ",          // IfcCartesianPoint
-        "DirectionRatioX", "DirectionRatioY", "DirectionRatioZ", // IfcDirection
-        "SIFactor",                                            // IfcSIUnit prefix factor (computed)
     };
 
     /// <summary>
@@ -114,8 +63,7 @@ public static class EntityWalker
             var name = prop.Name;
 
             if (GgIfcInternals.Contains(name)) continue;
-            if (InverseRelationships.Contains(name)) continue;
-            if (GgIfcConvenienceAccessors.Contains(name)) continue;
+            if (!Ifc4Schema.IsSchemaAttribute(entityType, name)) continue;
             if (name == "GlobalId" || name == "EntityType") continue;
 
             // Skip indexers / write-only / has parameters
