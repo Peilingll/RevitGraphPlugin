@@ -49,6 +49,11 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\data\schema\ifc4_attributes.json"
+                      LogicalName="RevitGraphPlugin.Schema.ifc4_attributes.json" />
+  </ItemGroup>
+
   <Target Name="DeployToRevitAddins" AfterTargets="Build" Condition="'$(Configuration)' == 'Debug'">
     <PropertyGroup>
       <RevitAddinsDir>$(APPDATA)\Autodesk\Revit\Addins\2025\</RevitAddinsDir>
