@@ -110,13 +110,16 @@ public static class RevitOwnerHistory
         var (familyName, givenName) = ParseAuthor(src.Author);
         person.GivenName = givenName;
         person.FamilyName = familyName;
-        TrySetToNull(person, "Identification");
+        SetNullableString(person, "Identification", null);
 
         // User Organization — revit-ifc Exporter.cs L3233. Name and Description are
         // null for an Architectural template with no OrganizationName configured.
+        // ggifc rejects null on these fields and substitutes "UNKNOWN"; we bypass
+        // its validator by writing the backing field directly when the source value
+        // is null (see SetNullableString below).
         var userOrg = ownerHistory.OwningUser.TheOrganization;
-        TrySetNullableString(userOrg, "Name", src.OrganizationName);
-        TrySetNullableString(userOrg, "Description", src.OrganizationDescription);
+        SetNullableString(userOrg, "Name", src.OrganizationName);
+        SetNullableString(userOrg, "Description", src.OrganizationDescription);
 
         // Application — revit-ifc Exporter.cs L2884-L2886.
         var application = ownerHistory.OwningApplication;
@@ -190,52 +193,69 @@ public static class RevitOwnerHistory
     /// </summary>
     private static bool TrySetStateNull(IfcOwnerHistory history)
     {
-        var type = typeof(IfcOwnerHistory);
-        // ggifc usually names backing fields with an "m" prefix, e.g. mState.
-        foreach (var candidate in new[] { "mState", "_State", "_state", "state" })
+        var field = FindBackingField(typeof(IfcOwnerHistory), "State");
+        if (field is null) return false;
+        try
         {
-            var field = type.GetField(candidate, BindingFlags.NonPublic | BindingFlags.Instance);
-            if (field is null) continue;
-            try
-            {
-                field.SetValue(history, null);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            field.SetValue(history, null);
+            return true;
         }
-        return false;
-    }
-
-    /// <summary>
-    /// Try to write null to a string-valued property by name. Useful for
-    /// <c>IfcPerson.Identification</c> and friends where ggifc may have either
-    /// a nullable-string setter (works) or a typed value struct (rejects null).
-    /// </summary>
-    private static void TrySetToNull(object target, string propertyName)
-    {
-        var prop = target.GetType().GetProperty(propertyName);
-        if (prop is null || !prop.CanWrite) return;
-        try { prop.SetValue(target, null); }
-        catch { /* leave whatever ggifc had as the default */ }
-    }
-
-    /// <summary>
-    /// Set a nullable string property: prefer null when the input is null;
-    /// otherwise write the supplied value. ggifc occasionally rejects null on
-    /// fields it treats as required — fall back to empty string in that case.
-    /// </summary>
-    private static void TrySetNullableString(object target, string propertyName, string? value)
-    {
-        var prop = target.GetType().GetProperty(propertyName);
-        if (prop is null || !prop.CanWrite) return;
-        try { prop.SetValue(target, value); }
         catch
         {
-            try { prop.SetValue(target, ""); } catch { /* give up silently */ }
+            return false;
         }
+    }
+
+    /// <summary>
+    /// Write a string property whose Revit-baseline value can be null. Non-null
+    /// values go through the public setter (which lets ggifc run its validation);
+    /// null values bypass the validator by writing the backing field directly.
+    /// ggifc tends to substitute placeholders like "UNKNOWN" when given null, so
+    /// the backing-field write is the only way to match Revit's STEP <c>$</c>
+    /// output exactly.
+    /// </summary>
+    private static void SetNullableString(object target, string propertyName, string? value)
+    {
+        var type = target.GetType();
+        var prop = type.GetProperty(propertyName);
+
+        if (value is not null && prop is not null && prop.CanWrite)
+        {
+            try { prop.SetValue(target, value); return; }
+            catch { /* fall through to backing-field write */ }
+        }
+
+        var field = FindBackingField(type, propertyName);
+        if (field is null) return;
+        try { field.SetValue(target, value); }
+        catch { /* give up — ggifc default remains */ }
+    }
+
+    /// <summary>
+    /// Walk the inheritance chain looking for ggifc's private backing field for a
+    /// given property name. ggifc convention is an "m" prefix (e.g. <c>mName</c>),
+    /// but we also try other common patterns so the helper survives a refactor.
+    /// </summary>
+    private static FieldInfo? FindBackingField(Type? type, string propertyName)
+    {
+        var candidates = new[]
+        {
+            "m" + propertyName,
+            "_" + propertyName,
+            char.ToLowerInvariant(propertyName[0]) + propertyName.Substring(1),
+        };
+        while (type is not null)
+        {
+            foreach (var name in candidates)
+            {
+                var field = type.GetField(
+                    name,
+                    BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+                if (field is not null) return field;
+            }
+            type = type.BaseType;
+        }
+        return null;
     }
 
     /// <summary>

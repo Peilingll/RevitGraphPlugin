@@ -27,4 +27,21 @@
     <ProjectReference Include="..\..\src\RevitGraphPlugin\RevitGraphPlugin.csproj" />
   </ItemGroup>
 
+  <!-- RevitAPI is needed at compile time only so overload resolution can see the
+       Document-taking overloads exposed by the plugin (e.g. RevitOwnerHistory.Override).
+       Tests never touch a Document at runtime, so we keep the same Private=false /
+       ExcludeAssets=runtime stance as the main csproj — the DLL is never deployed
+       next to the test assembly. -->
+  <PropertyGroup>
+    <RevitInstallPath2025 Condition="'$(RevitInstallPath2025)' == ''">D:\Autodesk\Revit 2025\</RevitInstallPath2025>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="RevitAPI">
+      <HintPath>$(RevitInstallPath2025)RevitAPI.dll</HintPath>
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </Reference>
+  </ItemGroup>
+
 </Project>
