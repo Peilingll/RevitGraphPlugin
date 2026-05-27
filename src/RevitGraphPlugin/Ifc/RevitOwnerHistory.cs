@@ -104,6 +104,14 @@ public static class RevitOwnerHistory
         // log; not a blocking issue for the rest of the chain.
         StateWasClearedToNull = TrySetStateNull(ownerHistory);
 
+        // LastModifiedDate / LastModifyingUser / LastModifyingApplication — Revit's
+        // first export leaves all three null (Exporter.cs L3244 passes nulls for the
+        // modification trio). ggifc auto-fills LastModifiedDate with CreationDate's
+        // timestamp; clear via the backing field so STEP emits $ instead of an int.
+        ClearBackingField(ownerHistory, "LastModifiedDate");
+        ClearBackingField(ownerHistory, "LastModifyingUser");
+        ClearBackingField(ownerHistory, "LastModifyingApplication");
+
         // Person — revit-ifc Exporter.cs L3231. Identification = null, FamilyName +
         // GivenName parsed from author string.
         var person = ownerHistory.OwningUser.ThePerson;
@@ -204,6 +212,33 @@ public static class RevitOwnerHistory
         {
             return false;
         }
+    }
+
+    /// <summary>
+    /// Clear a property by writing ggifc's "unset" sentinel to its backing field.
+    /// Used for non-string properties (timestamps, entity references) where
+    /// <see cref="SetNullableString"/> does not apply.
+    ///
+    /// Type dispatch:
+    /// <list type="bullet">
+    /// <item><c>Int32</c> → <see cref="int.MinValue"/> (ggifc's <c>IfcTimeStamp</c>
+    /// "unset" sentinel — STEP serialises as <c>$</c>; any other int value is
+    /// written literally).</item>
+    /// <item>Reference types → <c>null</c> (ggifc skips the attribute, STEP
+    /// serialises as <c>$</c>).</item>
+    /// </list>
+    /// Silently no-ops if the backing field cannot be located.
+    /// </summary>
+    private static void ClearBackingField(object target, string propertyName)
+    {
+        var field = FindBackingField(target.GetType(), propertyName);
+        if (field is null) return;
+        try
+        {
+            object? unset = field.FieldType == typeof(int) ? int.MinValue : null;
+            field.SetValue(target, unset);
+        }
+        catch { /* give up — ggifc default remains */ }
     }
 
     /// <summary>

@@ -1,3 +1,4 @@
+using System.Reflection;
 using GeometryGym.Ifc;
 using RevitGraphPlugin.Ifc;
 using Xunit;
@@ -90,6 +91,59 @@ public class RevitOwnerHistoryTests
         RevitOwnerHistory.Override(project, SampleSource());
 
         Assert.Equal(IfcChangeActionEnum.NOCHANGE, project.OwnerHistory.ChangeAction);
+    }
+
+    [Fact]
+    public void OwnerHistory_LastModified_fields_serialize_as_unset()
+    {
+        var project = NewProject();
+        RevitOwnerHistory.Override(project, SampleSource());
+
+        var oh = project.OwnerHistory;
+
+        // Reference-type backing fields are cleared to null → STEP $.
+        foreach (var name in new[] { "LastModifyingUser", "LastModifyingApplication" })
+        {
+            var field = FindBackingField(typeof(IfcOwnerHistory), name);
+            Assert.NotNull(field);
+            Assert.Null(field!.GetValue(oh));
+        }
+
+        // LastModifiedDate is non-nullable Int32; ggifc uses int.MinValue as the
+        // IfcTimeStamp "unset" sentinel that serialises to STEP $.
+        var lmdField = FindBackingField(typeof(IfcOwnerHistory), "LastModifiedDate");
+        Assert.NotNull(lmdField);
+        Assert.Equal(int.MinValue, lmdField!.GetValue(oh));
+
+        // STEP serialisation: attrs 5/6/7 (LastModifiedDate / LastModifyingUser /
+        // LastModifyingApplication) must all be $ — i.e. 3 consecutive $ between
+        // .NOCHANGE. and the CreationDate integer.
+        var step = oh.ToString();
+        _output.WriteLine($"STEP: {step}");
+        Assert.Contains(".NOCHANGE.,$,$,$,", step);
+    }
+
+    private static FieldInfo? FindBackingField(System.Type type, string propertyName)
+    {
+        var candidates = new[]
+        {
+            "m" + propertyName,
+            "_" + propertyName,
+            char.ToLowerInvariant(propertyName[0]) + propertyName.Substring(1),
+        };
+        System.Type? t = type;
+        while (t is not null)
+        {
+            foreach (var name in candidates)
+            {
+                var field = t.GetField(
+                    name,
+                    BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+                if (field is not null) return field;
+            }
+            t = t.BaseType;
+        }
+        return null;
     }
 
     [Fact]
