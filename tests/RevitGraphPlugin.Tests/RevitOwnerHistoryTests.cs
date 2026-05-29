@@ -84,6 +84,29 @@ public class RevitOwnerHistoryTests
             $"Expected user org Description to be null or empty, got '{userOrg.Description}'");
     }
 
+    // Regression: Revit's ProjectInfo.OrganizationName returns "" (not null) when
+    // the field is blank. ggifc's IfcOrganization setter substitutes "UNKNOWN"
+    // for empty input, which diverges from the ConMan2 baseline ($). The helper
+    // must treat "" the same as null and bypass the setter via the backing field.
+    [Fact]
+    public void User_Organization_empty_string_does_not_become_UNKNOWN()
+    {
+        var project = NewProject();
+        RevitOwnerHistory.Override(project, SampleSource(orgName: "", orgDescription: ""));
+
+        var userOrg = project.OwnerHistory.OwningUser.TheOrganization;
+
+        Assert.NotEqual("UNKNOWN", userOrg.Name);
+        Assert.NotEqual("UNKNOWN", userOrg.Description);
+
+        var mName = FindBackingField(typeof(IfcOrganization), "Name");
+        var mDescription = FindBackingField(typeof(IfcOrganization), "Description");
+        Assert.NotNull(mName);
+        Assert.NotNull(mDescription);
+        Assert.Null(mName!.GetValue(userOrg));
+        Assert.Null(mDescription!.GetValue(userOrg));
+    }
+
     [Fact]
     public void OwnerHistory_ChangeAction_is_NOCHANGE()
     {

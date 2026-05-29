@@ -242,19 +242,21 @@ public static class RevitOwnerHistory
     }
 
     /// <summary>
-    /// Write a string property whose Revit-baseline value can be null. Non-null
+    /// Write a string property whose Revit-baseline value can be unset. Non-empty
     /// values go through the public setter (which lets ggifc run its validation);
-    /// null values bypass the validator by writing the backing field directly.
-    /// ggifc tends to substitute placeholders like "UNKNOWN" when given null, so
-    /// the backing-field write is the only way to match Revit's STEP <c>$</c>
-    /// output exactly.
+    /// null or empty values bypass the validator by writing null to the backing
+    /// field directly. Empty string is treated like null because Revit's
+    /// <c>ProjectInfo.OrganizationName</c> returns "" (not null) when the field
+    /// is blank, and ggifc's validator substitutes placeholders like "UNKNOWN"
+    /// on both null and "" inputs — the backing-field write is the only way to
+    /// match Revit's STEP <c>$</c> output exactly.
     /// </summary>
     private static void SetNullableString(object target, string propertyName, string? value)
     {
         var type = target.GetType();
         var prop = type.GetProperty(propertyName);
 
-        if (value is not null && prop is not null && prop.CanWrite)
+        if (!string.IsNullOrEmpty(value) && prop is not null && prop.CanWrite)
         {
             try { prop.SetValue(target, value); return; }
             catch { /* fall through to backing-field write */ }
@@ -262,7 +264,7 @@ public static class RevitOwnerHistory
 
         var field = FindBackingField(type, propertyName);
         if (field is null) return;
-        try { field.SetValue(target, value); }
+        try { field.SetValue(target, null); }
         catch { /* give up — ggifc default remains */ }
     }
 

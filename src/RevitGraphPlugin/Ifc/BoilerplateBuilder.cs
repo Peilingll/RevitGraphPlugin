@@ -29,10 +29,19 @@ public static class BoilerplateBuilder
         if (!string.IsNullOrWhiteSpace(projInfo.Name))   project.LongName = projInfo.Name;
         if (!string.IsNullOrWhiteSpace(projInfo.Status)) project.Phase    = projInfo.Status;
 
+        // TEMPORARY — Fix B diagnostic. Captures the OwnerHistory chain at three
+        // points (A: ggifc default; B: after Override; C: before Build returns).
+        // Output: data/test/owner_history_diag.txt. Remove these calls (and
+        // OwnerHistoryDiagnostic.cs) once the user-org Name issue is fixed.
+        OwnerHistoryDiagnostic.Reset();
+        OwnerHistoryDiagnostic.Capture("A_after_new_IfcProject", project);
+
         // Replace ggifc's defaults on the auto-created chain (Sandy / GeometryGymIFC / Unknown
         // / ChangeAction=ADDED) with values that match Revit's own IFC exporter output. See
         // RevitOwnerHistory.cs for the per-attribute source provenance.
         RevitOwnerHistory.Override(project, doc);
+
+        OwnerHistoryDiagnostic.Capture("B_after_Override", project);
 
         // -- Units: metric (matches Revit's IFC 4 Reference View export).
         var lengthUnit = new IfcSIUnit(db, IfcUnitEnum.LENGTHUNIT, IfcSIPrefix.NONE, IfcSIUnitName.METRE);
@@ -71,6 +80,8 @@ public static class BoilerplateBuilder
             var storey = new IfcBuildingStorey(building, level.Name, elevationMetres);
             storey.GlobalId = IfcGuidConverter.FromRevitUniqueId(level.UniqueId);
         }
+
+        OwnerHistoryDiagnostic.Capture("C_before_return", project);
 
         return db;
     }
