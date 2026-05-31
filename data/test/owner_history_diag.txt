@@ -1,67 +1,67 @@
-=== A_after_new_IfcProject @ 23:03:27.491 ===
-OwnerHistory step=7 hash=26898110
-  userOrg IfcOrganization step=3 hash=40756399
+=== A_after_new_IfcProject @ 20:51:19.386 ===
+OwnerHistory step=7 hash=49297291
+  userOrg IfcOrganization step=3 hash=41022443
     [IfcOrganization] mIdentification = '$'
     [IfcOrganization] mName = 'Unknown'
     [IfcOrganization] mDescription = '$'
     [BaseClassIfc] <mGlobalId>k__BackingField = ''
-  developerOrg IfcOrganization step=5 hash=31263274
+  developerOrg IfcOrganization step=5 hash=33657673
     [IfcOrganization] mIdentification = '$'
     [IfcOrganization] mName = 'Geometry Gym Pty Ltd'
     [IfcOrganization] mDescription = '$'
     [BaseClassIfc] <mGlobalId>k__BackingField = ''
-  person IfcPerson step=2 hash=12934017
+  person IfcPerson step=2 hash=34483606
     [IfcPerson] mIdentification = 'Sandy'
     [IfcPerson] mFamilyName = '$'
     [IfcPerson] mGivenName = '$'
     [BaseClassIfc] <mGlobalId>k__BackingField = ''
-  application IfcApplication step=6 hash=49297291
+  application IfcApplication step=6 hash=41917003
     [IfcApplication] mVersion = ' v0.1.22.0'
     [IfcApplication] mApplicationFullName = 'GeometryGymIFC v0.1.22.0'
     [IfcApplication] mApplicationIdentifier = 'GeometryGymIFC v0.1.22.0'
     [BaseClassIfc] <mGlobalId>k__BackingField = ''
 
-=== B_after_Override @ 23:03:27.495 ===
-OwnerHistory step=7 hash=26898110
-  userOrg IfcOrganization step=3 hash=40756399
+=== B_after_Override @ 20:51:19.389 ===
+OwnerHistory step=7 hash=49297291
+  userOrg IfcOrganization step=3 hash=41022443
     [IfcOrganization] mIdentification = '$'
     [IfcOrganization] mName = null
     [IfcOrganization] mDescription = null
     [BaseClassIfc] <mGlobalId>k__BackingField = ''
-  developerOrg IfcOrganization step=5 hash=31263274
+  developerOrg IfcOrganization step=5 hash=33657673
     [IfcOrganization] mIdentification = '$'
     [IfcOrganization] mName = 'Autodesk Revit 2025 (ENG)'
     [IfcOrganization] mDescription = '$'
     [BaseClassIfc] <mGlobalId>k__BackingField = ''
-  person IfcPerson step=2 hash=12934017
+  person IfcPerson step=2 hash=34483606
     [IfcPerson] mIdentification = null
     [IfcPerson] mFamilyName = '$'
     [IfcPerson] mGivenName = 'peiling.song'
     [BaseClassIfc] <mGlobalId>k__BackingField = ''
-  application IfcApplication step=6 hash=49297291
+  application IfcApplication step=6 hash=41917003
     [IfcApplication] mVersion = '2025'
     [IfcApplication] mApplicationFullName = 'Autodesk Revit 2025 (ENG)'
     [IfcApplication] mApplicationIdentifier = 'Revit'
     [BaseClassIfc] <mGlobalId>k__BackingField = ''
 
-=== C_before_return @ 23:03:27.506 ===
-OwnerHistory step=7 hash=26898110
-  userOrg IfcOrganization step=3 hash=40756399
+=== C_before_return @ 20:51:19.401 ===
+OwnerHistory step=7 hash=49297291
+  userOrg IfcOrganization step=3 hash=41022443
     [IfcOrganization] mIdentification = '$'
     [IfcOrganization] mName = null
     [IfcOrganization] mDescription = null
     [BaseClassIfc] <mGlobalId>k__BackingField = ''
-  developerOrg IfcOrganization step=5 hash=31263274
+  developerOrg IfcOrganization step=5 hash=33657673
     [IfcOrganization] mIdentification = '$'
     [IfcOrganization] mName = 'Autodesk Revit 2025 (ENG)'
     [IfcOrganization] mDescription = '$'
     [BaseClassIfc] <mGlobalId>k__BackingField = ''
-  person IfcPerson step=2 hash=12934017
+  person IfcPerson step=2 hash=34483606
     [IfcPerson] mIdentification = null
     [IfcPerson] mFamilyName = '$'
     [IfcPerson] mGivenName = 'peiling.song'
     [BaseClassIfc] <mGlobalId>k__BackingField = ''
-  application IfcApplication step=6 hash=49297291
+  application IfcApplication step=6 hash=41917003
     [IfcApplication] mVersion = '2025'
     [IfcApplication] mApplicationFullName = 'Autodesk Revit 2025 (ENG)'
     [IfcApplication] mApplicationIdentifier = 'Revit'
