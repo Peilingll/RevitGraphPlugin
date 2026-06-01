@@ -4,7 +4,7 @@ A Revit 2025 add-in that translates native Revit elements into IFC entities and 
 
 **Current state:** the empty-project IFC boilerplate (spatial breakdown, units, geometric contexts, OwnerHistory chain, default property sets) is written to Neo4j and aligns with the ConMan2 baseline — 25 of 26 entity types and all 95 relationships match (`data/samples/cypher/00_empty_*`). Per-element subgraphs (Wall, Window, …) are the next stage.
 
-## Architecture — hybrid C# / Python
+## Architecture — C# / Python
 
 The pipeline is split at the IFC STEP text boundary. The .NET side does what only .NET can (read Revit, build an IFC tree with GeometryGym); the Python side does what it does best (parse IFC with ifcopenshell, write Neo4j via ConMan2). The handoff is an ISO-10303-21 STEP file — an international standard, lossless to pass.
 
@@ -22,11 +22,11 @@ Why this split: the Revit API is .NET-only, ifcopenshell has no usable C# bindin
 
 ### Pipeline stages
 
-| Stage | Script | Input | Output |
-| ----- | ------ | ----- | ------ |
-| 1 | `BoilerplateBuilder.Build()` | Revit `Document` (ProjectInformation + Levels) | `DatabaseIfc` (in-memory ggifc tree) |
-| 2 | `IfcSnippetSink.Run()` | `DatabaseIfc` | temp `.ifc` STEP file + spawned `python.exe` |
-| 3 | `snippet_to_cypher.py` | `.ifc` path + `--action` + `--timestamp` | Neo4j graph (via ConMan2) |
+| Stage | Script                       | Input                                          | Output                                       |
+| ----- | ---------------------------- | ---------------------------------------------- | -------------------------------------------- |
+| 1     | `BoilerplateBuilder.Build()` | Revit `Document` (ProjectInformation + Levels) | `DatabaseIfc` (in-memory ggifc tree)         |
+| 2     | `IfcSnippetSink.Run()`       | `DatabaseIfc`                                  | temp `.ifc` STEP file + spawned `python.exe` |
+| 3     | `snippet_to_cypher.py`       | `.ifc` path + `--action` + `--timestamp`       | Neo4j graph (via ConMan2)                    |
 
 Neo4j is written **only** by the Python side (ConMan2's `Neo4jConnection`); the C# add-in no longer opens a Neo4j driver.
 
@@ -70,8 +70,8 @@ Then start a Neo4j instance, launch Revit 2025 from the Start menu, open or crea
 | Host        | Autodesk Revit 2025                             |
 | Runtime     | .NET 8 (x64)                                    |
 | IFC library | GeometryGym.Ifc (`GeometryGymIFC` 0.1.22), IFC4 |
-| Bridge      | Python + `ifcopenshell` + ConMan2               |
-| Graph DB    | Neo4j 5.x (local Neo4j Desktop)                |
+| Bridge      | Python +`ifcopenshell` + ConMan2                |
+| Graph DB    | Neo4j 5.x (local Neo4j Desktop)                 |
 | Neo4j write | ConMan2 `IfcGraphInterface` (Python)            |
 
 ## Environment variables
@@ -81,20 +81,20 @@ the sibling-clone layout (derived by relative path) and only need setting if Con
 
 ### C# side (`IfcSnippetSink`) — locating the bridge
 
-| Variable               | Default (sibling-clone layout)                  | Notes                          |
-| ---------------------- | ----------------------------------------------- | ------------------------------ |
-| `PLUGIN_PYTHON`        | `<repo>/../ConMan2/venv/Scripts/python.exe`     | Python interpreter to spawn    |
-| `PLUGIN_SNIPPET_SCRIPT`| `<repo>/tools/python/snippet_to_cypher.py`      | Bridge script path             |
+| Variable                | Default (sibling-clone layout)              | Notes                       |
+| ----------------------- | ------------------------------------------- | --------------------------- |
+| `PLUGIN_PYTHON`         | `<repo>/../ConMan2/venv/Scripts/python.exe` | Python interpreter to spawn |
+| `PLUGIN_SNIPPET_SCRIPT` | `<repo>/tools/python/snippet_to_cypher.py`  | Bridge script path          |
 
 ### Python side (`snippet_to_cypher.py` / ConMan2) — schema + Neo4j
 
-| Variable               | Default (sibling-clone layout)  | Notes                                |
-| ---------------------- | ------------------------------- | ------------------------------------ |
-| `CONMAN2_PATH`         | `<repo>/../ConMan2/src`         | ConMan2 source root (added to `sys.path`) |
-| `NEO4J_LOCAL_PASSWORD` | —                               | required                             |
-| `NEO4J_LOCAL_USERNAME` | `neo4j`                         |                                      |
-| `NEO4J_LOCAL_HOSTNAME` | `localhost`                     |                                      |
-| `NEO4J_LOCAL_PORT`     | `7687`                          |                                      |
+| Variable               | Default (sibling-clone layout) | Notes                                     |
+| ---------------------- | ------------------------------ | ----------------------------------------- |
+| `CONMAN2_PATH`         | `<repo>/../ConMan2/src`        | ConMan2 source root (added to `sys.path`) |
+| `NEO4J_LOCAL_PASSWORD` | —                              | required                                  |
+| `NEO4J_LOCAL_USERNAME` | `neo4j`                        |                                           |
+| `NEO4J_LOCAL_HOSTNAME` | `localhost`                    |                                           |
+| `NEO4J_LOCAL_PORT`     | `7687`                         |                                           |
 
 `tools/Neo4jSmokeTest` reads the same `NEO4J_LOCAL_*` names (falling back to legacy `NEO4J_*`) so it verifies the credentials the live pipeline actually uses.
 
@@ -157,13 +157,13 @@ structural one; all 95 relationships still match).
 
 ## Troubleshooting
 
-| Symptom                                       | Likely cause                                                                                                          |
-| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Build fails finding `RevitAPI.dll`            | Revit not at `D:\Autodesk\Revit 2025\` — set `$env:RevitInstallPath2025` before `dotnet build`.                      |
-| Ribbon tab missing after launch               | Debug build did not deploy (Release skips the deploy target); check `%AppData%\Autodesk\Revit\Addins\2025\`.          |
-| TaskDialog "Python interpreter not found"     | `PLUGIN_PYTHON` not set / wrong path — point it at your venv `python.exe`.                                            |
-| TaskDialog "ConMan2 source not found"         | `CONMAN2_PATH` not set, or set process-scope only — set at User scope and restart Revit.                             |
-| Python exits with a Neo4j auth error          | `NEO4J_LOCAL_PASSWORD` not set / wrong — verify with `dotnet run --project tools/Neo4jSmokeTest`.                     |
+| Symptom                                   | Likely cause                                                                                                 |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Build fails finding `RevitAPI.dll`        | Revit not at `D:\Autodesk\Revit 2025\` — set `$env:RevitInstallPath2025` before `dotnet build`.              |
+| Ribbon tab missing after launch           | Debug build did not deploy (Release skips the deploy target); check `%AppData%\Autodesk\Revit\Addins\2025\`. |
+| TaskDialog "Python interpreter not found" | `PLUGIN_PYTHON` not set / wrong path — point it at your venv `python.exe`.                                   |
+| TaskDialog "ConMan2 source not found"     | `CONMAN2_PATH` not set, or set process-scope only — set at User scope and restart Revit.                     |
+| Python exits with a Neo4j auth error      | `NEO4J_LOCAL_PASSWORD` not set / wrong — verify with `dotnet run --project tools/Neo4jSmokeTest`.            |
 
 ## Development environment
 

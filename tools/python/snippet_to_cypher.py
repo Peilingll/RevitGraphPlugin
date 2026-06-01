@@ -12,8 +12,9 @@ Invocation (typically from the C# plugin via Process.Start):
     python snippet_to_cypher.py <ifc_path> --action CREATE --timestamp plugin-1
 
 Environment variables:
-    CONMAN2_PATH         — absolute path to ConMan2 src/ directory
-                            (default: D:\\Hiwi\\ConMan2\\src)
+    CONMAN2_PATH         — absolute path to ConMan2's src/ directory. Optional:
+                            defaults to a sibling clone (../../../ConMan2/src,
+                            i.e. ConMan2 cloned next to the RevitGraphPlugin repo).
     NEO4J_LOCAL_USERNAME — overrides --neo4j-user (default: neo4j)
     NEO4J_LOCAL_PASSWORD — overrides --neo4j-password
     NEO4J_LOCAL_HOSTNAME — overrides --neo4j-host (default: localhost)
