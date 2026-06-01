@@ -39,7 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Neo4j.Driver" Version="5.26.0" />
+    <!-- Neo4j writes go through the Python bridge (ConMan2); no C# Neo4j driver needed. -->
     <PackageReference Include="GeometryGymIFC" Version="0.1.22" />
   </ItemGroup>
 

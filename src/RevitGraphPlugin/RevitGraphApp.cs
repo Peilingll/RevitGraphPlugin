@@ -8,28 +8,17 @@ public class RevitGraphApp : IExternalApplication
     private const string RibbonTab = "RevitGraphPlugin";
     private const string RibbonPanel = "Sync";
 
-    internal static Neo4jConnector? Connector { get; private set; }
-
     public Result OnStartup(UIControlledApplication application)
     {
-        try
-        {
-            Connector = Neo4jConnector.FromEnvironment();
-        }
-        catch (Exception ex)
-        {
-            TaskDialog.Show("RevitGraphPlugin", $"Neo4j init failed:\n{ex.Message}");
-            return Result.Failed;
-        }
-
+        // Neo4j is written by the Python bridge (ConMan2's Neo4jConnection), so the
+        // plugin no longer opens a C# driver here. SyncCommand spawns the bridge on
+        // demand. See doc_process/2026-05-29-architecture-revisit-ifc-snippets.md.
         BuildRibbon(application);
         return Result.Succeeded;
     }
 
     public Result OnShutdown(UIControlledApplication application)
     {
-        Connector?.Dispose();
-        Connector = null;
         return Result.Succeeded;
     }
 
