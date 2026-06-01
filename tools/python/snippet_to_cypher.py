@@ -34,15 +34,35 @@ import sys
 from pathlib import Path
 
 
+def _default_conman2_src() -> Path:
+    """Derive ConMan2's src/ from this script's location, assuming ConMan2 is
+    cloned as a sibling of the RevitGraphPlugin repo:
+
+        <parent>/
+        ├── RevitGraphPlugin/tools/python/snippet_to_cypher.py   <- this file
+        └── ConMan2/src                                          <- target
+
+    This file lives at <repo>/tools/python/, so the repo root is two parents up
+    and the shared parent folder is one more; ConMan2/src sits beside the repo.
+    """
+    repo_root = Path(__file__).resolve().parents[2]   # tools/python -> repo root
+    return repo_root.parent / "ConMan2" / "src"
+
+
 def _bootstrap_conman2_path() -> Path:
-    """Insert ConMan2's src/ onto sys.path so we can import its modules."""
-    default_path = r"D:\Hiwi\ConMan2\src"
-    raw = os.environ.get("CONMAN2_PATH", default_path)
-    conman2_src = Path(raw)
+    """Insert ConMan2's src/ onto sys.path so we can import its modules.
+
+    Resolution order:
+      1. CONMAN2_PATH env var (override, for a clone placed elsewhere)
+      2. sibling-clone default (ConMan2 next to this repo)
+    """
+    raw = os.environ.get("CONMAN2_PATH")
+    conman2_src = Path(raw) if raw else _default_conman2_src()
     if not conman2_src.is_dir():
         sys.exit(
             f"[snippet_to_cypher] ConMan2 source not found at: {conman2_src}\n"
-            f"  Set the CONMAN2_PATH env var to the absolute path of ConMan2/src."
+            f"  Clone ConMan2 (https://github.com/seb-esser/ConMan2) as a sibling of\n"
+            f"  this repo, or set the CONMAN2_PATH env var to its src/ directory."
         )
     if str(conman2_src) not in sys.path:
         sys.path.insert(0, str(conman2_src))

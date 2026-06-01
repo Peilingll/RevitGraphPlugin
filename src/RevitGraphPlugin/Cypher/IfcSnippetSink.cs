@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Reflection;
 using System.Text;
 using GeometryGym.Ifc;
 
@@ -15,10 +16,11 @@ namespace RevitGraphPlugin.Cypher;
 /// <item>Leave the temp .ifc on disk after success so it can be inspected</item>
 /// </list>
 ///
-/// Paths are overridable via environment variables:
+/// Paths default to a "sibling clone" layout (ConMan2 cloned next to this repo)
+/// derived relative to the built DLL, and are overridable via environment variables:
 /// <list type="bullet">
-/// <item><c>PLUGIN_PYTHON</c> — defaults to <c>D:\Hiwi\ConMan2\venv\Scripts\python.exe</c></item>
-/// <item><c>PLUGIN_SNIPPET_SCRIPT</c> — defaults to the repo path of snippet_to_cypher.py</item>
+/// <item><c>PLUGIN_SNIPPET_SCRIPT</c> — defaults to <c>&lt;repo&gt;/tools/python/snippet_to_cypher.py</c></item>
+/// <item><c>PLUGIN_PYTHON</c> — defaults to <c>&lt;repo&gt;/../ConMan2/venv/Scripts/python.exe</c></item>
 /// </list>
 ///
 /// Neo4j credentials (<c>NEO4J_LOCAL_PASSWORD</c> etc.) are inherited via the
@@ -28,10 +30,31 @@ namespace RevitGraphPlugin.Cypher;
 /// </summary>
 public static class IfcSnippetSink
 {
-    private const string DefaultPython = @"D:\Hiwi\ConMan2\venv\Scripts\python.exe";
-    private const string DefaultScript = @"D:\Hiwi\RevitGraphPlugin\tools\python\snippet_to_cypher.py";
-    private const string TempIfcName   = "RevitGraphPlugin_last_sync.ifc";
-    private const int    TimeoutMs     = 60_000;
+    private const string TempIfcName = "RevitGraphPlugin_last_sync.ifc";
+    private const int    TimeoutMs   = 60_000;
+
+    /// <summary>
+    /// Repo root, derived from the executing assembly. The DLL builds to
+    /// <c>&lt;repo&gt;/src/RevitGraphPlugin/bin/&lt;Config&gt;/</c> (the csproj sets
+    /// AppendTargetFrameworkToOutputPath=false, so there is no extra TFM folder),
+    /// i.e. four levels above the assembly.
+    /// </summary>
+    private static string RepoRoot
+    {
+        get
+        {
+            var asmDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+            return Path.GetFullPath(Path.Combine(asmDir, "..", "..", "..", ".."));
+        }
+    }
+
+    /// <summary>Bridge script inside this repo (sibling-clone default).</summary>
+    private static string DefaultScript =>
+        Path.Combine(RepoRoot, "tools", "python", "snippet_to_cypher.py");
+
+    /// <summary>ConMan2's venv interpreter, assuming ConMan2 is cloned beside this repo.</summary>
+    private static string DefaultPython =>
+        Path.Combine(RepoRoot, "..", "ConMan2", "venv", "Scripts", "python.exe");
 
     public sealed record SinkResult(
         string TempIfcPath,
@@ -47,7 +70,7 @@ public static class IfcSnippetSink
         if (!File.Exists(pythonExe))
             throw new InvalidOperationException(
                 $"Python interpreter not found at: {pythonExe}. " +
-                $"Set the PLUGIN_PYTHON env var to override.");
+                $"Expected ConMan2 cloned beside this repo; set PLUGIN_PYTHON to override.");
         if (!File.Exists(scriptPath))
             throw new InvalidOperationException(
                 $"snippet_to_cypher.py not found at: {scriptPath}. " +
