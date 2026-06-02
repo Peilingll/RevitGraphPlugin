@@ -21,10 +21,12 @@ public static class BoilerplateBuilder
         var factory = db.Factory;
 
         var projInfo = doc.ProjectInformation;
-        var projName = string.IsNullOrWhiteSpace(projInfo.Name) ? "Project" : projInfo.Name;
+        // Native exporter maps IfcProject.Name <- Revit "Project Number" and
+        // LongName <- Revit "Project Name" (see data/samples/ifc/00_empty.ifc #29).
+        var projNumber = string.IsNullOrWhiteSpace(projInfo.Number) ? "Project" : projInfo.Number;
 
         // -- Project (ggifc auto-creates OwnerHistory + Person/Org/App chain alongside it).
-        var project = new IfcProject(db, projName);
+        var project = new IfcProject(db, projNumber);
         project.GlobalId = IfcGuidConverter.FromRevitUniqueId(projInfo.UniqueId);
         if (!string.IsNullOrWhiteSpace(projInfo.Name))   project.LongName = projInfo.Name;
         if (!string.IsNullOrWhiteSpace(projInfo.Status)) project.Phase    = projInfo.Status;
@@ -55,7 +57,7 @@ public static class BoilerplateBuilder
 
         // -- Spatial breakdown: Site -> Building -> Storeys (RelAggregates auto-created
         //    by ggifc when the parent is passed to the constructor).
-        var site = new IfcSite(db, "Default Site");
+        var site = new IfcSite(db, "Default");   // native Site Name is 'Default'
         site.CompositionType = IfcElementCompositionEnum.ELEMENT;
         site.RefElevation = 0;
         _ = new IfcRelAggregates(project, site);
@@ -63,8 +65,9 @@ public static class BoilerplateBuilder
         var building = new IfcBuilding(site, "Default Building");
         building.CompositionType = IfcElementCompositionEnum.ELEMENT;
 
-        // -- Building postal address. Baseline writes literal empty PostalCode (`''`),
-        //    which is preserved exactly via the STEP → ifcopenshell pipeline.
+        // -- Building postal address. Values hard-coded to match the sample model's
+        //    Revit address. NOTE: native writes an empty PostalCode (''), but ggifc
+        //    serialises "" as $ on write, so that one field cannot be matched from here.
         var address = new IfcPostalAddress(db);
         address.AddressLines.Add("Enter address here");
         address.Town = "London";
