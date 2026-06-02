@@ -1,8 +1,8 @@
 REF  (native) : D:\Hiwi\RevitGraphPlugin\data\samples\ifc\00_empty.ifc
 CAND (ggifc)  : D:\Hiwi\RevitGraphPlugin\data\test\00_empty_ggifc.ifc
 ========================================================================
-types OK (identical): 13
-types with diffs    : 10
+types OK (identical): 15
+types with diffs    : 8
 
 DIFF  IfcBuilding:  REF=1  CAND=1
    - REF  only (1x):
@@ -145,52 +145,6 @@ DIFF  IfcPostalAddress:  REF=1  CAND=1
         Region = 'London'
         Town = 'London'
         UserDefinedPurpose = None
-
-DIFF  IfcProject:  REF=1  CAND=1
-   - REF  only (1x):
-        Description = None
-        LongName = 'Project Name'
-        Name = 'Project Number'
-        ObjectType = None
-        Phase = 'Project Status'
-        RepresentationContexts = ('<IfcGeometricRepresentationContext>',)
-        UnitsInContext = '<IfcUnitAssignment>'
-   + CAND only (1x):
-        Description = None
-        LongName = 'Project Name'
-        Name = 'Project Name'
-        ObjectType = None
-        Phase = 'Project Status'
-        RepresentationContexts = ('<IfcGeometricRepresentationContext>',)
-        UnitsInContext = '<IfcUnitAssignment>'
-
-DIFF  IfcSite:  REF=1  CAND=1
-   - REF  only (1x):
-        CompositionType = 'ELEMENT'
-        Description = None
-        LandTitleNumber = None
-        LongName = None
-        Name = 'Default'
-        ObjectPlacement = '<IfcLocalPlacement>'
-        ObjectType = None
-        RefElevation = 0.0
-        RefLatitude = (51, 30, 23, 112487)
-        RefLongitude = (0, -7, -37, -956022)
-        Representation = None
-        SiteAddress = None
-   + CAND only (1x):
-        CompositionType = 'ELEMENT'
-        Description = None
-        LandTitleNumber = None
-        LongName = None
-        Name = 'Default Site'
-        ObjectPlacement = '<IfcLocalPlacement>'
-        ObjectType = None
-        RefElevation = 0.0
-        RefLatitude = None
-        RefLongitude = None
-        Representation = None
-        SiteAddress = None
 
 ========================================================================
 Reminder: GlobalId / OwnerHistory timestamps / #id are masked by design.

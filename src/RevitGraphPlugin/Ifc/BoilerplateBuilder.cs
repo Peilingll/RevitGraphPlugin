@@ -60,6 +60,15 @@ public static class BoilerplateBuilder
         var site = new IfcSite(db, "Default");   // native Site Name is 'Default'
         site.CompositionType = IfcElementCompositionEnum.ELEMENT;
         site.RefElevation = 0;
+
+        // Geographic location. Revit stores SiteLocation lat/long in radians;
+        // IFC RefLatitude/RefLongitude are compound angles (deg, min, sec, millionth-sec).
+        var siteLocation = doc.SiteLocation;
+        if (siteLocation != null)
+        {
+            site.RefLatitude  = ToCompoundPlaneAngle(siteLocation.Latitude);
+            site.RefLongitude = ToCompoundPlaneAngle(siteLocation.Longitude);
+        }
         _ = new IfcRelAggregates(project, site);
 
         var building = new IfcBuilding(site, "Default Building");
@@ -177,5 +186,26 @@ public static class BoilerplateBuilder
         var psetBuildingSystem = new IfcPropertySet("Pset_BuildingSystemCommon",
             new IfcProperty[] { refProjInfo });
         _ = new IfcRelDefinesByProperties(building, psetBuildingSystem);
+    }
+
+    /// <summary>
+    /// Convert an angle in radians (as Revit stores SiteLocation lat/long) to an
+    /// IFC compound plane angle: (degrees, minutes, seconds, millionth-seconds).
+    /// IFC carries the sign on every component, e.g. London longitude is
+    /// (0, -7, -37, -956022) for ~ -0.1272 deg.
+    /// </summary>
+    private static IfcCompoundPlaneAngleMeasure ToCompoundPlaneAngle(double radians)
+    {
+        var totalSeconds = radians * (180.0 / Math.PI) * 3600.0;
+        var sign = Math.Sign(totalSeconds);
+        var abs  = Math.Abs(totalSeconds);
+        var degrees = (int)(abs / 3600);
+        var minutes = (int)(abs % 3600 / 60);
+        var seconds = (int)(abs % 60);
+        // Truncate (not round) the fractional arc-seconds: Revit's exporter does,
+        // so this reproduces native exactly (e.g. lat 112487, not 112488).
+        var micro   = (int)((abs - Math.Floor(abs)) * 1_000_000);
+        return new IfcCompoundPlaneAngleMeasure(
+            sign * degrees, sign * minutes, sign * seconds, sign * micro);
     }
 }
