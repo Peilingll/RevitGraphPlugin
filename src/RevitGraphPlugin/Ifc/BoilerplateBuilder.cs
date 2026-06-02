@@ -56,9 +56,12 @@ public static class BoilerplateBuilder
         // -- Spatial breakdown: Site -> Building -> Storeys (RelAggregates auto-created
         //    by ggifc when the parent is passed to the constructor).
         var site = new IfcSite(db, "Default Site");
+        site.CompositionType = IfcElementCompositionEnum.ELEMENT;
+        site.RefElevation = 0;
         _ = new IfcRelAggregates(project, site);
 
         var building = new IfcBuilding(site, "Default Building");
+        building.CompositionType = IfcElementCompositionEnum.ELEMENT;
 
         // -- Building postal address. Baseline writes literal empty PostalCode (`''`),
         //    which is preserved exactly via the STEP → ifcopenshell pipeline.
@@ -85,6 +88,16 @@ public static class BoilerplateBuilder
 
             var storey = new IfcBuildingStorey(building, level.Name, elevationMm);
             storey.GlobalId = IfcGuidConverter.FromRevitUniqueId(level.UniqueId);
+            storey.CompositionType = IfcElementCompositionEnum.ELEMENT;
+            storey.LongName = level.Name;   // native mirrors Name into LongName
+
+            // ObjectType = "Level:" + the Level's type name (native exporter writes
+            // e.g. 'Level:Circle Head - Project Datum'; the type name also surfaces
+            // as the Pset_BuildingStoreyCommon Reference value).
+            var levelType = doc.GetElement(level.GetTypeId());
+            if (levelType != null)
+                storey.ObjectType = "Level:" + levelType.Name;
+
             storeys.Add(storey);
         }
 

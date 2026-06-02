@@ -1,0 +1,78 @@
+ISO-10303-21;
+HEADER;
+FILE_DESCRIPTION(('ViewDefinition [Ifc4NotAssigned]'),'2;1');
+FILE_NAME(
+/* name */ 'C:\\Users\\Sandy\\AppData\\Local\\Temp\\cf6f0f08-f9f2-42ee-a3ad-9613b8bdbc0d\\RevitGraphPlugin_last_sync.ifc',
+/* time_stamp */ '2026-06-02T13:07:46',
+/* author */ ('peiling.song'),
+/* organization */ ('Unknown'),
+/* preprocessor_version */ 'GeometryGymIFC v0.1.22.0 by Geometry Gym Pty Ltd built 2022-01-18T09:22:00',
+/* originating_system */ 'GeometryGymIFC v0.1.22.0',
+/* authorization */ 'None');
+
+FILE_SCHEMA (('IFC4'));
+ENDSEC;
+
+DATA;
+#1= IFCPROJECT('2$1LAsj$T3CPRLiPX39YYL',#7,'Project Name',$,$,'Project Name','Project Status',(#12),#11);
+#2= IFCPERSON('',$,'peiling.song',$,$,$,$,$);
+#3= IFCORGANIZATION($,'Unknown','',$,$);
+#4= IFCPERSONANDORGANIZATION(#2,#3,$);
+#5= IFCORGANIZATION($,'Autodesk Revit 2025 (ENG)',$,$,$);
+#6= IFCAPPLICATION(#5,'2025','Autodesk Revit 2025 (ENG)','Revit');
+#7= IFCOWNERHISTORY(#4,#6,$,.NOCHANGE.,$,$,$,1780398466);
+#8= IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.);
+#9= IFCSIUNIT(*,.AREAUNIT.,$,.SQUARE_METRE.);
+#10= IFCSIUNIT(*,.VOLUMEUNIT.,$,.CUBIC_METRE.);
+#11= IFCUNITASSIGNMENT((#8,#9,#10));
+#12= IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,0.01,#14,#15);
+#13= IFCCARTESIANPOINT((0.0,0.0,0.0));
+#14= IFCAXIS2PLACEMENT3D(#13,$,$);
+#15= IFCDIRECTION((0.0,1.0));
+#16= IFCGEOMETRICREPRESENTATIONSUBCONTEXT('Body','Model',*,*,*,*,#12,$,.MODEL_VIEW.,$);
+#17= IFCGEOMETRICREPRESENTATIONSUBCONTEXT('Axis','Model',*,*,*,*,#12,$,.GRAPH_VIEW.,$);
+#18= IFCGEOMETRICREPRESENTATIONSUBCONTEXT('Box','Model',*,*,*,*,#12,$,.MODEL_VIEW.,$);
+#19= IFCGEOMETRICREPRESENTATIONSUBCONTEXT('FootPrint','Model',*,*,*,*,#12,$,.MODEL_VIEW.,$);
+#20= IFCCARTESIANPOINT((0.0,0.0,0.0));
+#21= IFCAXIS2PLACEMENT3D(#20,$,$);
+#22= IFCLOCALPLACEMENT($,#21);
+#23= IFCSITE('2ZyBQ$s3D09B$Fexel7Eot',#7,'Default Site',$,$,#22,$,$,.ELEMENT.,$,$,0.0,$,$);
+#24= IFCRELAGGREGATES('0PZexD$1H14BYrssKBFwKn',#7,$,$,#1,(#23));
+#25= IFCCARTESIANPOINT((0.0,0.0,0.0));
+#26= IFCAXIS2PLACEMENT3D(#25,$,$);
+#27= IFCLOCALPLACEMENT(#22,#26);
+#28= IFCBUILDING('1xtG0ama1DJ89L35MSHYq1',#7,'Default Building',$,$,#27,$,$,.ELEMENT.,$,$,#30);
+#29= IFCRELAGGREGATES('1CfJk3IRH4dR60vOyl57br',#7,$,$,#23,(#28));
+#30= IFCPOSTALADDRESS($,$,$,$,('Enter address here'),$,'London','London',$,'United Kingdom');
+#31= IFCCARTESIANPOINT((0.0,0.0,0.0));
+#32= IFCAXIS2PLACEMENT3D(#31,$,$);
+#33= IFCLOCALPLACEMENT(#27,#32);
+#34= IFCBUILDINGSTOREY('3Zu5Bv0LOHrPC10026FoUj',#7,'Level 0',$,'Level:Circle Head - Project Datum',#33,$,'Level 0',.ELEMENT.,0.0);
+#35= IFCRELAGGREGATES('3s7FH3L9PAlgnZmvDSEFpL',#7,$,$,#28,(#34,#39));
+#36= IFCCARTESIANPOINT((0.0,0.0,0.0));
+#37= IFCAXIS2PLACEMENT3D(#36,$,$);
+#38= IFCLOCALPLACEMENT(#27,#37);
+#39= IFCBUILDINGSTOREY('15Z0v90RiHrPC20026FoUj',#7,'Level 1',$,'Level:Circle Head - Project Datum',#38,$,'Level 1',.ELEMENT.,4000.0);
+#40= IFCPROPERTYSINGLEVALUE('Reference',$,IFCIDENTIFIER('Project Information'),$);
+#41= IFCPROPERTYSINGLEVALUE('Reference',$,IFCIDENTIFIER('Circle Head - Project Datum'),$);
+#42= IFCPROPERTYSINGLEVALUE('AboveGround',$,IFCLOGICAL(.U.),$);
+#43= IFCPROPERTYSINGLEVALUE('NumberOfStoreys',$,IFCINTEGER(0),$);
+#44= IFCPROPERTYSINGLEVALUE('IsLandmarked',$,IFCLOGICAL(.U.),$);
+#45= IFCPROPERTYSINGLEVALUE('IsExternal',$,IFCBOOLEAN(.F.),$);
+#46= IFCPROPERTYSET('3WAKxWF4L2APjsKurUynX$',#7,'Pset_SiteCommon',$,(#40));
+#47= IFCRELDEFINESBYPROPERTIES('2zHRX6uS958hsMKrkAIQf0',#7,$,$,(#23),#46);
+#48= IFCPROPERTYSET('3toabkpmH9sw5qDZ1TNA48',#7,'Pset_BuildingStoreyCommon',$,(#41,#42));
+#49= IFCRELDEFINESBYPROPERTIES('2Fb6vgJN94sgU_0ELa56uZ',#7,$,$,(#34),#48);
+#50= IFCPROPERTYSET('3bWpHkkIj6Quv6yVus3gMP',#7,'Pset_BuildingStoreyCommon',$,(#41,#42));
+#51= IFCRELDEFINESBYPROPERTIES('20FwZegxbDR9wf9lOEGpir',#7,$,$,(#39),#50);
+#52= IFCPROPERTYSET('1IvfNN3m9ERe8vco9fKdkF',#7,'Pset_BuildingCommon',$,(#40,#43,#44));
+#53= IFCRELDEFINESBYPROPERTIES('0Yzq5zLZX4LvPGgpa7sLUa',#7,$,$,(#28),#52);
+#54= IFCPROPERTYSET('17UM9EhMX3Bua0txFZqlOY',#7,'Pset_BuildingElementProxyCommon',$,(#40,#45));
+#55= IFCRELDEFINESBYPROPERTIES('0LQhnEgSH2cvs6U8EbZvlE',#7,$,$,(#28),#54);
+#56= IFCPROPERTYSET('25H3Tg2G93XekcnBEJQTnX',#7,'Pset_BuildingStoreyCommon',$,(#40,#42));
+#57= IFCRELDEFINESBYPROPERTIES('1psF$xAIr1KBkfBsFYRTmZ',#7,$,$,(#28),#56);
+#58= IFCPROPERTYSET('2W$xqSJXP1ZftX5fNg5ctl',#7,'Pset_BuildingSystemCommon',$,(#40));
+#59= IFCRELDEFINESBYPROPERTIES('1g_xLgb1T8oAFGE7NLco$p',#7,$,$,(#28),#58);
+ENDSEC;
+
+END-ISO-10303-21;
