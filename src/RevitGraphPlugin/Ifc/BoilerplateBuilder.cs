@@ -34,16 +34,20 @@ public static class BoilerplateBuilder
         // RevitOwnerHistory.cs for the per-attribute source provenance.
         RevitOwnerHistory.Override(project, doc);
 
-        // -- Units: metric (matches Revit's IFC 4 Reference View export).
-        var lengthUnit = new IfcSIUnit(db, IfcUnitEnum.LENGTHUNIT, IfcSIPrefix.NONE, IfcSIUnitName.METRE);
+        // -- Units: length in MILLImetre; area/volume metric squared/cubed.
+        //    Matches Revit's IFC 4 Reference View export, which uses .MILLI.METRE.
+        //    for length (see data/samples/ifc/00_empty.ifc #19). All length values
+        //    below (elevations, coordinates) must therefore be emitted in mm too.
+        var lengthUnit = new IfcSIUnit(db, IfcUnitEnum.LENGTHUNIT, IfcSIPrefix.MILLI, IfcSIUnitName.METRE);
         var areaUnit   = new IfcSIUnit(db, IfcUnitEnum.AREAUNIT,   IfcSIPrefix.NONE, IfcSIUnitName.SQUARE_METRE);
         var volumeUnit = new IfcSIUnit(db, IfcUnitEnum.VOLUMEUNIT, IfcSIPrefix.NONE, IfcSIUnitName.CUBIC_METRE);
         project.UnitsInContext = new IfcUnitAssignment(new IfcUnit[] { lengthUnit, areaUnit, volumeUnit });
 
         // -- Geometric Representation Context (Model) + 4 SubContexts.
         //    Factory methods register them on the project automatically.
-        _ = factory.GeometricRepresentationContext(
+        var modelContext = factory.GeometricRepresentationContext(
             IfcGeometricRepresentationContext.GeometricContextIdentifier.Model);
+        modelContext.Precision = 0.01;   // match Revit native (0.01 mm); ggifc default emits 0.0001
         _ = factory.SubContext(IfcGeometricRepresentationSubContext.SubContextIdentifier.Body);
         _ = factory.SubContext(IfcGeometricRepresentationSubContext.SubContextIdentifier.Axis);
         _ = factory.SubContext(IfcGeometricRepresentationSubContext.SubContextIdentifier.BoundingBox);
@@ -75,11 +79,11 @@ public static class BoilerplateBuilder
         var storeys = new List<IfcBuildingStorey>();
         foreach (var level in levels)
         {
-            var elevationMetres = UnitUtils.ConvertFromInternalUnits(
+            var elevationMm = UnitUtils.ConvertFromInternalUnits(
                 level.Elevation,
-                UnitTypeId.Meters);
+                UnitTypeId.Millimeters);
 
-            var storey = new IfcBuildingStorey(building, level.Name, elevationMetres);
+            var storey = new IfcBuildingStorey(building, level.Name, elevationMm);
             storey.GlobalId = IfcGuidConverter.FromRevitUniqueId(level.UniqueId);
             storeys.Add(storey);
         }
