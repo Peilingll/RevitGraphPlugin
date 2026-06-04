@@ -15,7 +15,7 @@ namespace RevitGraphPlugin.Ifc;
 /// </summary>
 public static class BoilerplateBuilder
 {
-    public static DatabaseIfc Build(Document doc)
+    public static IfcModelContext Build(Document doc)
     {
         var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
         var factory = db.Factory;
@@ -50,7 +50,7 @@ public static class BoilerplateBuilder
         var modelContext = factory.GeometricRepresentationContext(
             IfcGeometricRepresentationContext.GeometricContextIdentifier.Model);
         modelContext.Precision = 0.01;   // match Revit native (0.01 mm); ggifc default emits 0.0001
-        _ = factory.SubContext(IfcGeometricRepresentationSubContext.SubContextIdentifier.Body);
+        var bodyContext = factory.SubContext(IfcGeometricRepresentationSubContext.SubContextIdentifier.Body);
         _ = factory.SubContext(IfcGeometricRepresentationSubContext.SubContextIdentifier.Axis);
         _ = factory.SubContext(IfcGeometricRepresentationSubContext.SubContextIdentifier.BoundingBox);
         _ = factory.SubContext(IfcGeometricRepresentationSubContext.SubContextIdentifier.FootPrint);
@@ -92,6 +92,7 @@ public static class BoilerplateBuilder
             .ToList();
 
         var storeys = new List<IfcBuildingStorey>();
+        var storeyByLevel = new Dictionary<ElementId, IfcBuildingStorey>();
         foreach (var level in levels)
         {
             var elevationMm = UnitUtils.ConvertFromInternalUnits(
@@ -111,6 +112,7 @@ public static class BoilerplateBuilder
                 storey.ObjectType = "Level:" + levelType.Name;
 
             storeys.Add(storey);
+            storeyByLevel[level.Id] = storey;
         }
 
         // -- Property sets attached to spatial elements. Baseline shows Revit's IFC
@@ -119,7 +121,7 @@ public static class BoilerplateBuilder
         //    the exact layout from data/samples/ifc/00_empty.ifc (#45–#67).
         AttachDefaultPropertySets(db, site, building, storeys);
 
-        return db;
+        return new IfcModelContext(db, bodyContext, storeyByLevel);
     }
 
     /// <summary>

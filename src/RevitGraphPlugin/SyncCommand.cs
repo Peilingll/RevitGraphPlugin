@@ -4,6 +4,7 @@ using Autodesk.Revit.UI;
 using GeometryGym.Ifc;
 using RevitGraphPlugin.Cypher;
 using RevitGraphPlugin.Ifc;
+using RevitGraphPlugin.Ifc.Converters;
 
 namespace RevitGraphPlugin;
 
@@ -19,16 +20,18 @@ public class SyncCommand : IExternalCommand
             return Result.Cancelled;
         }
 
-        // Phase A — build the in-memory IFC tree on the UI thread (Revit API access).
-        DatabaseIfc db;
+        // Phase A — build the in-memory IFC tree on the UI thread (Revit API access):
+        // stage 1 boilerplate skeleton, then stage 2 per-element converters.
+        IfcModelContext ctx;
         try
         {
-            db = BoilerplateBuilder.Build(doc);
+            ctx = BoilerplateBuilder.Build(doc);
+            new ElementConverterRegistry().ConvertAll(doc, ctx);
         }
         catch (Exception ex)
         {
             TaskDialog.Show("RevitGraphPlugin",
-                $"Failed to build IFC boilerplate:\n{ex.GetBaseException().Message}");
+                $"Failed to build IFC model:\n{ex.GetBaseException().Message}");
             return Result.Failed;
         }
 
@@ -39,7 +42,7 @@ public class SyncCommand : IExternalCommand
         IfcSnippetSink.SinkResult result;
         try
         {
-            result = IfcSnippetSink.Run(db, action: "CREATE", timestamp: "plugin-2");
+            result = IfcSnippetSink.Run(ctx.Db, action: "CREATE", timestamp: "plugin-2");
         }
         catch (Exception ex)
         {
