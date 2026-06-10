@@ -58,6 +58,7 @@ public static class BoilerplateBuilder
         // -- Spatial breakdown: Site -> Building -> Storeys (RelAggregates auto-created
         //    by ggifc when the parent is passed to the constructor).
         var site = new IfcSite(db, "Default");   // native Site Name is 'Default'
+        site.GlobalId = IfcGuidConverter.FromSeed(projInfo.UniqueId + ":Site");
         site.CompositionType = IfcElementCompositionEnum.ELEMENT;
         site.RefElevation = 0;
 
@@ -72,6 +73,7 @@ public static class BoilerplateBuilder
         _ = new IfcRelAggregates(project, site);
 
         var building = new IfcBuilding(site, "Default Building");
+        building.GlobalId = IfcGuidConverter.FromSeed(projInfo.UniqueId + ":Building");
         building.CompositionType = IfcElementCompositionEnum.ELEMENT;
 
         // -- Building postal address. Values hard-coded to match the sample model's
