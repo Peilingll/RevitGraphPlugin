@@ -24,7 +24,9 @@ A .env file in CWD / parents is also picked up (handled by ConMan2's
 Neo4jConnection).
 
 Action dispatch:
-    CREATE — implemented (delegates to ConMan2's IfcGraphInterface.ifc_2_graph)
+    CREATE — implemented. Clears any nodes previously written under the same
+             timestamp (idempotent seed, Step 1), then delegates to ConMan2's
+             IfcGraphInterface.ifc_2_graph.
     DELETE — NotImplementedError; Step 3+ work
     UPDATE — NotImplementedError; Step 3+ work
 """
@@ -100,6 +102,20 @@ def _parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def _clear_timestamp(conn, timestamp: str) -> None:
+    """Step 1 idempotency: remove any nodes previously written under this
+    timestamp so a re-sync produces exactly one clean snapshot instead of
+    accumulating duplicates. Scoped by timestamp, so baseline versions
+    (e.g. '1') are left untouched. Mirrors ConMan2's Remove.remove() but
+    reuses this script's already-resolved connection and a bound parameter."""
+    conn.cypher_query(
+        "MATCH (n) WHERE n.timestamp = $ts DETACH DELETE n",
+        {"ts": timestamp},
+    )
+    print(f"[snippet_to_cypher] cleared existing nodes for timestamp "
+          f"{timestamp!r} (idempotent CREATE).")
+
+
 def _run_create(ifc_path: Path, timestamp: str) -> None:
     """Delegate to ConMan2's batch importer. Empty boilerplate is effectively
     'create everything', which matches ifc_2_graph's CREATE-only behaviour."""
@@ -124,7 +140,7 @@ def main() -> int:
     # itself prefers .env / env vars over the constructor args, so the args
     # below act as a final fallback.
     from neo4j_core.neo4j_connection import Neo4jConnection
-    Neo4jConnection(
+    conn = Neo4jConnection(
         username=args.neo4j_user,
         password=args.neo4j_password,
         hostname=args.neo4j_host,
@@ -132,6 +148,7 @@ def main() -> int:
     )
 
     if args.action == "CREATE":
+        _clear_timestamp(conn, args.timestamp)
         _run_create(ifc_path, args.timestamp)
     else:
         raise NotImplementedError(
