@@ -13,6 +13,8 @@ public sealed class ElementConverterRegistry
     private readonly IReadOnlyList<IElementConverter> _converters = new IElementConverter[]
     {
         new WallConverter(),
+        new FloorConverter(),
+        new ColumnConverter(),
     };
 
     /// <summary>Run every registered converter over the model's elements.</summary>
