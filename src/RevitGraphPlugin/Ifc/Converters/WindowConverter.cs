@@ -1,6 +1,7 @@
 using Autodesk.Revit.DB;
 using GeometryGym.Ifc;
 using RevitGraphPlugin.Ifc.Geometry;
+using RevitGraphPlugin.Ifc.Hosting;
 
 namespace RevitGraphPlugin.Ifc.Converters;
 
@@ -80,11 +81,24 @@ public sealed class WindowConverter : IElementConverter
 
         AttachWindowCommonPset(db, ifcWindow);
 
-        // Tier 1b will go here:
-        //   var opening = OpeningBuilder.VoidAndFill(db, hostIfcWall, ifcWindow, openingPlacement, openingShape);
-        // where hostIfcWall is resolved from `host.UniqueId` → FromRevitUniqueId → the
-        // IfcWall already created by WallConverter (requires Wall to run first, and a
-        // lookup the IfcModelContext does not yet provide).
+        // Tier 1b: synthesise the opening and wire void/fill back to the host IfcWall.
+        // Relies on WallConverter having run first (registry order) so the host wall is
+        // already in ctx.ConvertedElements.
+        if (host is not null &&
+            ctx.ConvertedElements.TryGetValue(host.Id, out var hostElem) &&
+            hostElem is IfcWall hostWall)
+        {
+            var openingPlacement = new IfcLocalPlacement(
+                storey.ObjectPlacement,
+                new IfcAxis2Placement3D(new IfcCartesianPoint(
+                    db, BRepBodyBuilder.Mm(origin.X), BRepBodyBuilder.Mm(origin.Y), BRepBodyBuilder.Mm(origin.Z))));
+
+            // TODO(Tier 2): give the opening its own box representation. For now the
+            // host wall's BRep already carries the actual hole, so a null shape is
+            // enough to establish the void/fill graph structure.
+            OpeningBuilder.VoidAndFill(hostWall, ifcWindow, openingPlacement, null,
+                window.UniqueId + ":Opening");
+        }
     }
 
     private static void AttachWindowCommonPset(DatabaseIfc db, IfcWindow ifcWindow)
