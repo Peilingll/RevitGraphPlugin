@@ -39,14 +39,22 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Neo4j writes go through the Python bridge (ConMan2); no C# Neo4j driver needed. -->
     <PackageReference Include="GeometryGymIFC" Version="0.1.22" />
+    <!-- Neo4j.Driver: used ONLY by the direct-write pipeline (Cypher/Direct/CypherEmitter).
+         The temp-IFC bridge (Cypher/IfcSnippetSink) does not need it. -->
+    <PackageReference Include="Neo4j.Driver" Version="5.26.0" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="RevitGraphPlugin.addin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- IFC4 forward-attribute whitelist for the direct-write pipeline (Ifc/Ifc4Schema.cs). -->
+    <EmbeddedResource Include="..\..\data\schema\ifc4_attributes.json"
+                      LogicalName="RevitGraphPlugin.Schema.ifc4_attributes.json" />
   </ItemGroup>
 
   <Target Name="DeployToRevitAddins" AfterTargets="Build" Condition="'$(Configuration)' == 'Debug'">
