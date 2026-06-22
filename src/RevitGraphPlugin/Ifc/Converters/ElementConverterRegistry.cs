@@ -14,7 +14,8 @@ public sealed class ElementConverterRegistry
     {
         new WallConverter(),
         new FloorConverter(),
-        new ColumnConverter(),
+        new ColumnConverter(BuiltInCategory.OST_StructuralColumns),
+        new ColumnConverter(BuiltInCategory.OST_Columns),
     };
 
     /// <summary>Run every registered converter over the model's elements.</summary>

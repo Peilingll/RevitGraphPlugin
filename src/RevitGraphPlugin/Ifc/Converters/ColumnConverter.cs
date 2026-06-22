@@ -23,19 +23,27 @@ namespace RevitGraphPlugin.Ifc.Converters;
 /// </summary>
 public sealed class ColumnConverter : IElementConverter
 {
-    // TODO(verify): the sample 002_one_col is a *structural* column (rectangular
-    // family). Architectural columns live under OST_Columns — if those must be
-    // covered too, register a second instance or widen the dispatch.
-    public BuiltInCategory Category => BuiltInCategory.OST_StructuralColumns;
+    private readonly BuiltInCategory _category;
+
+    /// <summary>
+    /// Columns come in two Revit categories that both export to IfcColumn:
+    /// OST_StructuralColumns (structural) and OST_Columns (architectural). The
+    /// registry registers one instance per category so both are covered.
+    /// </summary>
+    public ColumnConverter(BuiltInCategory category) => _category = category;
+
+    public BuiltInCategory Category => _category;
 
     public void Convert(Element element, IfcModelContext ctx)
     {
         if (element is not FamilyInstance column) return;
 
-        // Anchor to the storey built from the column's base level.
-        // TODO(verify): structural columns use FAMILY_BASE_LEVEL_PARAM ("Base Level").
-        var levelId = column.get_Parameter(BuiltInParameter.FAMILY_BASE_LEVEL_PARAM)?.AsElementId()
-                      ?? column.LevelId;
+        // Anchor to the storey built from the column's base level. Structural
+        // columns expose it via FAMILY_BASE_LEVEL_PARAM; architectural columns
+        // (OST_Columns) fall back to FamilyInstance.LevelId.
+        var levelId = column.get_Parameter(BuiltInParameter.FAMILY_BASE_LEVEL_PARAM)?.AsElementId();
+        if (levelId is null || levelId == ElementId.InvalidElementId)
+            levelId = column.LevelId;
         if (levelId is null || levelId == ElementId.InvalidElementId ||
             !ctx.StoreyByLevel.TryGetValue(levelId, out var storey))
             return;   // column on a level we have no storey for — skip for now
