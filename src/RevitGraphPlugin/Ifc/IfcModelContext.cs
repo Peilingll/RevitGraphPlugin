@@ -30,4 +30,13 @@ public sealed class IfcModelContext
 
     /// <summary>Revit <see cref="Level"/> id → the IfcBuildingStorey built from it.</summary>
     public IReadOnlyDictionary<ElementId, IfcBuildingStorey> StoreyByLevel { get; }
+
+    /// <summary>
+    /// Revit element id → the IfcElement a converter produced for it. Lets
+    /// hosted-element converters (windows / doors) wire back to their host (the
+    /// IfcWall). Populated by converters as they run, so it relies on registration
+    /// order (hosts before hosted) — see <see cref="Converters.ElementConverterRegistry"/>.
+    /// </summary>
+    public IDictionary<ElementId, IfcElement> ConvertedElements { get; }
+        = new Dictionary<ElementId, IfcElement>();
 }
