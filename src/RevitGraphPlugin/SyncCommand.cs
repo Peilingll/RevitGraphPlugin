@@ -20,13 +20,11 @@ public class SyncCommand : IExternalCommand
             return Result.Cancelled;
         }
 
-        // Phase A — build the in-memory IFC tree on the UI thread (Revit API access):
-        // stage 1 boilerplate skeleton, then stage 2 per-element converters.
+        // Phase A — build the in-memory IFC tree (shared with SyncDirectCommand).
         IfcModelContext ctx;
         try
         {
-            ctx = BoilerplateBuilder.Build(doc);
-            new ElementConverterRegistry().ConvertAll(doc, ctx);
+            ctx = ModelAssembler.Build(doc);
         }
         catch (Exception ex)
         {
@@ -42,7 +40,7 @@ public class SyncCommand : IExternalCommand
         IfcSnippetSink.SinkResult result;
         try
         {
-            result = IfcSnippetSink.Run(ctx.Db, action: "CREATE", timestamp: "plugin-2");
+            result = IfcSnippetSink.Run(ctx.Db, action: "CREATE", timestamp: "plugin-bridge");
         }
         catch (Exception ex)
         {
@@ -52,7 +50,8 @@ public class SyncCommand : IExternalCommand
         }
 
         TaskDialog.Show("RevitGraphPlugin",
-            $"Sync done via Python bridge.\n\n" +
+            $"Sync done via TEMP-IFC BRIDGE (ConMan2).\n\n" +
+            $"Timestamp: plugin-bridge\n" +
             $"Temp IFC: {result.TempIfcPath}\n\n" +
             $"--- script output ---\n{result.Stdout}");
         return Result.Succeeded;
