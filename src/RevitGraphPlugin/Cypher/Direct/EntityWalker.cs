@@ -13,8 +13,16 @@ namespace RevitGraphPlugin.Cypher;
 public sealed record EdgeData(int SourceP21, string RelType, int ListIndex, int TargetP21);
 
 /// <summary>
+/// One InlineNode pattern: an inline value (an <see cref="IfcValue"/> with no StepId
+/// of its own) that ConMan2 stores as a separate InlineNode connected to its parent.
+/// Mirrors ConMan2's inline_patterns (IfcGraphInterface.process_ifc_attributes).
+/// </summary>
+public sealed record InlineData(
+    int SourceP21, string RelType, int ListIndex, string EntityType, object WrappedValue);
+
+/// <summary>
 /// Per-entity record produced by <see cref="EntityWalker.Walk"/>.
-/// Maps an IFC entity to a Neo4j node (properties) + outgoing edges
+/// Maps an IFC entity to a Neo4j node (properties) + outgoing edges + inline children
 /// following ConMan2's schema rules.
 /// </summary>
 public sealed record EntityData(
@@ -23,7 +31,8 @@ public sealed record EntityData(
     string? GlobalId,
     NodeKind Kind,
     Dictionary<string, object> Properties,
-    List<EdgeData> Edges
+    List<EdgeData> Edges,
+    List<InlineData> Inlines
 );
 
 public static class EntityWalker
@@ -59,6 +68,7 @@ public static class EntityWalker
             props["GlobalId"] = globalId;
 
         var edges = new List<EdgeData>();
+        var inlines = new List<InlineData>();
 
         foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {
@@ -76,10 +86,10 @@ public static class EntityWalker
             try { value = prop.GetValue(entity); }
             catch { continue; }
 
-            EmitAttribute(p21, name, value, props, edges);
+            EmitAttribute(p21, name, value, props, edges, inlines);
         }
 
-        return new EntityData(p21, entityType, globalId, kind, props, edges);
+        return new EntityData(p21, entityType, globalId, kind, props, edges, inlines);
     }
 
     private static void EmitAttribute(
@@ -87,7 +97,8 @@ public static class EntityWalker
         string name,
         object? value,
         Dictionary<string, object> props,
-        List<EdgeData> edges)
+        List<EdgeData> edges,
+        List<InlineData> inlines)
     {
         // null  →  "$"  (ConMan2 convention)
         if (value is null)
@@ -101,7 +112,18 @@ public static class EntityWalker
         {
             if (refEntity.StepId > 0)
                 edges.Add(new EdgeData(sourceP21, name, 0, refEntity.StepId));
-            // StepId == 0 is an InlineNode — TODO: handle in a later phase
+            // StepId == 0 inline entities surface as IfcValue below (the common case:
+            // a property's NominalValue).
+            return;
+        }
+
+        // Inline value (IfcValue, e.g. IfcPropertySingleValue.NominalValue). Not a
+        // BaseClassIfc and has no StepId of its own → ConMan2 records it as an
+        // InlineNode connected by this attribute. Mirror that.
+        if (value is IfcValue ifcValue)
+        {
+            inlines.Add(new InlineData(
+                sourceP21, name, 0, ifcValue.GetType().Name, WrappedValue(ifcValue)));
             return;
         }
 
@@ -133,6 +155,25 @@ public static class EntityWalker
             return;
         }
 
+        // Dictionary (e.g. IfcPropertySet.HasProperties, keyed by property name).
+        // ggifc stores these as Dictionary<string, IfcProperty>; emit an edge to each
+        // value entity. MUST precede the IEnumerable branch (a Dictionary enumerates
+        // as KeyValuePair, which would otherwise be stringified — the missing
+        // HasProperties edges).
+        if (value is IDictionary dictionary)
+        {
+            var di = 0;
+            foreach (var v in dictionary.Values)
+            {
+                if (v is BaseClassIfc de && de.StepId > 0)
+                    edges.Add(new EdgeData(sourceP21, name, di, de.StepId));
+                else if (v is IfcValue dv)
+                    inlines.Add(new InlineData(sourceP21, name, di, dv.GetType().Name, WrappedValue(dv)));
+                di++;
+            }
+            return;
+        }
+
         // Collection
         if (value is IEnumerable enumerable)
         {
@@ -149,7 +190,13 @@ public static class EntityWalker
                         edges.Add(new EdgeData(sourceP21, name, idx, itemEntity.StepId));
                         sawEntityItem = true;
                     }
-                    // else: inline — TODO
+                    // else: inline BaseClassIfc — rare; not seen in current models
+                }
+                else if (item is IfcValue itemValue)
+                {
+                    inlines.Add(new InlineData(
+                        sourceP21, name, idx, itemValue.GetType().Name, WrappedValue(itemValue)));
+                    sawEntityItem = true;   // a list of values, not a primitive list
                 }
                 else if (item != null)
                 {
@@ -168,8 +215,21 @@ public static class EntityWalker
             return;
         }
 
-        // Fallback — stringify (covers ggifc measure/value structs)
+        // Fallback — stringify (covers ggifc measure structs)
         var str = value.ToString();
         props[name] = string.IsNullOrEmpty(str) ? "$" : str;
+    }
+
+    /// <summary>
+    /// Extract the primitive wrapped value of an <see cref="IfcValue"/> for an
+    /// InlineNode's <c>wrappedValue</c>, matching ConMan2's encoding: bool/int/double
+    /// stay typed; logical/other enums become their uppercase name; null → "$".
+    /// </summary>
+    private static object WrappedValue(IfcValue v)
+    {
+        var raw = v.Value;
+        if (raw is Enum e) return e.ToString().ToUpperInvariant();
+        if (raw is null) return v.ValueString is { Length: > 0 } vs ? vs : "$";
+        return raw;
     }
 }

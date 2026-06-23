@@ -14,11 +14,12 @@ namespace RevitGraphPlugin.Cypher;
 /// </summary>
 public static class CypherEmitter
 {
-    public sealed record EmitStats(int PrimaryNodes, int ConnectionNodes, int SecondaryNodes, int Edges);
+    public sealed record EmitStats(int PrimaryNodes, int ConnectionNodes, int SecondaryNodes, int InlineNodes, int Edges);
 
     public static async Task<EmitStats> WriteAsync(IDriver driver, DatabaseIfc db, string timestamp = "1")
     {
-        // Walk every STEP entity (skip inline value wrappers with StepId == 0 for now).
+        // Walk every STEP entity. Inline value wrappers (StepId == 0) have no node of
+        // their own — they are captured as InlineData on their parent entity instead.
         var allData = new List<EntityData>();
         foreach (var entity in db)
         {
@@ -31,15 +32,23 @@ public static class CypherEmitter
         var connection = allData.Where(d => d.Kind == NodeKind.Connection).ToList();
         var secondary  = allData.Where(d => d.Kind == NodeKind.Secondary).ToList();
         var edges      = allData.SelectMany(d => d.Edges).ToList();
+        var inlines    = allData.SelectMany(d => d.Inlines).ToList();
 
         await using var session = driver.AsyncSession();
+
+        // Clear this snapshot first so re-syncing is idempotent: inline nodes are
+        // CREATEd (no key to MERGE on), so they would otherwise accumulate on re-run.
+        // Mirrors the bridge's per-timestamp clear; scoped by timestamp, so other
+        // snapshots are untouched.
+        await session.RunAsync("MATCH (n {timestamp: $ts}) DETACH DELETE n", new { ts = timestamp });
 
         await BulkMergeNodes(session, NodeKind.Primary,    primary);
         await BulkMergeNodes(session, NodeKind.Connection, connection);
         await BulkMergeNodes(session, NodeKind.Secondary,  secondary);
         await BulkMergeEdges(session, edges, timestamp);
+        await BulkCreateInlines(session, inlines, timestamp);
 
-        return new EmitStats(primary.Count, connection.Count, secondary.Count, edges.Count);
+        return new EmitStats(primary.Count, connection.Count, secondary.Count, inlines.Count, edges.Count);
     }
 
     private static async Task BulkMergeNodes(IAsyncSession session, NodeKind kind, List<EntityData> data)
@@ -77,6 +86,33 @@ UNWIND $batch AS e
 MATCH (a:GenericNode {p21_id: e.source_p21_id, timestamp: e.timestamp})
 MATCH (b:GenericNode {p21_id: e.target_p21_id, timestamp: e.timestamp})
 MERGE (a)-[:rel {rel_type: e.rel_type, list_index: e.list_index}]->(b)";
+
+        await session.RunAsync(cypher, new { batch });
+    }
+
+    // Inline values (e.g. a property's NominalValue) become InlineNode:Node entities
+    // CREATEd and linked to their parent — exactly ConMan2's inline_patterns query
+    // (IfcGraphInterface.ifc_2_graph). CREATE (not MERGE): inline nodes have no key;
+    // the per-timestamp clear in WriteAsync keeps re-runs idempotent.
+    private static async Task BulkCreateInlines(IAsyncSession session, List<InlineData> inlines, string timestamp)
+    {
+        if (inlines.Count == 0) return;
+
+        var batch = inlines.Select(i => (object)new Dictionary<string, object>
+        {
+            ["source_p21_id"] = $"#{i.SourceP21}",
+            ["rel_type"]      = i.RelType,
+            ["list_index"]    = i.ListIndex,
+            ["entity_type"]   = i.EntityType,
+            ["wrapped_value"] = i.WrappedValue,
+            ["timestamp"]     = timestamp,
+        }).ToList();
+
+        const string cypher = @"
+UNWIND $batch AS r
+MATCH (a:GenericNode {p21_id: r.source_p21_id, timestamp: r.timestamp})
+CREATE (b:InlineNode:Node {EntityType: r.entity_type, wrappedValue: r.wrapped_value, timestamp: r.timestamp})
+CREATE (a)-[:rel {rel_type: r.rel_type, list_index: r.list_index}]->(b)";
 
         await session.RunAsync(cypher, new { batch });
     }
