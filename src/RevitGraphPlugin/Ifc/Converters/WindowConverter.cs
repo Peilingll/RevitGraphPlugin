@@ -6,24 +6,27 @@ using RevitGraphPlugin.Ifc.Hosting;
 namespace RevitGraphPlugin.Ifc.Converters;
 
 /// <summary>
-/// Window → IfcWindow sub-graph (Tier 1a / BRep skeleton — element only, NO opening yet).
+/// Window → IfcWindow sub-graph (Tier 1b / BRep).
 ///
-/// Windows are *hosted* elements: in native IFC a window fills an opening cut into
-/// its host wall (Wall ──voids──&gt; IfcOpeningElement ──fills──&gt; IfcWindow). See the
-/// ground-truth subgraph in data/samples/cypher/04_window_vs_wall_node_diff.json.
+/// Windows are *hosted* elements: a window fills an opening cut into its host wall
+/// (Wall ──voids──&gt; IfcOpeningElement ──fills──&gt; IfcWindow). See the ground-truth
+/// subgraph in data/samples/cypher/04_window_vs_wall_node_diff.json.
 ///
-/// This Tier 1a pass emits ONLY the window element itself (placement + BRep body +
-/// Pset_WindowCommon + spatial containment in the storey) — enough for the window to
-/// appear in the right place. The hole in the wall comes "for free": the plugin
-/// tessellates wall.get_Geometry(), which Revit already returns with the opening cut.
+/// This converter emits:
+///   - the window element itself: placement + BRep body + Pset_WindowCommon +
+///     spatial containment in the storey
+///   - the opening chain (Tier 1b), delegated to the shared <see cref="OpeningBuilder"/>
+///     (reused by DoorConverter): IfcOpeningElement + IfcRelVoidsElement (host wall →
+///     opening) + IfcRelFillsElement (opening → this window)
 ///
-/// DEFERRED to Tier 1b (the proper hosted semantics, to be built on a shared
-/// OpeningBuilder helper reused by DoorConverter):
-///   - IfcOpeningElement (synthesised — Revit has no standalone opening element)
-///   - IfcRelVoidsElement   : host IfcWall ──&gt; opening
-///   - IfcRelFillsElement   : opening ──&gt; this window
-/// Also Tier 2 (native has, not required to be valid): IfcWindowType + RelDefinesByType,
-/// material, quantities, IfcWindowLiningProperties, surface styles.
+/// The hole in the wall geometry comes "for free": the plugin tessellates
+/// wall.get_Geometry(), which Revit already returns with the opening cut.
+///
+/// DEFERRED to Tier 2 (native has these, not required to be structurally valid):
+///   - IfcWindowType + IfcRelDefinesByType, IfcWindowLiningProperties
+///   - material, quantities, surface styles
+///   - a dedicated box representation for the opening (currently null — the host
+///     wall's BRep already carries the actual hole)
 ///
 /// TODO markers flag the Revit-API specifics to verify against a real export.
 /// </summary>

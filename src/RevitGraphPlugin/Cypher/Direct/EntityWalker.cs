@@ -149,7 +149,22 @@ public static class EntityWalker
             props[name] = string.IsNullOrEmpty(s) ? "$" : s;
             return;
         }
-        if (value is int or long or double or float or bool or decimal)
+        // Non-finite reals (NaN / Infinity) are what ggifc's getter returns for an
+        // UNSET optional real attribute (e.g. IfcBuilding.ElevationOfTerrain,
+        // IfcGeometricRepresentationSubContext.TargetScale). Same lossy-getter family
+        // as null-string → "$". Store "$" so graph_2_ifc skips them; otherwise
+        // ifcopenshell rejects them on rebuild ("Only finite values are allowed").
+        if (value is double dbl)
+        {
+            props[name] = double.IsFinite(dbl) ? (object)dbl : "$";
+            return;
+        }
+        if (value is float flt)
+        {
+            props[name] = float.IsFinite(flt) ? (object)flt : "$";
+            return;
+        }
+        if (value is int or long or bool or decimal)
         {
             props[name] = value;
             return;
@@ -215,9 +230,17 @@ public static class EntityWalker
             return;
         }
 
-        // Fallback — stringify (covers ggifc measure structs)
+        // Fallback — ggifc measure / defined-type structs ToString as "TYPENAME(content)".
         var str = value.ToString();
-        props[name] = string.IsNullOrEmpty(str) ? "$" : str;
+        if (string.IsNullOrEmpty(str)) { props[name] = "$"; return; }
+        // Aggregate defined-types (e.g. IfcCompoundPlaneAngleMeasure →
+        // "IFCCOMPOUNDPLANEANGLEMEASURE(51,30,23,112487)") must reach ConMan2 as the bare
+        // "(51,30,23,112487)" so ast.literal_eval restores the int list (AGGREGATE OF INT).
+        // Strip the leading type name when the parentheses hold a comma-separated list.
+        var open = str.IndexOf('(');
+        if (open > 0 && str.EndsWith(")") && str.IndexOf(',', open) > open)
+            str = str.Substring(open);
+        props[name] = str;
     }
 
     /// <summary>
