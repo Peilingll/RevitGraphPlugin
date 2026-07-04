@@ -16,6 +16,9 @@ public sealed class ElementConverterRegistry
         new FloorConverter(),
         new ColumnConverter(BuiltInCategory.OST_StructuralColumns),
         new ColumnConverter(BuiltInCategory.OST_Columns),
+        new BeamConverter(),
+        new RoofConverter(),
+        new CeilingConverter(),
         new WindowConverter(),
         new DoorConverter(),
     };
