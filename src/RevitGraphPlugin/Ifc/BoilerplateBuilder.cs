@@ -15,16 +15,18 @@ namespace RevitGraphPlugin.Ifc;
 /// </summary>
 public static class BoilerplateBuilder
 {
-    public static DatabaseIfc Build(Document doc)
+    public static IfcModelContext Build(Document doc)
     {
         var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
         var factory = db.Factory;
 
         var projInfo = doc.ProjectInformation;
-        var projName = string.IsNullOrWhiteSpace(projInfo.Name) ? "Project" : projInfo.Name;
+        // Native exporter maps IfcProject.Name <- Revit "Project Number" and
+        // LongName <- Revit "Project Name" (see data/samples/ifc/00_empty.ifc #29).
+        var projNumber = string.IsNullOrWhiteSpace(projInfo.Number) ? "Project" : projInfo.Number;
 
         // -- Project (ggifc auto-creates OwnerHistory + Person/Org/App chain alongside it).
-        var project = new IfcProject(db, projName);
+        var project = new IfcProject(db, projNumber);
         project.GlobalId = IfcGuidConverter.FromRevitUniqueId(projInfo.UniqueId);
         if (!string.IsNullOrWhiteSpace(projInfo.Name))   project.LongName = projInfo.Name;
         if (!string.IsNullOrWhiteSpace(projInfo.Status)) project.Phase    = projInfo.Status;
@@ -34,30 +36,49 @@ public static class BoilerplateBuilder
         // RevitOwnerHistory.cs for the per-attribute source provenance.
         RevitOwnerHistory.Override(project, doc);
 
-        // -- Units: metric (matches Revit's IFC 4 Reference View export).
-        var lengthUnit = new IfcSIUnit(db, IfcUnitEnum.LENGTHUNIT, IfcSIPrefix.NONE, IfcSIUnitName.METRE);
+        // -- Units: length in MILLImetre; area/volume metric squared/cubed.
+        //    Matches Revit's IFC 4 Reference View export, which uses .MILLI.METRE.
+        //    for length (see data/samples/ifc/00_empty.ifc #19). All length values
+        //    below (elevations, coordinates) must therefore be emitted in mm too.
+        var lengthUnit = new IfcSIUnit(db, IfcUnitEnum.LENGTHUNIT, IfcSIPrefix.MILLI, IfcSIUnitName.METRE);
         var areaUnit   = new IfcSIUnit(db, IfcUnitEnum.AREAUNIT,   IfcSIPrefix.NONE, IfcSIUnitName.SQUARE_METRE);
         var volumeUnit = new IfcSIUnit(db, IfcUnitEnum.VOLUMEUNIT, IfcSIPrefix.NONE, IfcSIUnitName.CUBIC_METRE);
         project.UnitsInContext = new IfcUnitAssignment(new IfcUnit[] { lengthUnit, areaUnit, volumeUnit });
 
         // -- Geometric Representation Context (Model) + 4 SubContexts.
         //    Factory methods register them on the project automatically.
-        _ = factory.GeometricRepresentationContext(
+        var modelContext = factory.GeometricRepresentationContext(
             IfcGeometricRepresentationContext.GeometricContextIdentifier.Model);
-        _ = factory.SubContext(IfcGeometricRepresentationSubContext.SubContextIdentifier.Body);
+        modelContext.Precision = 0.01;   // match Revit native (0.01 mm); ggifc default emits 0.0001
+        var bodyContext = factory.SubContext(IfcGeometricRepresentationSubContext.SubContextIdentifier.Body);
         _ = factory.SubContext(IfcGeometricRepresentationSubContext.SubContextIdentifier.Axis);
         _ = factory.SubContext(IfcGeometricRepresentationSubContext.SubContextIdentifier.BoundingBox);
         _ = factory.SubContext(IfcGeometricRepresentationSubContext.SubContextIdentifier.FootPrint);
 
         // -- Spatial breakdown: Site -> Building -> Storeys (RelAggregates auto-created
         //    by ggifc when the parent is passed to the constructor).
-        var site = new IfcSite(db, "Default Site");
+        var site = new IfcSite(db, "Default");   // native Site Name is 'Default'
+        site.GlobalId = IfcGuidConverter.FromSeed(projInfo.UniqueId + ":Site");
+        site.CompositionType = IfcElementCompositionEnum.ELEMENT;
+        site.RefElevation = 0;
+
+        // Geographic location. Revit stores SiteLocation lat/long in radians;
+        // IFC RefLatitude/RefLongitude are compound angles (deg, min, sec, millionth-sec).
+        var siteLocation = doc.SiteLocation;
+        if (siteLocation != null)
+        {
+            site.RefLatitude  = ToCompoundPlaneAngle(siteLocation.Latitude);
+            site.RefLongitude = ToCompoundPlaneAngle(siteLocation.Longitude);
+        }
         _ = new IfcRelAggregates(project, site);
 
         var building = new IfcBuilding(site, "Default Building");
+        building.GlobalId = IfcGuidConverter.FromSeed(projInfo.UniqueId + ":Building");
+        building.CompositionType = IfcElementCompositionEnum.ELEMENT;
 
-        // -- Building postal address. Baseline writes literal empty PostalCode (`''`),
-        //    which is preserved exactly via the STEP → ifcopenshell pipeline.
+        // -- Building postal address. Values hard-coded to match the sample model's
+        //    Revit address. NOTE: native writes an empty PostalCode (''), but ggifc
+        //    serialises "" as $ on write, so that one field cannot be matched from here.
         var address = new IfcPostalAddress(db);
         address.AddressLines.Add("Enter address here");
         address.Town = "London";
@@ -73,15 +94,27 @@ public static class BoilerplateBuilder
             .ToList();
 
         var storeys = new List<IfcBuildingStorey>();
+        var storeyByLevel = new Dictionary<ElementId, IfcBuildingStorey>();
         foreach (var level in levels)
         {
-            var elevationMetres = UnitUtils.ConvertFromInternalUnits(
+            var elevationMm = UnitUtils.ConvertFromInternalUnits(
                 level.Elevation,
-                UnitTypeId.Meters);
+                UnitTypeId.Millimeters);
 
-            var storey = new IfcBuildingStorey(building, level.Name, elevationMetres);
+            var storey = new IfcBuildingStorey(building, level.Name, elevationMm);
             storey.GlobalId = IfcGuidConverter.FromRevitUniqueId(level.UniqueId);
+            storey.CompositionType = IfcElementCompositionEnum.ELEMENT;
+            storey.LongName = level.Name;   // native mirrors Name into LongName
+
+            // ObjectType = "Level:" + the Level's type name (native exporter writes
+            // e.g. 'Level:Circle Head - Project Datum'; the type name also surfaces
+            // as the Pset_BuildingStoreyCommon Reference value).
+            var levelType = doc.GetElement(level.GetTypeId());
+            if (levelType != null)
+                storey.ObjectType = "Level:" + levelType.Name;
+
             storeys.Add(storey);
+            storeyByLevel[level.Id] = storey;
         }
 
         // -- Property sets attached to spatial elements. Baseline shows Revit's IFC
@@ -90,7 +123,7 @@ public static class BoilerplateBuilder
         //    the exact layout from data/samples/ifc/00_empty.ifc (#45–#67).
         AttachDefaultPropertySets(db, site, building, storeys);
 
-        return db;
+        return new IfcModelContext(db, bodyContext, storeyByLevel);
     }
 
     /// <summary>
@@ -157,5 +190,26 @@ public static class BoilerplateBuilder
         var psetBuildingSystem = new IfcPropertySet("Pset_BuildingSystemCommon",
             new IfcProperty[] { refProjInfo });
         _ = new IfcRelDefinesByProperties(building, psetBuildingSystem);
+    }
+
+    /// <summary>
+    /// Convert an angle in radians (as Revit stores SiteLocation lat/long) to an
+    /// IFC compound plane angle: (degrees, minutes, seconds, millionth-seconds).
+    /// IFC carries the sign on every component, e.g. London longitude is
+    /// (0, -7, -37, -956022) for ~ -0.1272 deg.
+    /// </summary>
+    private static IfcCompoundPlaneAngleMeasure ToCompoundPlaneAngle(double radians)
+    {
+        var totalSeconds = radians * (180.0 / Math.PI) * 3600.0;
+        var sign = Math.Sign(totalSeconds);
+        var abs  = Math.Abs(totalSeconds);
+        var degrees = (int)(abs / 3600);
+        var minutes = (int)(abs % 3600 / 60);
+        var seconds = (int)(abs % 60);
+        // Truncate (not round) the fractional arc-seconds: Revit's exporter does,
+        // so this reproduces native exactly (e.g. lat 112487, not 112488).
+        var micro   = (int)((abs - Math.Floor(abs)) * 1_000_000);
+        return new IfcCompoundPlaneAngleMeasure(
+            sign * degrees, sign * minutes, sign * seconds, sign * micro);
     }
 }

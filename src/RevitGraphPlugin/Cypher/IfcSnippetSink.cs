@@ -3,6 +3,8 @@ using System.Reflection;
 using System.Text;
 using GeometryGym.Ifc;
 
+// ── Pipeline: TEMP-IFC BRIDGE (ggifc tree → .ifc → ConMan2 ifc_2_graph) ──
+// Default sink. Alternative: direct-write (Cypher/Direct/).
 namespace RevitGraphPlugin.Cypher;
 
 /// <summary>

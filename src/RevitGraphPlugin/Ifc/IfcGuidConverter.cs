@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using GeometryGym.Ifc;
 
 namespace RevitGraphPlugin.Ifc;
@@ -29,5 +31,22 @@ public static class IfcGuidConverter
 
         var guid = Guid.Parse(guidPart);
         return ParserIfc.EncodeGuid(guid);
+    }
+
+    /// <summary>
+    /// Deterministically derive an IFC GlobalId from an arbitrary seed string.
+    /// Used for synthetic boilerplate entities (Site / Building) that have no Revit
+    /// element of their own: seeding from the project UniqueId plus a role keeps the
+    /// GlobalId STABLE across syncs (required for ConMan2's GlobalId-based run_diff)
+    /// while staying unique per project.
+    /// </summary>
+    public static string FromSeed(string seed)
+    {
+        if (string.IsNullOrWhiteSpace(seed))
+            throw new ArgumentException("Seed is null or empty.", nameof(seed));
+
+        // MD5 → 16 bytes → a deterministic Guid (not security-sensitive, just stable).
+        var hash = MD5.HashData(Encoding.UTF8.GetBytes(seed));
+        return ParserIfc.EncodeGuid(new Guid(hash));
     }
 }

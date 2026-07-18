@@ -1,0 +1,6413 @@
+[
+  {
+    "n": {
+      "identity": 0,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcProject",
+        "ObjectType": "$",
+        "Description": "$",
+        "Phase": "Project Status",
+        "LongName": "Project Name",
+        "p21_id": "#1",
+        "Name": "Project Number",
+        "timestamp": "plugin-2",
+        "GlobalId": "2$1LAsj$T3CPRLiPX39YYL"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:0"
+    },
+    "r": {
+      "identity": 1152921504606846976,
+      "start": 0,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846976",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:0",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 0,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcProject",
+        "ObjectType": "$",
+        "Description": "$",
+        "Phase": "Project Status",
+        "LongName": "Project Name",
+        "p21_id": "#1",
+        "Name": "Project Number",
+        "timestamp": "plugin-2",
+        "GlobalId": "2$1LAsj$T3CPRLiPX39YYL"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:0"
+    },
+    "r": {
+      "identity": 1157425104234217472,
+      "start": 0,
+      "end": 35,
+      "type": "rel",
+      "properties": {
+        "rel_type": "UnitsInContext",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217472",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:0",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:35"
+    },
+    "m": {
+      "identity": 35,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcUnitAssignment",
+        "p21_id": "#11",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:35"
+    }
+  },
+  {
+    "n": {
+      "identity": 0,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcProject",
+        "ObjectType": "$",
+        "Description": "$",
+        "Phase": "Project Status",
+        "LongName": "Project Name",
+        "p21_id": "#1",
+        "Name": "Project Number",
+        "timestamp": "plugin-2",
+        "GlobalId": "2$1LAsj$T3CPRLiPX39YYL"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:0"
+    },
+    "r": {
+      "identity": 1155173304420532224,
+      "start": 0,
+      "end": 36,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RepresentationContexts",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532224",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:0",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:36"
+    },
+    "m": {
+      "identity": 36,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcGeometricRepresentationContext",
+        "ContextType": "Model",
+        "Precision": 0.01,
+        "ContextIdentifier": "$",
+        "p21_id": "#12",
+        "CoordinateSpaceDimension": 3,
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:36"
+    }
+  },
+  {
+    "n": {
+      "identity": 1,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcWall",
+        "ObjectType": "Basic Wall:Wall-Ext_102Bwk-75Ins-100LBlk-12P",
+        "Description": "$",
+        "Tag": "314344",
+        "p21_id": "#63",
+        "PredefinedType": "$",
+        "Name": "Basic Wall:Wall-Ext_102Bwk-75Ins-100LBlk-12P:314344",
+        "timestamp": "plugin-2",
+        "GlobalId": "0hXkhiD$16FQZFO4CJFqCT"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:1"
+    },
+    "r": {
+      "identity": 1152921504606846977,
+      "start": 1,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846977",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:1",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 1,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcWall",
+        "ObjectType": "Basic Wall:Wall-Ext_102Bwk-75Ins-100LBlk-12P",
+        "Description": "$",
+        "Tag": "314344",
+        "p21_id": "#63",
+        "PredefinedType": "$",
+        "Name": "Basic Wall:Wall-Ext_102Bwk-75Ins-100LBlk-12P:314344",
+        "timestamp": "plugin-2",
+        "GlobalId": "0hXkhiD$16FQZFO4CJFqCT"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:1"
+    },
+    "r": {
+      "identity": 1155173304420532225,
+      "start": 1,
+      "end": 65,
+      "type": "rel",
+      "properties": {
+        "rel_type": "ObjectPlacement",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532225",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:1",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:65"
+    },
+    "m": {
+      "identity": 65,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#62",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:65"
+    }
+  },
+  {
+    "n": {
+      "identity": 1,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcWall",
+        "ObjectType": "Basic Wall:Wall-Ext_102Bwk-75Ins-100LBlk-12P",
+        "Description": "$",
+        "Tag": "314344",
+        "p21_id": "#63",
+        "PredefinedType": "$",
+        "Name": "Basic Wall:Wall-Ext_102Bwk-75Ins-100LBlk-12P:314344",
+        "timestamp": "plugin-2",
+        "GlobalId": "0hXkhiD$16FQZFO4CJFqCT"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:1"
+    },
+    "r": {
+      "identity": 1157425104234217473,
+      "start": 1,
+      "end": 81,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Representation",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217473",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:1",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:81"
+    },
+    "m": {
+      "identity": 81,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcProductDefinitionShape",
+        "Description": "$",
+        "p21_id": "#80",
+        "Name": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:81"
+    }
+  },
+  {
+    "n": {
+      "identity": 2,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuilding",
+        "ObjectType": "$",
+        "Description": "$",
+        "LongName": "$",
+        "Representation": "$",
+        "p21_id": "#28",
+        "CompositionType": "ELEMENT",
+        "ElevationOfTerrain": "$",
+        "Name": "Default Building",
+        "timestamp": "plugin-2",
+        "GlobalId": "1Gh7ov06vEaA9i_Giy6Vqk",
+        "ElevationOfRefHeight": "$"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2"
+    },
+    "r": {
+      "identity": 1152921504606846978,
+      "start": 2,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846978",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 2,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuilding",
+        "ObjectType": "$",
+        "Description": "$",
+        "LongName": "$",
+        "Representation": "$",
+        "p21_id": "#28",
+        "CompositionType": "ELEMENT",
+        "ElevationOfTerrain": "$",
+        "Name": "Default Building",
+        "timestamp": "plugin-2",
+        "GlobalId": "1Gh7ov06vEaA9i_Giy6Vqk",
+        "ElevationOfRefHeight": "$"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2"
+    },
+    "r": {
+      "identity": 1155173304420532226,
+      "start": 2,
+      "end": 49,
+      "type": "rel",
+      "properties": {
+        "rel_type": "ObjectPlacement",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532226",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:49"
+    },
+    "m": {
+      "identity": 49,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#27",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:49"
+    }
+  },
+  {
+    "n": {
+      "identity": 2,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuilding",
+        "ObjectType": "$",
+        "Description": "$",
+        "LongName": "$",
+        "Representation": "$",
+        "p21_id": "#28",
+        "CompositionType": "ELEMENT",
+        "ElevationOfTerrain": "$",
+        "Name": "Default Building",
+        "timestamp": "plugin-2",
+        "GlobalId": "1Gh7ov06vEaA9i_Giy6Vqk",
+        "ElevationOfRefHeight": "$"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2"
+    },
+    "r": {
+      "identity": 1157425104234217474,
+      "start": 2,
+      "end": 50,
+      "type": "rel",
+      "properties": {
+        "rel_type": "BuildingAddress",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217474",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:50"
+    },
+    "m": {
+      "identity": 50,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "Description": "$",
+        "UserDefinedPurpose": "$",
+        "PostalCode": "$",
+        "Purpose": "$",
+        "PostalBox": "$",
+        "EntityType": "IfcPostalAddress",
+        "AddressLines": "('Enter address here',)",
+        "Town": "London",
+        "Region": "London",
+        "Country": "United Kingdom",
+        "p21_id": "#30",
+        "InternalLocation": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:50"
+    }
+  },
+  {
+    "n": {
+      "identity": 3,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuildingStorey",
+        "ObjectType": "Level:Circle Head - Project Datum",
+        "Elevation": 0.0,
+        "Description": "$",
+        "LongName": "Level 0",
+        "Representation": "$",
+        "p21_id": "#34",
+        "CompositionType": "ELEMENT",
+        "Name": "Level 0",
+        "timestamp": "plugin-2",
+        "GlobalId": "3Zu5Bv0LOHrPC10026FoUj"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:3"
+    },
+    "r": {
+      "identity": 1152921504606846979,
+      "start": 3,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846979",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:3",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 3,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuildingStorey",
+        "ObjectType": "Level:Circle Head - Project Datum",
+        "Elevation": 0.0,
+        "Description": "$",
+        "LongName": "Level 0",
+        "Representation": "$",
+        "p21_id": "#34",
+        "CompositionType": "ELEMENT",
+        "Name": "Level 0",
+        "timestamp": "plugin-2",
+        "GlobalId": "3Zu5Bv0LOHrPC10026FoUj"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:3"
+    },
+    "r": {
+      "identity": 1155173304420532227,
+      "start": 3,
+      "end": 53,
+      "type": "rel",
+      "properties": {
+        "rel_type": "ObjectPlacement",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532227",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:3",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:53"
+    },
+    "m": {
+      "identity": 53,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#33",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:53"
+    }
+  },
+  {
+    "n": {
+      "identity": 4,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuildingStorey",
+        "ObjectType": "Level:Circle Head - Project Datum",
+        "Elevation": 4000.0,
+        "Description": "$",
+        "LongName": "Level 1",
+        "Representation": "$",
+        "p21_id": "#39",
+        "CompositionType": "ELEMENT",
+        "Name": "Level 1",
+        "timestamp": "plugin-2",
+        "GlobalId": "15Z0v90RiHrPC20026FoUj"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:4"
+    },
+    "r": {
+      "identity": 1152921504606846980,
+      "start": 4,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846980",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:4",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 4,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuildingStorey",
+        "ObjectType": "Level:Circle Head - Project Datum",
+        "Elevation": 4000.0,
+        "Description": "$",
+        "LongName": "Level 1",
+        "Representation": "$",
+        "p21_id": "#39",
+        "CompositionType": "ELEMENT",
+        "Name": "Level 1",
+        "timestamp": "plugin-2",
+        "GlobalId": "15Z0v90RiHrPC20026FoUj"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:4"
+    },
+    "r": {
+      "identity": 1155173304420532228,
+      "start": 4,
+      "end": 56,
+      "type": "rel",
+      "properties": {
+        "rel_type": "ObjectPlacement",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532228",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:4",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:56"
+    },
+    "m": {
+      "identity": 56,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#38",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:56"
+    }
+  },
+  {
+    "n": {
+      "identity": 5,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "Description": "$",
+        "SiteAddress": "$",
+        "LandTitleNumber": "$",
+        "Representation": "$",
+        "CompositionType": "ELEMENT",
+        "Name": "Default",
+        "GlobalId": "0j86KFmyHEWupxLAxka8bk",
+        "EntityType": "IfcSite",
+        "ObjectType": "$",
+        "LongName": "$",
+        "RefElevation": 0.0,
+        "RefLatitude": "(51, 30, 23, 112487)",
+        "RefLongitude": "(0, -7, -37, -956022)",
+        "p21_id": "#23",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:5"
+    },
+    "r": {
+      "identity": 1152921504606846981,
+      "start": 5,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846981",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:5",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 5,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "Description": "$",
+        "SiteAddress": "$",
+        "LandTitleNumber": "$",
+        "Representation": "$",
+        "CompositionType": "ELEMENT",
+        "Name": "Default",
+        "GlobalId": "0j86KFmyHEWupxLAxka8bk",
+        "EntityType": "IfcSite",
+        "ObjectType": "$",
+        "LongName": "$",
+        "RefElevation": 0.0,
+        "RefLatitude": "(51, 30, 23, 112487)",
+        "RefLongitude": "(0, -7, -37, -956022)",
+        "p21_id": "#23",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:5"
+    },
+    "r": {
+      "identity": 1155173304420532229,
+      "start": 5,
+      "end": 46,
+      "type": "rel",
+      "properties": {
+        "rel_type": "ObjectPlacement",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532229",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:5",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:46"
+    },
+    "m": {
+      "identity": 46,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "PlacementRelTo": "$",
+        "p21_id": "#22",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:46"
+    }
+  },
+  {
+    "n": {
+      "identity": 6,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#46",
+        "Name": "Pset_SiteCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "0nNdTjtEz0exeTkh97hMlC"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:6"
+    },
+    "r": {
+      "identity": 1152921504606846982,
+      "start": 6,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846982",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:6",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 6,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#46",
+        "Name": "Pset_SiteCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "0nNdTjtEz0exeTkh97hMlC"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:6"
+    },
+    "r": {
+      "identity": 1155173304420532230,
+      "start": 6,
+      "end": 57,
+      "type": "rel",
+      "properties": {
+        "rel_type": "HasProperties",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532230",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:6",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:57"
+    },
+    "m": {
+      "identity": 57,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySingleValue",
+        "Description": "$",
+        "p21_id": "#40",
+        "Unit": "$",
+        "Name": "Reference",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:57"
+    }
+  },
+  {
+    "n": {
+      "identity": 7,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#48",
+        "Name": "Pset_BuildingStoreyCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "0cpdVIfZ9F4w$3JnUmKdwb"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:7"
+    },
+    "r": {
+      "identity": 1152921504606846983,
+      "start": 7,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846983",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:7",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 7,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#48",
+        "Name": "Pset_BuildingStoreyCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "0cpdVIfZ9F4w$3JnUmKdwb"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:7"
+    },
+    "r": {
+      "identity": 1155173304420532231,
+      "start": 7,
+      "end": 58,
+      "type": "rel",
+      "properties": {
+        "rel_type": "HasProperties",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532231",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:7",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:58"
+    },
+    "m": {
+      "identity": 58,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySingleValue",
+        "Description": "$",
+        "p21_id": "#41",
+        "Unit": "$",
+        "Name": "Reference",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:58"
+    }
+  },
+  {
+    "n": {
+      "identity": 7,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#48",
+        "Name": "Pset_BuildingStoreyCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "0cpdVIfZ9F4w$3JnUmKdwb"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:7"
+    },
+    "r": {
+      "identity": 1157425104234217479,
+      "start": 7,
+      "end": 59,
+      "type": "rel",
+      "properties": {
+        "rel_type": "HasProperties",
+        "list_index": 1
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217479",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:7",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:59"
+    },
+    "m": {
+      "identity": 59,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySingleValue",
+        "Description": "$",
+        "p21_id": "#42",
+        "Unit": "$",
+        "Name": "AboveGround",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:59"
+    }
+  },
+  {
+    "n": {
+      "identity": 8,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#50",
+        "Name": "Pset_BuildingStoreyCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "2dVZHsAoj8M89YCiX_ypJU"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:8"
+    },
+    "r": {
+      "identity": 1152921504606846984,
+      "start": 8,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846984",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:8",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 8,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#50",
+        "Name": "Pset_BuildingStoreyCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "2dVZHsAoj8M89YCiX_ypJU"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:8"
+    },
+    "r": {
+      "identity": 1155173304420532232,
+      "start": 8,
+      "end": 58,
+      "type": "rel",
+      "properties": {
+        "rel_type": "HasProperties",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532232",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:8",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:58"
+    },
+    "m": {
+      "identity": 58,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySingleValue",
+        "Description": "$",
+        "p21_id": "#41",
+        "Unit": "$",
+        "Name": "Reference",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:58"
+    }
+  },
+  {
+    "n": {
+      "identity": 8,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#50",
+        "Name": "Pset_BuildingStoreyCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "2dVZHsAoj8M89YCiX_ypJU"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:8"
+    },
+    "r": {
+      "identity": 1157425104234217480,
+      "start": 8,
+      "end": 59,
+      "type": "rel",
+      "properties": {
+        "rel_type": "HasProperties",
+        "list_index": 1
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217480",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:8",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:59"
+    },
+    "m": {
+      "identity": 59,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySingleValue",
+        "Description": "$",
+        "p21_id": "#42",
+        "Unit": "$",
+        "Name": "AboveGround",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:59"
+    }
+  },
+  {
+    "n": {
+      "identity": 9,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#52",
+        "Name": "Pset_BuildingCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "3G55d4Sm52R9oc3N1LVhKZ"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:9"
+    },
+    "r": {
+      "identity": 1152921504606846985,
+      "start": 9,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846985",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:9",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 9,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#52",
+        "Name": "Pset_BuildingCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "3G55d4Sm52R9oc3N1LVhKZ"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:9"
+    },
+    "r": {
+      "identity": 1155173304420532233,
+      "start": 9,
+      "end": 57,
+      "type": "rel",
+      "properties": {
+        "rel_type": "HasProperties",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532233",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:9",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:57"
+    },
+    "m": {
+      "identity": 57,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySingleValue",
+        "Description": "$",
+        "p21_id": "#40",
+        "Unit": "$",
+        "Name": "Reference",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:57"
+    }
+  },
+  {
+    "n": {
+      "identity": 9,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#52",
+        "Name": "Pset_BuildingCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "3G55d4Sm52R9oc3N1LVhKZ"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:9"
+    },
+    "r": {
+      "identity": 1157425104234217481,
+      "start": 9,
+      "end": 60,
+      "type": "rel",
+      "properties": {
+        "rel_type": "HasProperties",
+        "list_index": 1
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217481",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:9",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:60"
+    },
+    "m": {
+      "identity": 60,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySingleValue",
+        "Description": "$",
+        "p21_id": "#43",
+        "Unit": "$",
+        "Name": "NumberOfStoreys",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:60"
+    }
+  },
+  {
+    "n": {
+      "identity": 9,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#52",
+        "Name": "Pset_BuildingCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "3G55d4Sm52R9oc3N1LVhKZ"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:9"
+    },
+    "r": {
+      "identity": 1159676904047902729,
+      "start": 9,
+      "end": 61,
+      "type": "rel",
+      "properties": {
+        "rel_type": "HasProperties",
+        "list_index": 2
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1159676904047902729",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:9",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:61"
+    },
+    "m": {
+      "identity": 61,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySingleValue",
+        "Description": "$",
+        "p21_id": "#44",
+        "Unit": "$",
+        "Name": "IsLandmarked",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:61"
+    }
+  },
+  {
+    "n": {
+      "identity": 10,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#54",
+        "Name": "Pset_BuildingElementProxyCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "0xDWVBXQDCMRqqsnUV5r7O"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:10"
+    },
+    "r": {
+      "identity": 1152921504606846986,
+      "start": 10,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846986",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:10",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 10,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#54",
+        "Name": "Pset_BuildingElementProxyCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "0xDWVBXQDCMRqqsnUV5r7O"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:10"
+    },
+    "r": {
+      "identity": 1155173304420532234,
+      "start": 10,
+      "end": 57,
+      "type": "rel",
+      "properties": {
+        "rel_type": "HasProperties",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532234",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:10",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:57"
+    },
+    "m": {
+      "identity": 57,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySingleValue",
+        "Description": "$",
+        "p21_id": "#40",
+        "Unit": "$",
+        "Name": "Reference",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:57"
+    }
+  },
+  {
+    "n": {
+      "identity": 10,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#54",
+        "Name": "Pset_BuildingElementProxyCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "0xDWVBXQDCMRqqsnUV5r7O"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:10"
+    },
+    "r": {
+      "identity": 1157425104234217482,
+      "start": 10,
+      "end": 62,
+      "type": "rel",
+      "properties": {
+        "rel_type": "HasProperties",
+        "list_index": 1
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217482",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:10",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:62"
+    },
+    "m": {
+      "identity": 62,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySingleValue",
+        "Description": "$",
+        "p21_id": "#45",
+        "Unit": "$",
+        "Name": "IsExternal",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:62"
+    }
+  },
+  {
+    "n": {
+      "identity": 11,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#56",
+        "Name": "Pset_BuildingStoreyCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "212teMNLL4aAkQw7tXkJRn"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:11"
+    },
+    "r": {
+      "identity": 1152921504606846987,
+      "start": 11,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846987",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:11",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 11,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#56",
+        "Name": "Pset_BuildingStoreyCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "212teMNLL4aAkQw7tXkJRn"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:11"
+    },
+    "r": {
+      "identity": 1155173304420532235,
+      "start": 11,
+      "end": 57,
+      "type": "rel",
+      "properties": {
+        "rel_type": "HasProperties",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532235",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:11",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:57"
+    },
+    "m": {
+      "identity": 57,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySingleValue",
+        "Description": "$",
+        "p21_id": "#40",
+        "Unit": "$",
+        "Name": "Reference",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:57"
+    }
+  },
+  {
+    "n": {
+      "identity": 11,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#56",
+        "Name": "Pset_BuildingStoreyCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "212teMNLL4aAkQw7tXkJRn"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:11"
+    },
+    "r": {
+      "identity": 1157425104234217483,
+      "start": 11,
+      "end": 59,
+      "type": "rel",
+      "properties": {
+        "rel_type": "HasProperties",
+        "list_index": 1
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217483",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:11",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:59"
+    },
+    "m": {
+      "identity": 59,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySingleValue",
+        "Description": "$",
+        "p21_id": "#42",
+        "Unit": "$",
+        "Name": "AboveGround",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:59"
+    }
+  },
+  {
+    "n": {
+      "identity": 12,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#58",
+        "Name": "Pset_BuildingSystemCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "3WrAABAzj8MwdgpIVma6r8"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:12"
+    },
+    "r": {
+      "identity": 1152921504606846988,
+      "start": 12,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846988",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:12",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 12,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#58",
+        "Name": "Pset_BuildingSystemCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "3WrAABAzj8MwdgpIVma6r8"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:12"
+    },
+    "r": {
+      "identity": 1155173304420532236,
+      "start": 12,
+      "end": 57,
+      "type": "rel",
+      "properties": {
+        "rel_type": "HasProperties",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532236",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:12",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:57"
+    },
+    "m": {
+      "identity": 57,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySingleValue",
+        "Description": "$",
+        "p21_id": "#40",
+        "Unit": "$",
+        "Name": "Reference",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:57"
+    }
+  },
+  {
+    "n": {
+      "identity": 13,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#83",
+        "Name": "Pset_WallCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "3mqbCktXjFQfpr9$5GeuDL"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13"
+    },
+    "r": {
+      "identity": 1152921504606846989,
+      "start": 13,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846989",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 13,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#83",
+        "Name": "Pset_WallCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "3mqbCktXjFQfpr9$5GeuDL"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13"
+    },
+    "r": {
+      "identity": 1155173304420532237,
+      "start": 13,
+      "end": 82,
+      "type": "rel",
+      "properties": {
+        "rel_type": "HasProperties",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532237",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:82"
+    },
+    "m": {
+      "identity": 82,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySingleValue",
+        "Description": "$",
+        "p21_id": "#81",
+        "Unit": "$",
+        "Name": "IsExternal",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:82"
+    }
+  },
+  {
+    "n": {
+      "identity": 13,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#83",
+        "Name": "Pset_WallCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "3mqbCktXjFQfpr9$5GeuDL"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13"
+    },
+    "r": {
+      "identity": 1157425104234217485,
+      "start": 13,
+      "end": 83,
+      "type": "rel",
+      "properties": {
+        "rel_type": "HasProperties",
+        "list_index": 1
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217485",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:83"
+    },
+    "m": {
+      "identity": 83,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySingleValue",
+        "Description": "$",
+        "p21_id": "#82",
+        "Unit": "$",
+        "Name": "LoadBearing",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:83"
+    }
+  },
+  {
+    "n": {
+      "identity": 14,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelContainedInSpatialStructure",
+        "Description": "BuildingStorey Container for Elements",
+        "p21_id": "#64",
+        "Name": "BuildingStorey",
+        "timestamp": "plugin-2",
+        "GlobalId": "1ly$_XuKHDxvgyCsB0hkXI"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:14"
+    },
+    "r": {
+      "identity": 1155173304420532238,
+      "start": 14,
+      "end": 1,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatedElements",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532238",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:14",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:1"
+    },
+    "m": {
+      "identity": 1,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcWall",
+        "ObjectType": "Basic Wall:Wall-Ext_102Bwk-75Ins-100LBlk-12P",
+        "Description": "$",
+        "Tag": "314344",
+        "p21_id": "#63",
+        "PredefinedType": "$",
+        "Name": "Basic Wall:Wall-Ext_102Bwk-75Ins-100LBlk-12P:314344",
+        "timestamp": "plugin-2",
+        "GlobalId": "0hXkhiD$16FQZFO4CJFqCT"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:1"
+    }
+  },
+  {
+    "n": {
+      "identity": 14,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelContainedInSpatialStructure",
+        "Description": "BuildingStorey Container for Elements",
+        "p21_id": "#64",
+        "Name": "BuildingStorey",
+        "timestamp": "plugin-2",
+        "GlobalId": "1ly$_XuKHDxvgyCsB0hkXI"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:14"
+    },
+    "r": {
+      "identity": 1157425104234217486,
+      "start": 14,
+      "end": 3,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatingStructure",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217486",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:14",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:3"
+    },
+    "m": {
+      "identity": 3,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuildingStorey",
+        "ObjectType": "Level:Circle Head - Project Datum",
+        "Elevation": 0.0,
+        "Description": "$",
+        "LongName": "Level 0",
+        "Representation": "$",
+        "p21_id": "#34",
+        "CompositionType": "ELEMENT",
+        "Name": "Level 0",
+        "timestamp": "plugin-2",
+        "GlobalId": "3Zu5Bv0LOHrPC10026FoUj"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:3"
+    }
+  },
+  {
+    "n": {
+      "identity": 14,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelContainedInSpatialStructure",
+        "Description": "BuildingStorey Container for Elements",
+        "p21_id": "#64",
+        "Name": "BuildingStorey",
+        "timestamp": "plugin-2",
+        "GlobalId": "1ly$_XuKHDxvgyCsB0hkXI"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:14"
+    },
+    "r": {
+      "identity": 1152921504606846990,
+      "start": 14,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846990",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:14",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 15,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelAggregates",
+        "Description": "$",
+        "p21_id": "#24",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "1ZcvSZit91YuImDwcejkhx"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:15"
+    },
+    "r": {
+      "identity": 1155173304420532239,
+      "start": 15,
+      "end": 0,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatingObject",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532239",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:15",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:0"
+    },
+    "m": {
+      "identity": 0,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcProject",
+        "ObjectType": "$",
+        "Description": "$",
+        "Phase": "Project Status",
+        "LongName": "Project Name",
+        "p21_id": "#1",
+        "Name": "Project Number",
+        "timestamp": "plugin-2",
+        "GlobalId": "2$1LAsj$T3CPRLiPX39YYL"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:0"
+    }
+  },
+  {
+    "n": {
+      "identity": 15,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelAggregates",
+        "Description": "$",
+        "p21_id": "#24",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "1ZcvSZit91YuImDwcejkhx"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:15"
+    },
+    "r": {
+      "identity": 1157425104234217487,
+      "start": 15,
+      "end": 5,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatedObjects",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217487",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:15",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:5"
+    },
+    "m": {
+      "identity": 5,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "Description": "$",
+        "SiteAddress": "$",
+        "LandTitleNumber": "$",
+        "Representation": "$",
+        "CompositionType": "ELEMENT",
+        "Name": "Default",
+        "GlobalId": "0j86KFmyHEWupxLAxka8bk",
+        "EntityType": "IfcSite",
+        "ObjectType": "$",
+        "LongName": "$",
+        "RefElevation": 0.0,
+        "RefLatitude": "(51, 30, 23, 112487)",
+        "RefLongitude": "(0, -7, -37, -956022)",
+        "p21_id": "#23",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:5"
+    }
+  },
+  {
+    "n": {
+      "identity": 15,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelAggregates",
+        "Description": "$",
+        "p21_id": "#24",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "1ZcvSZit91YuImDwcejkhx"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:15"
+    },
+    "r": {
+      "identity": 1152921504606846991,
+      "start": 15,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846991",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:15",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 16,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelAggregates",
+        "Description": "$",
+        "p21_id": "#29",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "0fva$m81b2yh71YpGdlg1F"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:16"
+    },
+    "r": {
+      "identity": 1157425104234217488,
+      "start": 16,
+      "end": 2,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatedObjects",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217488",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:16",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2"
+    },
+    "m": {
+      "identity": 2,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuilding",
+        "ObjectType": "$",
+        "Description": "$",
+        "LongName": "$",
+        "Representation": "$",
+        "p21_id": "#28",
+        "CompositionType": "ELEMENT",
+        "ElevationOfTerrain": "$",
+        "Name": "Default Building",
+        "timestamp": "plugin-2",
+        "GlobalId": "1Gh7ov06vEaA9i_Giy6Vqk",
+        "ElevationOfRefHeight": "$"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2"
+    }
+  },
+  {
+    "n": {
+      "identity": 16,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelAggregates",
+        "Description": "$",
+        "p21_id": "#29",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "0fva$m81b2yh71YpGdlg1F"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:16"
+    },
+    "r": {
+      "identity": 1155173304420532240,
+      "start": 16,
+      "end": 5,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatingObject",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532240",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:16",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:5"
+    },
+    "m": {
+      "identity": 5,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "Description": "$",
+        "SiteAddress": "$",
+        "LandTitleNumber": "$",
+        "Representation": "$",
+        "CompositionType": "ELEMENT",
+        "Name": "Default",
+        "GlobalId": "0j86KFmyHEWupxLAxka8bk",
+        "EntityType": "IfcSite",
+        "ObjectType": "$",
+        "LongName": "$",
+        "RefElevation": 0.0,
+        "RefLatitude": "(51, 30, 23, 112487)",
+        "RefLongitude": "(0, -7, -37, -956022)",
+        "p21_id": "#23",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:5"
+    }
+  },
+  {
+    "n": {
+      "identity": 16,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelAggregates",
+        "Description": "$",
+        "p21_id": "#29",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "0fva$m81b2yh71YpGdlg1F"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:16"
+    },
+    "r": {
+      "identity": 1152921504606846992,
+      "start": 16,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846992",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:16",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 17,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelAggregates",
+        "Description": "$",
+        "p21_id": "#35",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "2SFi1mRCL9i9pgO$HRE5Kb"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:17"
+    },
+    "r": {
+      "identity": 1155173304420532241,
+      "start": 17,
+      "end": 2,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatingObject",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532241",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:17",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2"
+    },
+    "m": {
+      "identity": 2,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuilding",
+        "ObjectType": "$",
+        "Description": "$",
+        "LongName": "$",
+        "Representation": "$",
+        "p21_id": "#28",
+        "CompositionType": "ELEMENT",
+        "ElevationOfTerrain": "$",
+        "Name": "Default Building",
+        "timestamp": "plugin-2",
+        "GlobalId": "1Gh7ov06vEaA9i_Giy6Vqk",
+        "ElevationOfRefHeight": "$"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2"
+    }
+  },
+  {
+    "n": {
+      "identity": 17,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelAggregates",
+        "Description": "$",
+        "p21_id": "#35",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "2SFi1mRCL9i9pgO$HRE5Kb"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:17"
+    },
+    "r": {
+      "identity": 1157425104234217489,
+      "start": 17,
+      "end": 3,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatedObjects",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217489",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:17",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:3"
+    },
+    "m": {
+      "identity": 3,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuildingStorey",
+        "ObjectType": "Level:Circle Head - Project Datum",
+        "Elevation": 0.0,
+        "Description": "$",
+        "LongName": "Level 0",
+        "Representation": "$",
+        "p21_id": "#34",
+        "CompositionType": "ELEMENT",
+        "Name": "Level 0",
+        "timestamp": "plugin-2",
+        "GlobalId": "3Zu5Bv0LOHrPC10026FoUj"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:3"
+    }
+  },
+  {
+    "n": {
+      "identity": 17,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelAggregates",
+        "Description": "$",
+        "p21_id": "#35",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "2SFi1mRCL9i9pgO$HRE5Kb"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:17"
+    },
+    "r": {
+      "identity": 1159676904047902737,
+      "start": 17,
+      "end": 4,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatedObjects",
+        "list_index": 1
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1159676904047902737",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:17",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:4"
+    },
+    "m": {
+      "identity": 4,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuildingStorey",
+        "ObjectType": "Level:Circle Head - Project Datum",
+        "Elevation": 4000.0,
+        "Description": "$",
+        "LongName": "Level 1",
+        "Representation": "$",
+        "p21_id": "#39",
+        "CompositionType": "ELEMENT",
+        "Name": "Level 1",
+        "timestamp": "plugin-2",
+        "GlobalId": "15Z0v90RiHrPC20026FoUj"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:4"
+    }
+  },
+  {
+    "n": {
+      "identity": 17,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelAggregates",
+        "Description": "$",
+        "p21_id": "#35",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "2SFi1mRCL9i9pgO$HRE5Kb"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:17"
+    },
+    "r": {
+      "identity": 1152921504606846993,
+      "start": 17,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846993",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:17",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 18,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#47",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "2c$pTmtYb95PaQwjnjckpK"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:18"
+    },
+    "r": {
+      "identity": 1155173304420532242,
+      "start": 18,
+      "end": 5,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatedObjects",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532242",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:18",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:5"
+    },
+    "m": {
+      "identity": 5,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "Description": "$",
+        "SiteAddress": "$",
+        "LandTitleNumber": "$",
+        "Representation": "$",
+        "CompositionType": "ELEMENT",
+        "Name": "Default",
+        "GlobalId": "0j86KFmyHEWupxLAxka8bk",
+        "EntityType": "IfcSite",
+        "ObjectType": "$",
+        "LongName": "$",
+        "RefElevation": 0.0,
+        "RefLatitude": "(51, 30, 23, 112487)",
+        "RefLongitude": "(0, -7, -37, -956022)",
+        "p21_id": "#23",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:5"
+    }
+  },
+  {
+    "n": {
+      "identity": 18,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#47",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "2c$pTmtYb95PaQwjnjckpK"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:18"
+    },
+    "r": {
+      "identity": 1157425104234217490,
+      "start": 18,
+      "end": 6,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatingPropertyDefinition",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217490",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:18",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:6"
+    },
+    "m": {
+      "identity": 6,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#46",
+        "Name": "Pset_SiteCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "0nNdTjtEz0exeTkh97hMlC"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:6"
+    }
+  },
+  {
+    "n": {
+      "identity": 18,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#47",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "2c$pTmtYb95PaQwjnjckpK"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:18"
+    },
+    "r": {
+      "identity": 1152921504606846994,
+      "start": 18,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846994",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:18",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 19,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#49",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "2KHqEhTEr9Jhvx_pK9zNe7"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:19"
+    },
+    "r": {
+      "identity": 1155173304420532243,
+      "start": 19,
+      "end": 3,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatedObjects",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532243",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:19",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:3"
+    },
+    "m": {
+      "identity": 3,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuildingStorey",
+        "ObjectType": "Level:Circle Head - Project Datum",
+        "Elevation": 0.0,
+        "Description": "$",
+        "LongName": "Level 0",
+        "Representation": "$",
+        "p21_id": "#34",
+        "CompositionType": "ELEMENT",
+        "Name": "Level 0",
+        "timestamp": "plugin-2",
+        "GlobalId": "3Zu5Bv0LOHrPC10026FoUj"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:3"
+    }
+  },
+  {
+    "n": {
+      "identity": 19,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#49",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "2KHqEhTEr9Jhvx_pK9zNe7"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:19"
+    },
+    "r": {
+      "identity": 1157425104234217491,
+      "start": 19,
+      "end": 7,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatingPropertyDefinition",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217491",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:19",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:7"
+    },
+    "m": {
+      "identity": 7,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#48",
+        "Name": "Pset_BuildingStoreyCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "0cpdVIfZ9F4w$3JnUmKdwb"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:7"
+    }
+  },
+  {
+    "n": {
+      "identity": 19,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#49",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "2KHqEhTEr9Jhvx_pK9zNe7"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:19"
+    },
+    "r": {
+      "identity": 1152921504606846995,
+      "start": 19,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846995",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:19",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 20,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#51",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "2JPi77VDH0aeqLcji80_M2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:20"
+    },
+    "r": {
+      "identity": 1155173304420532244,
+      "start": 20,
+      "end": 4,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatedObjects",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532244",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:20",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:4"
+    },
+    "m": {
+      "identity": 4,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuildingStorey",
+        "ObjectType": "Level:Circle Head - Project Datum",
+        "Elevation": 4000.0,
+        "Description": "$",
+        "LongName": "Level 1",
+        "Representation": "$",
+        "p21_id": "#39",
+        "CompositionType": "ELEMENT",
+        "Name": "Level 1",
+        "timestamp": "plugin-2",
+        "GlobalId": "15Z0v90RiHrPC20026FoUj"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:4"
+    }
+  },
+  {
+    "n": {
+      "identity": 20,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#51",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "2JPi77VDH0aeqLcji80_M2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:20"
+    },
+    "r": {
+      "identity": 1157425104234217492,
+      "start": 20,
+      "end": 8,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatingPropertyDefinition",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217492",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:20",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:8"
+    },
+    "m": {
+      "identity": 8,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#50",
+        "Name": "Pset_BuildingStoreyCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "2dVZHsAoj8M89YCiX_ypJU"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:8"
+    }
+  },
+  {
+    "n": {
+      "identity": 20,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#51",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "2JPi77VDH0aeqLcji80_M2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:20"
+    },
+    "r": {
+      "identity": 1152921504606846996,
+      "start": 20,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846996",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:20",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 21,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#53",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "0PThigekL9d8dqlxzGr$nT"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:21"
+    },
+    "r": {
+      "identity": 1155173304420532245,
+      "start": 21,
+      "end": 2,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatedObjects",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532245",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:21",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2"
+    },
+    "m": {
+      "identity": 2,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuilding",
+        "ObjectType": "$",
+        "Description": "$",
+        "LongName": "$",
+        "Representation": "$",
+        "p21_id": "#28",
+        "CompositionType": "ELEMENT",
+        "ElevationOfTerrain": "$",
+        "Name": "Default Building",
+        "timestamp": "plugin-2",
+        "GlobalId": "1Gh7ov06vEaA9i_Giy6Vqk",
+        "ElevationOfRefHeight": "$"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2"
+    }
+  },
+  {
+    "n": {
+      "identity": 21,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#53",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "0PThigekL9d8dqlxzGr$nT"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:21"
+    },
+    "r": {
+      "identity": 1157425104234217493,
+      "start": 21,
+      "end": 9,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatingPropertyDefinition",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217493",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:21",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:9"
+    },
+    "m": {
+      "identity": 9,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#52",
+        "Name": "Pset_BuildingCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "3G55d4Sm52R9oc3N1LVhKZ"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:9"
+    }
+  },
+  {
+    "n": {
+      "identity": 21,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#53",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "0PThigekL9d8dqlxzGr$nT"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:21"
+    },
+    "r": {
+      "identity": 1152921504606846997,
+      "start": 21,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846997",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:21",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 22,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#55",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "2U88Hj28D2Z9TIIk1lCzBh"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:22"
+    },
+    "r": {
+      "identity": 1155173304420532246,
+      "start": 22,
+      "end": 2,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatedObjects",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532246",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:22",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2"
+    },
+    "m": {
+      "identity": 2,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuilding",
+        "ObjectType": "$",
+        "Description": "$",
+        "LongName": "$",
+        "Representation": "$",
+        "p21_id": "#28",
+        "CompositionType": "ELEMENT",
+        "ElevationOfTerrain": "$",
+        "Name": "Default Building",
+        "timestamp": "plugin-2",
+        "GlobalId": "1Gh7ov06vEaA9i_Giy6Vqk",
+        "ElevationOfRefHeight": "$"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2"
+    }
+  },
+  {
+    "n": {
+      "identity": 22,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#55",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "2U88Hj28D2Z9TIIk1lCzBh"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:22"
+    },
+    "r": {
+      "identity": 1157425104234217494,
+      "start": 22,
+      "end": 10,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatingPropertyDefinition",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217494",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:22",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:10"
+    },
+    "m": {
+      "identity": 10,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#54",
+        "Name": "Pset_BuildingElementProxyCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "0xDWVBXQDCMRqqsnUV5r7O"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:10"
+    }
+  },
+  {
+    "n": {
+      "identity": 22,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#55",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "2U88Hj28D2Z9TIIk1lCzBh"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:22"
+    },
+    "r": {
+      "identity": 1152921504606846998,
+      "start": 22,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846998",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:22",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 23,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#57",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "0fC9XIjizFq8TzWXBBunJG"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:23"
+    },
+    "r": {
+      "identity": 1155173304420532247,
+      "start": 23,
+      "end": 2,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatedObjects",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532247",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:23",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2"
+    },
+    "m": {
+      "identity": 2,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuilding",
+        "ObjectType": "$",
+        "Description": "$",
+        "LongName": "$",
+        "Representation": "$",
+        "p21_id": "#28",
+        "CompositionType": "ELEMENT",
+        "ElevationOfTerrain": "$",
+        "Name": "Default Building",
+        "timestamp": "plugin-2",
+        "GlobalId": "1Gh7ov06vEaA9i_Giy6Vqk",
+        "ElevationOfRefHeight": "$"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2"
+    }
+  },
+  {
+    "n": {
+      "identity": 23,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#57",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "0fC9XIjizFq8TzWXBBunJG"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:23"
+    },
+    "r": {
+      "identity": 1157425104234217495,
+      "start": 23,
+      "end": 11,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatingPropertyDefinition",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217495",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:23",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:11"
+    },
+    "m": {
+      "identity": 11,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#56",
+        "Name": "Pset_BuildingStoreyCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "212teMNLL4aAkQw7tXkJRn"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:11"
+    }
+  },
+  {
+    "n": {
+      "identity": 23,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#57",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "0fC9XIjizFq8TzWXBBunJG"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:23"
+    },
+    "r": {
+      "identity": 1152921504606846999,
+      "start": 23,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606846999",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:23",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 24,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#59",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "16K$0BZCb2jRmMTr1$BARQ"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:24"
+    },
+    "r": {
+      "identity": 1155173304420532248,
+      "start": 24,
+      "end": 2,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatedObjects",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532248",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:24",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2"
+    },
+    "m": {
+      "identity": 2,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcBuilding",
+        "ObjectType": "$",
+        "Description": "$",
+        "LongName": "$",
+        "Representation": "$",
+        "p21_id": "#28",
+        "CompositionType": "ELEMENT",
+        "ElevationOfTerrain": "$",
+        "Name": "Default Building",
+        "timestamp": "plugin-2",
+        "GlobalId": "1Gh7ov06vEaA9i_Giy6Vqk",
+        "ElevationOfRefHeight": "$"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:2"
+    }
+  },
+  {
+    "n": {
+      "identity": 24,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#59",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "16K$0BZCb2jRmMTr1$BARQ"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:24"
+    },
+    "r": {
+      "identity": 1157425104234217496,
+      "start": 24,
+      "end": 12,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatingPropertyDefinition",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217496",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:24",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:12"
+    },
+    "m": {
+      "identity": 12,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#58",
+        "Name": "Pset_BuildingSystemCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "3WrAABAzj8MwdgpIVma6r8"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:12"
+    }
+  },
+  {
+    "n": {
+      "identity": 24,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#59",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "16K$0BZCb2jRmMTr1$BARQ"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:24"
+    },
+    "r": {
+      "identity": 1152921504606847000,
+      "start": 24,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606847000",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:24",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 25,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#84",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "1YxZepa$fBxvbPhE47BRxS"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:25"
+    },
+    "r": {
+      "identity": 1155173304420532249,
+      "start": 25,
+      "end": 1,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatedObjects",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532249",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:25",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:1"
+    },
+    "m": {
+      "identity": 1,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcWall",
+        "ObjectType": "Basic Wall:Wall-Ext_102Bwk-75Ins-100LBlk-12P",
+        "Description": "$",
+        "Tag": "314344",
+        "p21_id": "#63",
+        "PredefinedType": "$",
+        "Name": "Basic Wall:Wall-Ext_102Bwk-75Ins-100LBlk-12P:314344",
+        "timestamp": "plugin-2",
+        "GlobalId": "0hXkhiD$16FQZFO4CJFqCT"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:1"
+    }
+  },
+  {
+    "n": {
+      "identity": 25,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#84",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "1YxZepa$fBxvbPhE47BRxS"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:25"
+    },
+    "r": {
+      "identity": 1157425104234217497,
+      "start": 25,
+      "end": 13,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelatingPropertyDefinition",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217497",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:25",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13"
+    },
+    "m": {
+      "identity": 13,
+      "labels": [
+        "GenericNode",
+        "PrimaryNode",
+        "Node"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySet",
+        "Description": "$",
+        "p21_id": "#83",
+        "Name": "Pset_WallCommon",
+        "timestamp": "plugin-2",
+        "GlobalId": "3mqbCktXjFQfpr9$5GeuDL"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:13"
+    }
+  },
+  {
+    "n": {
+      "identity": 25,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "ConnectionNode"
+      ],
+      "properties": {
+        "EntityType": "IfcRelDefinesByProperties",
+        "Description": "$",
+        "p21_id": "#84",
+        "Name": "$",
+        "timestamp": "plugin-2",
+        "GlobalId": "1YxZepa$fBxvbPhE47BRxS"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:25"
+    },
+    "r": {
+      "identity": 1152921504606847001,
+      "start": 25,
+      "end": 31,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606847001",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:25",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "m": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    }
+  },
+  {
+    "n": {
+      "identity": 28,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPersonAndOrganization",
+        "Roles": "$",
+        "p21_id": "#4",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:28"
+    },
+    "r": {
+      "identity": 1152921504606847004,
+      "start": 28,
+      "end": 26,
+      "type": "rel",
+      "properties": {
+        "rel_type": "ThePerson",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606847004",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:28",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:26"
+    },
+    "m": {
+      "identity": 26,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPerson",
+        "Addresses": "$",
+        "FamilyName": "$",
+        "PrefixTitles": "$",
+        "GivenName": "peiling.song",
+        "Identification": "",
+        "Roles": "$",
+        "p21_id": "#2",
+        "SuffixTitles": "$",
+        "MiddleNames": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:26"
+    }
+  },
+  {
+    "n": {
+      "identity": 28,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPersonAndOrganization",
+        "Roles": "$",
+        "p21_id": "#4",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:28"
+    },
+    "r": {
+      "identity": 1155173304420532252,
+      "start": 28,
+      "end": 27,
+      "type": "rel",
+      "properties": {
+        "rel_type": "TheOrganization",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532252",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:28",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:27"
+    },
+    "m": {
+      "identity": 27,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOrganization",
+        "Addresses": "$",
+        "Description": "",
+        "Identification": "$",
+        "Roles": "$",
+        "p21_id": "#3",
+        "Name": "Unknown",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:27"
+    }
+  },
+  {
+    "n": {
+      "identity": 30,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcApplication",
+        "Version": "2025",
+        "ApplicationFullName": "Autodesk Revit 2025 (ENG)",
+        "p21_id": "#6",
+        "ApplicationIdentifier": "Revit",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:30"
+    },
+    "r": {
+      "identity": 1152921504606847006,
+      "start": 30,
+      "end": 29,
+      "type": "rel",
+      "properties": {
+        "rel_type": "ApplicationDeveloper",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606847006",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:30",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:29"
+    },
+    "m": {
+      "identity": 29,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOrganization",
+        "Addresses": "$",
+        "Description": "$",
+        "Identification": "$",
+        "Roles": "$",
+        "p21_id": "#5",
+        "Name": "Autodesk Revit 2025 (ENG)",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:29"
+    }
+  },
+  {
+    "n": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "r": {
+      "identity": 6922032627268452380,
+      "start": 31,
+      "end": 28,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwningUser",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6922032627268452380",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:28"
+    },
+    "m": {
+      "identity": 28,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPersonAndOrganization",
+        "Roles": "$",
+        "p21_id": "#4",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:28"
+    }
+  },
+  {
+    "n": {
+      "identity": 31,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcOwnerHistory",
+        "LastModifiedDate": "$",
+        "CreationDate": 1781030388,
+        "ChangeAction": "NOCHANGE",
+        "State": "$",
+        "LastModifyingApplication": "$",
+        "p21_id": "#7",
+        "LastModifyingUser": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31"
+    },
+    "r": {
+      "identity": 6919780827454767134,
+      "start": 31,
+      "end": 30,
+      "type": "rel",
+      "properties": {
+        "rel_type": "OwningApplication",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6919780827454767134",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:31",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:30"
+    },
+    "m": {
+      "identity": 30,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcApplication",
+        "Version": "2025",
+        "ApplicationFullName": "Autodesk Revit 2025 (ENG)",
+        "p21_id": "#6",
+        "ApplicationIdentifier": "Revit",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:30"
+    }
+  },
+  {
+    "n": {
+      "identity": 35,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcUnitAssignment",
+        "p21_id": "#11",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:35"
+    },
+    "r": {
+      "identity": 1152921504606847011,
+      "start": 35,
+      "end": 32,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Units",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606847011",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:35",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:32"
+    },
+    "m": {
+      "identity": 32,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcSIUnit",
+        "UnitType": "LENGTHUNIT",
+        "Dimensions": "$",
+        "Prefix": "MILLI",
+        "p21_id": "#8",
+        "Name": "METRE",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:32"
+    }
+  },
+  {
+    "n": {
+      "identity": 35,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcUnitAssignment",
+        "p21_id": "#11",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:35"
+    },
+    "r": {
+      "identity": 1155173304420532259,
+      "start": 35,
+      "end": 33,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Units",
+        "list_index": 1
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532259",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:35",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:33"
+    },
+    "m": {
+      "identity": 33,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcSIUnit",
+        "UnitType": "AREAUNIT",
+        "Dimensions": "$",
+        "Prefix": "$",
+        "p21_id": "#9",
+        "Name": "SQUARE_METRE",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:33"
+    }
+  },
+  {
+    "n": {
+      "identity": 35,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcUnitAssignment",
+        "p21_id": "#11",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:35"
+    },
+    "r": {
+      "identity": 1157425104234217507,
+      "start": 35,
+      "end": 34,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Units",
+        "list_index": 2
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217507",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:35",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:34"
+    },
+    "m": {
+      "identity": 34,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcSIUnit",
+        "UnitType": "VOLUMEUNIT",
+        "Dimensions": "$",
+        "Prefix": "$",
+        "p21_id": "#10",
+        "Name": "CUBIC_METRE",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:34"
+    }
+  },
+  {
+    "n": {
+      "identity": 36,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcGeometricRepresentationContext",
+        "ContextType": "Model",
+        "Precision": 0.01,
+        "ContextIdentifier": "$",
+        "p21_id": "#12",
+        "CoordinateSpaceDimension": 3,
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:36"
+    },
+    "r": {
+      "identity": 1152921504606847012,
+      "start": 36,
+      "end": 38,
+      "type": "rel",
+      "properties": {
+        "rel_type": "WorldCoordinateSystem",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606847012",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:36",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:38"
+    },
+    "m": {
+      "identity": 38,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcAxis2Placement3D",
+        "RefDirection": "$",
+        "p21_id": "#14",
+        "Axis": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:38"
+    }
+  },
+  {
+    "n": {
+      "identity": 36,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcGeometricRepresentationContext",
+        "ContextType": "Model",
+        "Precision": 0.01,
+        "ContextIdentifier": "$",
+        "p21_id": "#12",
+        "CoordinateSpaceDimension": 3,
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:36"
+    },
+    "r": {
+      "identity": 1155173304420532260,
+      "start": 36,
+      "end": 39,
+      "type": "rel",
+      "properties": {
+        "rel_type": "TrueNorth",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532260",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:36",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:39"
+    },
+    "m": {
+      "identity": 39,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcDirection",
+        "DirectionRatios": "(0.0, 1.0)",
+        "p21_id": "#15",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:39"
+    }
+  },
+  {
+    "n": {
+      "identity": 38,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcAxis2Placement3D",
+        "RefDirection": "$",
+        "p21_id": "#14",
+        "Axis": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:38"
+    },
+    "r": {
+      "identity": 1152921504606847014,
+      "start": 38,
+      "end": 37,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Location",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606847014",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:38",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:37"
+    },
+    "m": {
+      "identity": 37,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcCartesianPoint",
+        "Coordinates": "(0.0, 0.0, 0.0)",
+        "p21_id": "#13",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:37"
+    }
+  },
+  {
+    "n": {
+      "identity": 40,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcGeometricRepresentationSubContext",
+        "ContextType": "Model",
+        "TargetScale": "$",
+        "Precision": "$",
+        "ContextIdentifier": "Body",
+        "TargetView": "MODEL_VIEW",
+        "WorldCoordinateSystem": "$",
+        "TrueNorth": "$",
+        "p21_id": "#16",
+        "UserDefinedTargetView": "$",
+        "CoordinateSpaceDimension": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:40"
+    },
+    "r": {
+      "identity": 6922032627268452388,
+      "start": 40,
+      "end": 36,
+      "type": "rel",
+      "properties": {
+        "rel_type": "ParentContext",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6922032627268452388",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:40",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:36"
+    },
+    "m": {
+      "identity": 36,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcGeometricRepresentationContext",
+        "ContextType": "Model",
+        "Precision": 0.01,
+        "ContextIdentifier": "$",
+        "p21_id": "#12",
+        "CoordinateSpaceDimension": 3,
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:36"
+    }
+  },
+  {
+    "n": {
+      "identity": 41,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcGeometricRepresentationSubContext",
+        "ContextType": "Model",
+        "TargetScale": "$",
+        "Precision": "$",
+        "ContextIdentifier": "Axis",
+        "TargetView": "GRAPH_VIEW",
+        "WorldCoordinateSystem": "$",
+        "TrueNorth": "$",
+        "p21_id": "#17",
+        "UserDefinedTargetView": "$",
+        "CoordinateSpaceDimension": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:41"
+    },
+    "r": {
+      "identity": 6924284427082137636,
+      "start": 41,
+      "end": 36,
+      "type": "rel",
+      "properties": {
+        "rel_type": "ParentContext",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6924284427082137636",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:41",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:36"
+    },
+    "m": {
+      "identity": 36,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcGeometricRepresentationContext",
+        "ContextType": "Model",
+        "Precision": 0.01,
+        "ContextIdentifier": "$",
+        "p21_id": "#12",
+        "CoordinateSpaceDimension": 3,
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:36"
+    }
+  },
+  {
+    "n": {
+      "identity": 42,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcGeometricRepresentationSubContext",
+        "ContextType": "Model",
+        "TargetScale": "$",
+        "Precision": "$",
+        "ContextIdentifier": "Box",
+        "TargetView": "MODEL_VIEW",
+        "WorldCoordinateSystem": "$",
+        "TrueNorth": "$",
+        "p21_id": "#18",
+        "UserDefinedTargetView": "$",
+        "CoordinateSpaceDimension": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:42"
+    },
+    "r": {
+      "identity": 6926536226895822884,
+      "start": 42,
+      "end": 36,
+      "type": "rel",
+      "properties": {
+        "rel_type": "ParentContext",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6926536226895822884",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:42",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:36"
+    },
+    "m": {
+      "identity": 36,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcGeometricRepresentationContext",
+        "ContextType": "Model",
+        "Precision": 0.01,
+        "ContextIdentifier": "$",
+        "p21_id": "#12",
+        "CoordinateSpaceDimension": 3,
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:36"
+    }
+  },
+  {
+    "n": {
+      "identity": 43,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcGeometricRepresentationSubContext",
+        "ContextType": "Model",
+        "TargetScale": "$",
+        "Precision": "$",
+        "ContextIdentifier": "FootPrint",
+        "TargetView": "MODEL_VIEW",
+        "WorldCoordinateSystem": "$",
+        "TrueNorth": "$",
+        "p21_id": "#19",
+        "UserDefinedTargetView": "$",
+        "CoordinateSpaceDimension": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:43"
+    },
+    "r": {
+      "identity": 6928788026709508132,
+      "start": 43,
+      "end": 36,
+      "type": "rel",
+      "properties": {
+        "rel_type": "ParentContext",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6928788026709508132",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:43",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:36"
+    },
+    "m": {
+      "identity": 36,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcGeometricRepresentationContext",
+        "ContextType": "Model",
+        "Precision": 0.01,
+        "ContextIdentifier": "$",
+        "p21_id": "#12",
+        "CoordinateSpaceDimension": 3,
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:36"
+    }
+  },
+  {
+    "n": {
+      "identity": 45,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcAxis2Placement3D",
+        "RefDirection": "$",
+        "p21_id": "#21",
+        "Axis": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:45"
+    },
+    "r": {
+      "identity": 1152921504606847021,
+      "start": 45,
+      "end": 44,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Location",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606847021",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:45",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:44"
+    },
+    "m": {
+      "identity": 44,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcCartesianPoint",
+        "Coordinates": "(0.0, 0.0, 0.0)",
+        "p21_id": "#20",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:44"
+    }
+  },
+  {
+    "n": {
+      "identity": 46,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "PlacementRelTo": "$",
+        "p21_id": "#22",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:46"
+    },
+    "r": {
+      "identity": 6919780827454767149,
+      "start": 46,
+      "end": 45,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelativePlacement",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6919780827454767149",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:46",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:45"
+    },
+    "m": {
+      "identity": 45,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcAxis2Placement3D",
+        "RefDirection": "$",
+        "p21_id": "#21",
+        "Axis": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:45"
+    }
+  },
+  {
+    "n": {
+      "identity": 48,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcAxis2Placement3D",
+        "RefDirection": "$",
+        "p21_id": "#26",
+        "Axis": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:48"
+    },
+    "r": {
+      "identity": 1152921504606847024,
+      "start": 48,
+      "end": 47,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Location",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606847024",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:48",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:47"
+    },
+    "m": {
+      "identity": 47,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcCartesianPoint",
+        "Coordinates": "(0.0, 0.0, 0.0)",
+        "p21_id": "#25",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:47"
+    }
+  },
+  {
+    "n": {
+      "identity": 49,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#27",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:49"
+    },
+    "r": {
+      "identity": 1152921504606847025,
+      "start": 49,
+      "end": 46,
+      "type": "rel",
+      "properties": {
+        "rel_type": "PlacementRelTo",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606847025",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:49",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:46"
+    },
+    "m": {
+      "identity": 46,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "PlacementRelTo": "$",
+        "p21_id": "#22",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:46"
+    }
+  },
+  {
+    "n": {
+      "identity": 49,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#27",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:49"
+    },
+    "r": {
+      "identity": 1155173304420532273,
+      "start": 49,
+      "end": 48,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelativePlacement",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532273",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:49",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:48"
+    },
+    "m": {
+      "identity": 48,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcAxis2Placement3D",
+        "RefDirection": "$",
+        "p21_id": "#26",
+        "Axis": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:48"
+    }
+  },
+  {
+    "n": {
+      "identity": 52,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcAxis2Placement3D",
+        "RefDirection": "$",
+        "p21_id": "#32",
+        "Axis": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:52"
+    },
+    "r": {
+      "identity": 1152921504606847028,
+      "start": 52,
+      "end": 51,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Location",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606847028",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:52",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:51"
+    },
+    "m": {
+      "identity": 51,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcCartesianPoint",
+        "Coordinates": "(0.0, 0.0, 0.0)",
+        "p21_id": "#31",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:51"
+    }
+  },
+  {
+    "n": {
+      "identity": 53,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#33",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:53"
+    },
+    "r": {
+      "identity": 6922032627268452401,
+      "start": 53,
+      "end": 49,
+      "type": "rel",
+      "properties": {
+        "rel_type": "PlacementRelTo",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6922032627268452401",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:53",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:49"
+    },
+    "m": {
+      "identity": 49,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#27",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:49"
+    }
+  },
+  {
+    "n": {
+      "identity": 53,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#33",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:53"
+    },
+    "r": {
+      "identity": 6919780827454767156,
+      "start": 53,
+      "end": 52,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelativePlacement",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6919780827454767156",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:53",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:52"
+    },
+    "m": {
+      "identity": 52,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcAxis2Placement3D",
+        "RefDirection": "$",
+        "p21_id": "#32",
+        "Axis": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:52"
+    }
+  },
+  {
+    "n": {
+      "identity": 55,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcAxis2Placement3D",
+        "RefDirection": "$",
+        "p21_id": "#37",
+        "Axis": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:55"
+    },
+    "r": {
+      "identity": 1152921504606847031,
+      "start": 55,
+      "end": 54,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Location",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606847031",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:55",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:54"
+    },
+    "m": {
+      "identity": 54,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcCartesianPoint",
+        "Coordinates": "(0.0, 0.0, 0.0)",
+        "p21_id": "#36",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:54"
+    }
+  },
+  {
+    "n": {
+      "identity": 56,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#38",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:56"
+    },
+    "r": {
+      "identity": 6924284427082137649,
+      "start": 56,
+      "end": 49,
+      "type": "rel",
+      "properties": {
+        "rel_type": "PlacementRelTo",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6924284427082137649",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:56",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:49"
+    },
+    "m": {
+      "identity": 49,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#27",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:49"
+    }
+  },
+  {
+    "n": {
+      "identity": 56,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#38",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:56"
+    },
+    "r": {
+      "identity": 6919780827454767159,
+      "start": 56,
+      "end": 55,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelativePlacement",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6919780827454767159",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:56",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:55"
+    },
+    "m": {
+      "identity": 55,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcAxis2Placement3D",
+        "RefDirection": "$",
+        "p21_id": "#37",
+        "Axis": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:55"
+    }
+  },
+  {
+    "n": {
+      "identity": 57,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySingleValue",
+        "Description": "$",
+        "p21_id": "#40",
+        "Unit": "$",
+        "Name": "Reference",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:57"
+    },
+    "r": {
+      "identity": 6917529027641081940,
+      "start": 57,
+      "end": 84,
+      "type": "rel",
+      "properties": {
+        "rel_type": "NominalValue",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6917529027641081940",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:57",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:84"
+    },
+    "m": {
+      "identity": 84,
+      "labels": [
+        "Node",
+        "InlineNode"
+      ],
+      "properties": {
+        "EntityType": "IfcIdentifier",
+        "wrappedValue": "Project Information",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:84"
+    }
+  },
+  {
+    "n": {
+      "identity": 58,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySingleValue",
+        "Description": "$",
+        "p21_id": "#41",
+        "Unit": "$",
+        "Name": "Reference",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:58"
+    },
+    "r": {
+      "identity": 6917529027641081941,
+      "start": 58,
+      "end": 85,
+      "type": "rel",
+      "properties": {
+        "rel_type": "NominalValue",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6917529027641081941",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:58",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:85"
+    },
+    "m": {
+      "identity": 85,
+      "labels": [
+        "Node",
+        "InlineNode"
+      ],
+      "properties": {
+        "EntityType": "IfcIdentifier",
+        "wrappedValue": "Circle Head - Project Datum",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:85"
+    }
+  },
+  {
+    "n": {
+      "identity": 59,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySingleValue",
+        "Description": "$",
+        "p21_id": "#42",
+        "Unit": "$",
+        "Name": "AboveGround",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:59"
+    },
+    "r": {
+      "identity": 6917529027641081942,
+      "start": 59,
+      "end": 86,
+      "type": "rel",
+      "properties": {
+        "rel_type": "NominalValue",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6917529027641081942",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:59",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:86"
+    },
+    "m": {
+      "identity": 86,
+      "labels": [
+        "Node",
+        "InlineNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLogical",
+        "wrappedValue": "UNKNOWN",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:86"
+    }
+  },
+  {
+    "n": {
+      "identity": 60,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySingleValue",
+        "Description": "$",
+        "p21_id": "#43",
+        "Unit": "$",
+        "Name": "NumberOfStoreys",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:60"
+    },
+    "r": {
+      "identity": 6917529027641081943,
+      "start": 60,
+      "end": 87,
+      "type": "rel",
+      "properties": {
+        "rel_type": "NominalValue",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6917529027641081943",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:60",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:87"
+    },
+    "m": {
+      "identity": 87,
+      "labels": [
+        "Node",
+        "InlineNode"
+      ],
+      "properties": {
+        "EntityType": "IfcInteger",
+        "wrappedValue": 0,
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:87"
+    }
+  },
+  {
+    "n": {
+      "identity": 61,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySingleValue",
+        "Description": "$",
+        "p21_id": "#44",
+        "Unit": "$",
+        "Name": "IsLandmarked",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:61"
+    },
+    "r": {
+      "identity": 6917529027641081944,
+      "start": 61,
+      "end": 88,
+      "type": "rel",
+      "properties": {
+        "rel_type": "NominalValue",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6917529027641081944",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:61",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:88"
+    },
+    "m": {
+      "identity": 88,
+      "labels": [
+        "Node",
+        "InlineNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLogical",
+        "wrappedValue": "UNKNOWN",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:88"
+    }
+  },
+  {
+    "n": {
+      "identity": 62,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySingleValue",
+        "Description": "$",
+        "p21_id": "#45",
+        "Unit": "$",
+        "Name": "IsExternal",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:62"
+    },
+    "r": {
+      "identity": 6917529027641081945,
+      "start": 62,
+      "end": 89,
+      "type": "rel",
+      "properties": {
+        "rel_type": "NominalValue",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6917529027641081945",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:62",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:89"
+    },
+    "m": {
+      "identity": 89,
+      "labels": [
+        "Node",
+        "InlineNode"
+      ],
+      "properties": {
+        "EntityType": "IfcBoolean",
+        "wrappedValue": false,
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:89"
+    }
+  },
+  {
+    "n": {
+      "identity": 64,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcAxis2Placement3D",
+        "RefDirection": "$",
+        "p21_id": "#61",
+        "Axis": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:64"
+    },
+    "r": {
+      "identity": 1152921504606847040,
+      "start": 64,
+      "end": 63,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Location",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606847040",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:64",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:63"
+    },
+    "m": {
+      "identity": 63,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcCartesianPoint",
+        "Coordinates": "(-4213.26798, -195.63078, 0.0)",
+        "p21_id": "#60",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:63"
+    }
+  },
+  {
+    "n": {
+      "identity": 65,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#62",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:65"
+    },
+    "r": {
+      "identity": 1152921504606847041,
+      "start": 65,
+      "end": 53,
+      "type": "rel",
+      "properties": {
+        "rel_type": "PlacementRelTo",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606847041",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:65",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:53"
+    },
+    "m": {
+      "identity": 53,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#33",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:53"
+    }
+  },
+  {
+    "n": {
+      "identity": 65,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcLocalPlacement",
+        "p21_id": "#62",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:65"
+    },
+    "r": {
+      "identity": 1155173304420532289,
+      "start": 65,
+      "end": 64,
+      "type": "rel",
+      "properties": {
+        "rel_type": "RelativePlacement",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532289",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:65",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:64"
+    },
+    "m": {
+      "identity": 64,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcAxis2Placement3D",
+        "RefDirection": "$",
+        "p21_id": "#61",
+        "Axis": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:64"
+    }
+  },
+  {
+    "n": {
+      "identity": 79,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPolygonalFaceSet",
+        "Closed": "$",
+        "PnIndex": "$",
+        "p21_id": "#78",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79"
+    },
+    "r": {
+      "identity": 1155173304420532303,
+      "start": 79,
+      "end": 66,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Faces",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532303",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:66"
+    },
+    "m": {
+      "identity": 66,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcIndexedPolygonalFace",
+        "CoordIndex": "(1, 2, 3)",
+        "p21_id": "#65",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:66"
+    }
+  },
+  {
+    "n": {
+      "identity": 79,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPolygonalFaceSet",
+        "Closed": "$",
+        "PnIndex": "$",
+        "p21_id": "#78",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79"
+    },
+    "r": {
+      "identity": 1157425104234217551,
+      "start": 79,
+      "end": 67,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Faces",
+        "list_index": 1
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1157425104234217551",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:67"
+    },
+    "m": {
+      "identity": 67,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcIndexedPolygonalFace",
+        "CoordIndex": "(4, 3, 2)",
+        "p21_id": "#66",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:67"
+    }
+  },
+  {
+    "n": {
+      "identity": 79,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPolygonalFaceSet",
+        "Closed": "$",
+        "PnIndex": "$",
+        "p21_id": "#78",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79"
+    },
+    "r": {
+      "identity": 1159676904047902799,
+      "start": 79,
+      "end": 68,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Faces",
+        "list_index": 2
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1159676904047902799",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:68"
+    },
+    "m": {
+      "identity": 68,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcIndexedPolygonalFace",
+        "CoordIndex": "(5, 6, 7)",
+        "p21_id": "#67",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:68"
+    }
+  },
+  {
+    "n": {
+      "identity": 79,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPolygonalFaceSet",
+        "Closed": "$",
+        "PnIndex": "$",
+        "p21_id": "#78",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79"
+    },
+    "r": {
+      "identity": 1161928703861588047,
+      "start": 79,
+      "end": 69,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Faces",
+        "list_index": 3
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1161928703861588047",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:69"
+    },
+    "m": {
+      "identity": 69,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcIndexedPolygonalFace",
+        "CoordIndex": "(8, 7, 6)",
+        "p21_id": "#68",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:69"
+    }
+  },
+  {
+    "n": {
+      "identity": 79,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPolygonalFaceSet",
+        "Closed": "$",
+        "PnIndex": "$",
+        "p21_id": "#78",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79"
+    },
+    "r": {
+      "identity": 1164180503675273295,
+      "start": 79,
+      "end": 70,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Faces",
+        "list_index": 4
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1164180503675273295",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:70"
+    },
+    "m": {
+      "identity": 70,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcIndexedPolygonalFace",
+        "CoordIndex": "(4, 2, 8)",
+        "p21_id": "#69",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:70"
+    }
+  },
+  {
+    "n": {
+      "identity": 79,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPolygonalFaceSet",
+        "Closed": "$",
+        "PnIndex": "$",
+        "p21_id": "#78",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79"
+    },
+    "r": {
+      "identity": 1166432303488958543,
+      "start": 79,
+      "end": 71,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Faces",
+        "list_index": 5
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1166432303488958543",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:71"
+    },
+    "m": {
+      "identity": 71,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcIndexedPolygonalFace",
+        "CoordIndex": "(8, 6, 4)",
+        "p21_id": "#70",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:71"
+    }
+  },
+  {
+    "n": {
+      "identity": 79,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPolygonalFaceSet",
+        "Closed": "$",
+        "PnIndex": "$",
+        "p21_id": "#78",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79"
+    },
+    "r": {
+      "identity": 1168684103302643791,
+      "start": 79,
+      "end": 72,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Faces",
+        "list_index": 6
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1168684103302643791",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:72"
+    },
+    "m": {
+      "identity": 72,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcIndexedPolygonalFace",
+        "CoordIndex": "(3, 4, 6)",
+        "p21_id": "#71",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:72"
+    }
+  },
+  {
+    "n": {
+      "identity": 79,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPolygonalFaceSet",
+        "Closed": "$",
+        "PnIndex": "$",
+        "p21_id": "#78",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79"
+    },
+    "r": {
+      "identity": 1170935903116329039,
+      "start": 79,
+      "end": 73,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Faces",
+        "list_index": 7
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1170935903116329039",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:73"
+    },
+    "m": {
+      "identity": 73,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcIndexedPolygonalFace",
+        "CoordIndex": "(6, 5, 3)",
+        "p21_id": "#72",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:73"
+    }
+  },
+  {
+    "n": {
+      "identity": 79,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPolygonalFaceSet",
+        "Closed": "$",
+        "PnIndex": "$",
+        "p21_id": "#78",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79"
+    },
+    "r": {
+      "identity": 1173187702930014287,
+      "start": 79,
+      "end": 74,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Faces",
+        "list_index": 8
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1173187702930014287",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:74"
+    },
+    "m": {
+      "identity": 74,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcIndexedPolygonalFace",
+        "CoordIndex": "(1, 3, 5)",
+        "p21_id": "#73",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:74"
+    }
+  },
+  {
+    "n": {
+      "identity": 79,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPolygonalFaceSet",
+        "Closed": "$",
+        "PnIndex": "$",
+        "p21_id": "#78",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79"
+    },
+    "r": {
+      "identity": 1175439502743699535,
+      "start": 79,
+      "end": 75,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Faces",
+        "list_index": 9
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1175439502743699535",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:75"
+    },
+    "m": {
+      "identity": 75,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcIndexedPolygonalFace",
+        "CoordIndex": "(5, 7, 1)",
+        "p21_id": "#74",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:75"
+    }
+  },
+  {
+    "n": {
+      "identity": 79,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPolygonalFaceSet",
+        "Closed": "$",
+        "PnIndex": "$",
+        "p21_id": "#78",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79"
+    },
+    "r": {
+      "identity": 1177691302557384783,
+      "start": 79,
+      "end": 76,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Faces",
+        "list_index": 10
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1177691302557384783",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:76"
+    },
+    "m": {
+      "identity": 76,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcIndexedPolygonalFace",
+        "CoordIndex": "(2, 1, 7)",
+        "p21_id": "#75",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:76"
+    }
+  },
+  {
+    "n": {
+      "identity": 79,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPolygonalFaceSet",
+        "Closed": "$",
+        "PnIndex": "$",
+        "p21_id": "#78",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79"
+    },
+    "r": {
+      "identity": 1179943102371070031,
+      "start": 79,
+      "end": 77,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Faces",
+        "list_index": 11
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1179943102371070031",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:77"
+    },
+    "m": {
+      "identity": 77,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcIndexedPolygonalFace",
+        "CoordIndex": "(7, 8, 2)",
+        "p21_id": "#76",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:77"
+    }
+  },
+  {
+    "n": {
+      "identity": 79,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPolygonalFaceSet",
+        "Closed": "$",
+        "PnIndex": "$",
+        "p21_id": "#78",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79"
+    },
+    "r": {
+      "identity": 1152921504606847055,
+      "start": 79,
+      "end": 78,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Coordinates",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606847055",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:78"
+    },
+    "m": {
+      "identity": 78,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcCartesianPointList3D",
+        "p21_id": "#77",
+        "timestamp": "plugin-2",
+        "CoordList": "((-0.00014, -144.99999, 8000.00006), (-0.00014, -144.99999, 0.0), (7399.99992, -144.99999, 8000.00006), (7399.99992, -144.99999, 0.0), (7399.99992, 145.0, 8000.00006), (7399.99992, 145.0, 0.0), (-0.00014, 145.0, 8000.00006), (-0.00014, 145.0, 0.0))"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:78"
+    }
+  },
+  {
+    "n": {
+      "identity": 80,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcShapeRepresentation",
+        "RepresentationIdentifier": "Body",
+        "p21_id": "#79",
+        "timestamp": "plugin-2",
+        "RepresentationType": "Tessellation"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:80"
+    },
+    "r": {
+      "identity": 1152921504606847056,
+      "start": 80,
+      "end": 40,
+      "type": "rel",
+      "properties": {
+        "rel_type": "ContextOfItems",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1152921504606847056",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:80",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:40"
+    },
+    "m": {
+      "identity": 40,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcGeometricRepresentationSubContext",
+        "ContextType": "Model",
+        "TargetScale": "$",
+        "Precision": "$",
+        "ContextIdentifier": "Body",
+        "TargetView": "MODEL_VIEW",
+        "WorldCoordinateSystem": "$",
+        "TrueNorth": "$",
+        "p21_id": "#16",
+        "UserDefinedTargetView": "$",
+        "CoordinateSpaceDimension": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:40"
+    }
+  },
+  {
+    "n": {
+      "identity": 80,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcShapeRepresentation",
+        "RepresentationIdentifier": "Body",
+        "p21_id": "#79",
+        "timestamp": "plugin-2",
+        "RepresentationType": "Tessellation"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:80"
+    },
+    "r": {
+      "identity": 1155173304420532304,
+      "start": 80,
+      "end": 79,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Items",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:1155173304420532304",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:80",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79"
+    },
+    "m": {
+      "identity": 79,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPolygonalFaceSet",
+        "Closed": "$",
+        "PnIndex": "$",
+        "p21_id": "#78",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:79"
+    }
+  },
+  {
+    "n": {
+      "identity": 81,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcProductDefinitionShape",
+        "Description": "$",
+        "p21_id": "#80",
+        "Name": "$",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:81"
+    },
+    "r": {
+      "identity": 6922032627268452432,
+      "start": 81,
+      "end": 80,
+      "type": "rel",
+      "properties": {
+        "rel_type": "Representations",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6922032627268452432",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:81",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:80"
+    },
+    "m": {
+      "identity": 80,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcShapeRepresentation",
+        "RepresentationIdentifier": "Body",
+        "p21_id": "#79",
+        "timestamp": "plugin-2",
+        "RepresentationType": "Tessellation"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:80"
+    }
+  },
+  {
+    "n": {
+      "identity": 82,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySingleValue",
+        "Description": "$",
+        "p21_id": "#81",
+        "Unit": "$",
+        "Name": "IsExternal",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:82"
+    },
+    "r": {
+      "identity": 6917529027641081946,
+      "start": 82,
+      "end": 90,
+      "type": "rel",
+      "properties": {
+        "rel_type": "NominalValue",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6917529027641081946",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:82",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:90"
+    },
+    "m": {
+      "identity": 90,
+      "labels": [
+        "Node",
+        "InlineNode"
+      ],
+      "properties": {
+        "EntityType": "IfcBoolean",
+        "wrappedValue": true,
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:90"
+    }
+  },
+  {
+    "n": {
+      "identity": 83,
+      "labels": [
+        "GenericNode",
+        "Node",
+        "SecondaryNode"
+      ],
+      "properties": {
+        "EntityType": "IfcPropertySingleValue",
+        "Description": "$",
+        "p21_id": "#82",
+        "Unit": "$",
+        "Name": "LoadBearing",
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:83"
+    },
+    "r": {
+      "identity": 6917529027641081947,
+      "start": 83,
+      "end": 91,
+      "type": "rel",
+      "properties": {
+        "rel_type": "NominalValue",
+        "list_index": 0
+      },
+      "elementId": "5:7c85697b-0f1b-4331-a12a-5d7c0f294331:6917529027641081947",
+      "startNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:83",
+      "endNodeElementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:91"
+    },
+    "m": {
+      "identity": 91,
+      "labels": [
+        "Node",
+        "InlineNode"
+      ],
+      "properties": {
+        "EntityType": "IfcBoolean",
+        "wrappedValue": false,
+        "timestamp": "plugin-2"
+      },
+      "elementId": "4:7c85697b-0f1b-4331-a12a-5d7c0f294331:91"
+    }
+  }
+]

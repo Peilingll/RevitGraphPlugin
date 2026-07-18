@@ -1,0 +1,5265 @@
+{
+  "diff": "empty -> floor (IfcSlab)",
+  "added_node_count": 172,
+  "added_relationship_count": 206,
+  "by_type": {
+    "IfcQuantityLength": 10,
+    "IfcDirection": 10,
+    "IfcMaterial": 7,
+    "IfcColourRgb": 7,
+    "IfcSurfaceStyleRendering": 7,
+    "IfcSurfaceStyle": 7,
+    "IfcShapeRepresentation": 7,
+    "IfcNormalisedRatioMeasure": 7,
+    "IfcSpecularExponent": 7,
+    "IfcCartesianPoint": 6,
+    "IfcAxis2Placement3D": 6,
+    "IfcCartesianPointList2D": 6,
+    "IfcIndexedPolyCurve": 6,
+    "IfcMaterialConstituent": 5,
+    "IfcPhysicalComplexQuantity": 5,
+    "IfcPropertySingleValue": 5,
+    "IfcExtrudedAreaSolid": 5,
+    "IfcArbitraryClosedProfileDef": 5,
+    "IfcStyledItem": 5,
+    "IfcShapeAspect": 5,
+    "IfcPropertySet": 4,
+    "IfcRelDefinesByProperties": 4,
+    "IfcSIUnit": 4,
+    "IfcGeometricRepresentationSubContext": 4,
+    "IfcDerivedUnitElement": 3,
+    "IfcQuantityArea": 2,
+    "IfcQuantityVolume": 2,
+    "IfcPlaneAngleMeasure": 2,
+    "IfcSlab": 1,
+    "IfcSlabType": 1,
+    "IfcElementQuantity": 1,
+    "IfcRelAssociatesMaterial": 1,
+    "IfcRelContainedInSpatialStructure": 1,
+    "IfcRelDefinesByType": 1,
+    "IfcMaterialConstituentSet": 1,
+    "IfcDerivedUnit": 1,
+    "IfcDimensionalExponents": 1,
+    "IfcMeasureWithUnit": 1,
+    "IfcConversionBasedUnit": 1,
+    "IfcClassification": 1,
+    "IfcLocalPlacement": 1,
+    "IfcProductDefinitionShape": 1,
+    "IfcPresentationLayerAssignment": 1,
+    "IfcIdentifier": 1,
+    "IfcLabel": 1,
+    "IfcBoolean": 1,
+    "IfcThermalTransmittanceMeasure": 1
+  },
+  "added_nodes": [
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:75",
+      "labels": [
+        "GenericNode",
+        "PrimaryNode"
+      ],
+      "EntityType": "IfcSlab",
+      "properties": {
+        "ObjectType": "Floor:Floor-Grnd-Susp_65Scr-80Ins-100Blk-75PC",
+        "Description": "$",
+        "Tag": "314332",
+        "p21_id": "#60",
+        "PredefinedType": "FLOOR",
+        "GlobalId": "1J0i_h5953Qvu2_v$Lfpe8",
+        "Name": "Floor:Floor-Grnd-Susp_65Scr-80Ins-100Blk-75PC:314332"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:80",
+      "labels": [
+        "GenericNode",
+        "PrimaryNode"
+      ],
+      "EntityType": "IfcSlabType",
+      "properties": {
+        "RepresentationMaps": "$",
+        "ElementType": "$",
+        "Description": "$",
+        "ApplicableOccurrence": "$",
+        "Tag": "45428",
+        "p21_id": "#126",
+        "PredefinedType": "FLOOR",
+        "GlobalId": "2ru7YPT4T9MuTpOS4FRzx_",
+        "Name": "Floor:Floor-Grnd-Susp_65Scr-80Ins-100Blk-75PC"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:82",
+      "labels": [
+        "GenericNode",
+        "PrimaryNode"
+      ],
+      "EntityType": "IfcPropertySet",
+      "properties": {
+        "Description": "$",
+        "p21_id": "#158",
+        "GlobalId": "1MiKz$Bw37EOrDPBoy6Vfo",
+        "Name": "Pset_EnvironmentalImpactIndicators"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:83",
+      "labels": [
+        "GenericNode",
+        "PrimaryNode"
+      ],
+      "EntityType": "IfcPropertySet",
+      "properties": {
+        "Description": "$",
+        "p21_id": "#160",
+        "GlobalId": "0vw_EBQX_tzjtwmYMCXgLX",
+        "Name": "Pset_ReinforcementBarPitchOfSlab"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:84",
+      "labels": [
+        "GenericNode",
+        "PrimaryNode"
+      ],
+      "EntityType": "IfcPropertySet",
+      "properties": {
+        "Description": "$",
+        "p21_id": "#164",
+        "GlobalId": "2nmjjVPMTEhzy$AFbqZbtH",
+        "Name": "Pset_SlabCommon"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:85",
+      "labels": [
+        "GenericNode",
+        "PrimaryNode"
+      ],
+      "EntityType": "IfcPropertySet",
+      "properties": {
+        "Description": "$",
+        "p21_id": "#186",
+        "GlobalId": "2NrVHOjwmF6Qv_Sv8i23UT",
+        "Name": "Pset_SlabCommon"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:92",
+      "labels": [
+        "GenericNode",
+        "PrimaryNode"
+      ],
+      "EntityType": "IfcElementQuantity",
+      "properties": {
+        "Description": "$",
+        "MethodOfMeasurement": "$",
+        "p21_id": "#176",
+        "GlobalId": "1PRW9PlU14gprrd1PH2G$z",
+        "Name": "Qto_SlabBaseQuantities"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:93",
+      "labels": [
+        "ConnectionNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcRelAssociatesMaterial",
+      "properties": {
+        "Description": "$",
+        "p21_id": "#207",
+        "GlobalId": "256XFddDNvRtBm0o0QPkIg",
+        "Name": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:94",
+      "labels": [
+        "ConnectionNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcRelContainedInSpatialStructure",
+      "properties": {
+        "Description": "$",
+        "p21_id": "#191",
+        "GlobalId": "3Zu5Bv0LOHrPC10066FoQQ",
+        "Name": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:99",
+      "labels": [
+        "ConnectionNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcRelDefinesByProperties",
+      "properties": {
+        "Description": "$",
+        "p21_id": "#165",
+        "GlobalId": "3neChNd9ZMWzrkHraYuLPw",
+        "Name": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:100",
+      "labels": [
+        "ConnectionNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcRelDefinesByProperties",
+      "properties": {
+        "Description": "$",
+        "p21_id": "#166",
+        "GlobalId": "30DMNtuHwQX4JrSeBPPkwi",
+        "Name": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:101",
+      "labels": [
+        "ConnectionNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcRelDefinesByProperties",
+      "properties": {
+        "Description": "$",
+        "p21_id": "#167",
+        "GlobalId": "3OrYCVPEf9GbjBwfZ1gkfD",
+        "Name": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:102",
+      "labels": [
+        "ConnectionNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcRelDefinesByProperties",
+      "properties": {
+        "Description": "$",
+        "p21_id": "#177",
+        "GlobalId": "0Ua9p4S5xga1ZCLiMpHDmr",
+        "Name": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:109",
+      "labels": [
+        "ConnectionNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcRelDefinesByType",
+      "properties": {
+        "Description": "$",
+        "p21_id": "#208",
+        "GlobalId": "38B08YthVKLdXB2nMRbo0l",
+        "Name": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:110",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcMaterial",
+      "properties": {
+        "Description": "$",
+        "Category": "Generic",
+        "p21_id": "#128",
+        "Name": "Vapor Retarder"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:111",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcColourRgb",
+      "properties": {
+        "Red": 0.47058823529411764,
+        "Blue": 0.47058823529411764,
+        "p21_id": "#129",
+        "Green": 0.47058823529411764,
+        "Name": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:112",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcSurfaceStyleRendering",
+      "properties": {
+        "Transparency": 0.0,
+        "ReflectionColour": "$",
+        "ReflectanceMethod": "NOTDEFINED",
+        "TransmissionColour": "$",
+        "p21_id": "#130",
+        "DiffuseTransmissionColour": "$",
+        "DiffuseColour": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:113",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcSurfaceStyle",
+      "properties": {
+        "Side": "BOTH",
+        "p21_id": "#131",
+        "Name": "Vapor Retarder"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:114",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcMaterial",
+      "properties": {
+        "Description": "$",
+        "Category": "Generic",
+        "p21_id": "#132",
+        "Name": "Rigid insulation"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:115",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcMaterial",
+      "properties": {
+        "Description": "$",
+        "Category": "Gas",
+        "p21_id": "#133",
+        "Name": "Air"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:116",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcMaterial",
+      "properties": {
+        "Description": "$",
+        "Category": "Generic",
+        "p21_id": "#134",
+        "Name": "Damp-proofing"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:117",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcColourRgb",
+      "properties": {
+        "Red": 0.4980392156862745,
+        "Blue": 0.4980392156862745,
+        "p21_id": "#135",
+        "Green": 0.4980392156862745,
+        "Name": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:118",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcSurfaceStyleRendering",
+      "properties": {
+        "Transparency": 0.0,
+        "ReflectionColour": "$",
+        "ReflectanceMethod": "NOTDEFINED",
+        "TransmissionColour": "$",
+        "p21_id": "#136",
+        "DiffuseTransmissionColour": "$",
+        "DiffuseColour": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:119",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcSurfaceStyle",
+      "properties": {
+        "Side": "BOTH",
+        "p21_id": "#137",
+        "Name": "Damp-proofing"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:120",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcMaterial",
+      "properties": {
+        "Description": "$",
+        "Category": "Concrete",
+        "p21_id": "#138",
+        "Name": "Concrete Masonry, Floor Block"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:121",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcMaterial",
+      "properties": {
+        "Description": "$",
+        "Category": "Concrete",
+        "p21_id": "#139",
+        "Name": "Concrete, Precast"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:122",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcMaterialConstituent",
+      "properties": {
+        "Description": "$",
+        "Category": "Concrete",
+        "Fraction": 0.13829787234042554,
+        "p21_id": "#140",
+        "Name": "Concrete, Sand/Cement Screed"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:123",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcQuantityLength",
+      "properties": {
+        "Formula": "$",
+        "Description": "$",
+        "LengthValue": 65.0,
+        "p21_id": "#141",
+        "Unit": "$",
+        "Name": "Width"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:124",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcMaterialConstituent",
+      "properties": {
+        "Description": "$",
+        "Category": "Generic",
+        "Fraction": 0.1702127659574468,
+        "p21_id": "#142",
+        "Name": "Rigid insulation"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:125",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcQuantityLength",
+      "properties": {
+        "Formula": "$",
+        "Description": "$",
+        "LengthValue": 80.0,
+        "p21_id": "#143",
+        "Unit": "$",
+        "Name": "Width"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:126",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcMaterialConstituent",
+      "properties": {
+        "Description": "$",
+        "Category": "Gas",
+        "Fraction": 0.3191489361702128,
+        "p21_id": "#144",
+        "Name": "Air"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:127",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcQuantityLength",
+      "properties": {
+        "Formula": "$",
+        "Description": "$",
+        "LengthValue": 150.0,
+        "p21_id": "#145",
+        "Unit": "$",
+        "Name": "Width"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:128",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcMaterialConstituent",
+      "properties": {
+        "Description": "$",
+        "Category": "Concrete",
+        "Fraction": 0.2127659574468085,
+        "p21_id": "#146",
+        "Name": "Concrete Masonry, Floor Block"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:129",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcQuantityLength",
+      "properties": {
+        "Formula": "$",
+        "Description": "$",
+        "LengthValue": 100.0,
+        "p21_id": "#147",
+        "Unit": "$",
+        "Name": "Width"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:130",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcMaterialConstituent",
+      "properties": {
+        "Description": "$",
+        "Category": "Concrete",
+        "Fraction": 0.1595744680851064,
+        "p21_id": "#148",
+        "Name": "Concrete, Precast"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:131",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcQuantityLength",
+      "properties": {
+        "Formula": "$",
+        "Description": "$",
+        "LengthValue": 75.0,
+        "p21_id": "#149",
+        "Unit": "$",
+        "Name": "Width"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:132",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcMaterialConstituentSet",
+      "properties": {
+        "Description": "$",
+        "p21_id": "#150",
+        "Name": "Floor:Floor-Grnd-Susp_65Scr-80Ins-100Blk-75PC"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:133",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcPhysicalComplexQuantity",
+      "properties": {
+        "Usage": "$",
+        "Description": "$",
+        "Discrimination": "Layer",
+        "Quality": "$",
+        "p21_id": "#151",
+        "Name": "Concrete, Sand/Cement Screed"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:134",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcPhysicalComplexQuantity",
+      "properties": {
+        "Usage": "$",
+        "Description": "$",
+        "Discrimination": "Layer",
+        "Quality": "$",
+        "p21_id": "#152",
+        "Name": "Rigid insulation"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:135",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcPhysicalComplexQuantity",
+      "properties": {
+        "Usage": "$",
+        "Description": "$",
+        "Discrimination": "Layer",
+        "Quality": "$",
+        "p21_id": "#153",
+        "Name": "Air"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:136",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcPhysicalComplexQuantity",
+      "properties": {
+        "Usage": "$",
+        "Description": "$",
+        "Discrimination": "Layer",
+        "Quality": "$",
+        "p21_id": "#154",
+        "Name": "Concrete Masonry, Floor Block"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:137",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcPhysicalComplexQuantity",
+      "properties": {
+        "Usage": "$",
+        "Description": "$",
+        "Discrimination": "Layer",
+        "Quality": "$",
+        "p21_id": "#155",
+        "Name": "Concrete, Precast"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:138",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcQuantityLength",
+      "properties": {
+        "Formula": "$",
+        "Description": "$",
+        "LengthValue": 470.0,
+        "p21_id": "#156",
+        "Unit": "$",
+        "Name": "Width"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:139",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcPropertySingleValue",
+      "properties": {
+        "Description": "$",
+        "p21_id": "#157",
+        "Unit": "$",
+        "Name": "Reference"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:140",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcPropertySingleValue",
+      "properties": {
+        "Description": "$",
+        "p21_id": "#159",
+        "Unit": "$",
+        "Name": "Reference"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:141",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcPropertySingleValue",
+      "properties": {
+        "Description": "$",
+        "p21_id": "#161",
+        "Unit": "$",
+        "Name": "PitchAngle"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:143",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcPropertySingleValue",
+      "properties": {
+        "Description": "$",
+        "p21_id": "#163",
+        "Unit": "$",
+        "Name": "LoadBearing"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:144",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcQuantityLength",
+      "properties": {
+        "Formula": "$",
+        "Description": "",
+        "LengthValue": 3300.0,
+        "p21_id": "#168",
+        "Unit": "$",
+        "Name": "Width"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:145",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcQuantityLength",
+      "properties": {
+        "Formula": "$",
+        "Description": "",
+        "LengthValue": 6300.0,
+        "p21_id": "#169",
+        "Unit": "$",
+        "Name": "Length"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:146",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcQuantityLength",
+      "properties": {
+        "Formula": "$",
+        "Description": "",
+        "LengthValue": 75.0,
+        "p21_id": "#170",
+        "Unit": "$",
+        "Name": "Depth"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:147",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcQuantityLength",
+      "properties": {
+        "Formula": "$",
+        "Description": "",
+        "LengthValue": 62.99212598425197,
+        "p21_id": "#171",
+        "Unit": "$",
+        "Name": "Perimeter"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:148",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcQuantityArea",
+      "properties": {
+        "Formula": "$",
+        "Description": "",
+        "p21_id": "#172",
+        "Unit": "$",
+        "Name": "GrossArea",
+        "AreaValue": 20.79
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:149",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcQuantityArea",
+      "properties": {
+        "Formula": "$",
+        "Description": "",
+        "p21_id": "#173",
+        "Unit": "$",
+        "Name": "NetArea",
+        "AreaValue": 20.79
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:150",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcQuantityVolume",
+      "properties": {
+        "Formula": "$",
+        "Description": "",
+        "VolumeValue": 1.55925,
+        "p21_id": "#174",
+        "Unit": "$",
+        "Name": "GrossVolume"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:151",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcQuantityVolume",
+      "properties": {
+        "Formula": "$",
+        "Description": "",
+        "VolumeValue": 9.771300000000002,
+        "p21_id": "#175",
+        "Unit": "$",
+        "Name": "NetVolume"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:152",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcSIUnit",
+      "properties": {
+        "UnitType": "MASSUNIT",
+        "Dimensions": "$",
+        "Prefix": "KILO",
+        "p21_id": "#178",
+        "Name": "GRAM"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:153",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcDerivedUnitElement",
+      "properties": {
+        "Exponent": 1,
+        "p21_id": "#179"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:154",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcSIUnit",
+      "properties": {
+        "UnitType": "THERMODYNAMICTEMPERATUREUNIT",
+        "Dimensions": "$",
+        "Prefix": "$",
+        "p21_id": "#180",
+        "Name": "KELVIN"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:155",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcDerivedUnitElement",
+      "properties": {
+        "Exponent": -1,
+        "p21_id": "#181"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:156",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcSIUnit",
+      "properties": {
+        "UnitType": "TIMEUNIT",
+        "Dimensions": "$",
+        "Prefix": "$",
+        "p21_id": "#182",
+        "Name": "SECOND"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:157",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcDerivedUnitElement",
+      "properties": {
+        "Exponent": -3,
+        "p21_id": "#183"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:158",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcDerivedUnit",
+      "properties": {
+        "UnitType": "THERMALTRANSMITTANCEUNIT",
+        "UserDefinedType": "$",
+        "p21_id": "#184"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:159",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcPropertySingleValue",
+      "properties": {
+        "Description": "$",
+        "p21_id": "#185",
+        "Unit": "$",
+        "Name": "ThermalTransmittance"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:162",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcCartesianPoint",
+      "properties": {
+        "Coordinates": "(-703.8303819319353, 814.2074230042193, -65.0)",
+        "p21_id": "#64"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:163",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcAxis2Placement3D",
+      "properties": {
+        "p21_id": "#65"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:164",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcExtrudedAreaSolid",
+      "properties": {
+        "p21_id": "#66",
+        "Depth": 65.0
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:165",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcSIUnit",
+      "properties": {
+        "UnitType": "PLANEANGLEUNIT",
+        "Dimensions": "$",
+        "Prefix": "$",
+        "p21_id": "#67",
+        "Name": "RADIAN"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:166",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcDimensionalExponents",
+      "properties": {
+        "LuminousIntensityExponent": 0,
+        "AmountOfSubstanceExponent": 0,
+        "LengthExponent": 0,
+        "ElectricCurrentExponent": 0,
+        "TimeExponent": 0,
+        "p21_id": "#68",
+        "ThermodynamicTemperatureExponent": 0,
+        "MassExponent": 0
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:167",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcMeasureWithUnit",
+      "properties": {
+        "p21_id": "#69"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:168",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcConversionBasedUnit",
+      "properties": {
+        "UnitType": "PLANEANGLEUNIT",
+        "p21_id": "#70",
+        "Name": "DEGREE"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:169",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcCartesianPointList2D",
+      "properties": {
+        "p21_id": "#71",
+        "CoordList": "((-3149.9999999999995, -1650.0), (3150.000000000001, -1650.0), (3149.9999999999995, 1650.0), (-3149.9999999999995, 1650.0), (-3149.9999999999995, -1650.0))"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:170",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcIndexedPolyCurve",
+      "properties": {
+        "Segments": "$",
+        "p21_id": "#72",
+        "SelfIntersect": false
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:171",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcArbitraryClosedProfileDef",
+      "properties": {
+        "ProfileType": "AREA",
+        "ProfileName": "Floor-Grnd-Susp_65Scr-80Ins-100Blk-75PC",
+        "p21_id": "#73"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:172",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcCartesianPoint",
+      "properties": {
+        "Coordinates": "(-703.8303819319353, 814.2074230042193, -145.0)",
+        "p21_id": "#74"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:173",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcAxis2Placement3D",
+      "properties": {
+        "p21_id": "#75"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:174",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcExtrudedAreaSolid",
+      "properties": {
+        "p21_id": "#76",
+        "Depth": 79.99999999999999
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:175",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcCartesianPointList2D",
+      "properties": {
+        "p21_id": "#77",
+        "CoordList": "((-3150.0, -1650.0), (3150.0, -1650.0), (3150.0, 1650.0), (-3150.0, 1650.0), (-3150.0, -1650.0))"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:176",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcIndexedPolyCurve",
+      "properties": {
+        "Segments": "$",
+        "p21_id": "#78",
+        "SelfIntersect": false
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:177",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcArbitraryClosedProfileDef",
+      "properties": {
+        "ProfileType": "AREA",
+        "ProfileName": "Floor-Grnd-Susp_65Scr-80Ins-100Blk-75PC",
+        "p21_id": "#79"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:178",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcCartesianPoint",
+      "properties": {
+        "Coordinates": "(-703.8303819319357, 814.2074230042193, -295.0)",
+        "p21_id": "#80"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:179",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcAxis2Placement3D",
+      "properties": {
+        "p21_id": "#81"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:180",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcExtrudedAreaSolid",
+      "properties": {
+        "p21_id": "#82",
+        "Depth": 150.0
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:181",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcCartesianPointList2D",
+      "properties": {
+        "p21_id": "#83",
+        "CoordList": "((-3150.0, -1650.0), (3150.0, -1650.0), (3150.0, 1650.0), (-3150.0, 1650.0), (-3150.0, -1650.0))"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:182",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcIndexedPolyCurve",
+      "properties": {
+        "Segments": "$",
+        "p21_id": "#84",
+        "SelfIntersect": false
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:183",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcArbitraryClosedProfileDef",
+      "properties": {
+        "ProfileType": "AREA",
+        "ProfileName": "Floor-Grnd-Susp_65Scr-80Ins-100Blk-75PC",
+        "p21_id": "#85"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:184",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcCartesianPoint",
+      "properties": {
+        "Coordinates": "(-703.8303819319357, 814.2074230042193, -395.0)",
+        "p21_id": "#86"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:185",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcAxis2Placement3D",
+      "properties": {
+        "p21_id": "#87"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:186",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcExtrudedAreaSolid",
+      "properties": {
+        "p21_id": "#88",
+        "Depth": 100.0
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:187",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcCartesianPointList2D",
+      "properties": {
+        "p21_id": "#89",
+        "CoordList": "((-3150.0, -1650.0), (3150.0, -1650.0), (3150.0, 1650.0), (-3150.0, 1650.0), (-3150.0, -1650.0))"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:188",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcIndexedPolyCurve",
+      "properties": {
+        "Segments": "$",
+        "p21_id": "#90",
+        "SelfIntersect": false
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:189",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcArbitraryClosedProfileDef",
+      "properties": {
+        "ProfileType": "AREA",
+        "ProfileName": "Floor-Grnd-Susp_65Scr-80Ins-100Blk-75PC",
+        "p21_id": "#91"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:190",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcCartesianPoint",
+      "properties": {
+        "Coordinates": "(-703.8303819319357, 814.2074230042193, -470.0)",
+        "p21_id": "#92"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:191",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcAxis2Placement3D",
+      "properties": {
+        "p21_id": "#93"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:192",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcExtrudedAreaSolid",
+      "properties": {
+        "p21_id": "#94",
+        "Depth": 75.0
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:193",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcColourRgb",
+      "properties": {
+        "Red": 0.4980392156862745,
+        "Blue": 0.4980392156862745,
+        "p21_id": "#95",
+        "Green": 0.4980392156862745,
+        "Name": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:194",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcSurfaceStyleRendering",
+      "properties": {
+        "Transparency": 0.0,
+        "ReflectionColour": "$",
+        "ReflectanceMethod": "NOTDEFINED",
+        "TransmissionColour": "$",
+        "p21_id": "#96",
+        "DiffuseTransmissionColour": "$",
+        "DiffuseColour": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:195",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcSurfaceStyle",
+      "properties": {
+        "Side": "BOTH",
+        "p21_id": "#97",
+        "Name": "Concrete, Sand/Cement Screed"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:196",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcStyledItem",
+      "properties": {
+        "p21_id": "#98",
+        "Name": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:197",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcColourRgb",
+      "properties": {
+        "Red": 0.4980392156862745,
+        "Blue": 0.4980392156862745,
+        "p21_id": "#99",
+        "Green": 0.4980392156862745,
+        "Name": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:198",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcSurfaceStyleRendering",
+      "properties": {
+        "Transparency": 0.0,
+        "ReflectionColour": "$",
+        "ReflectanceMethod": "NOTDEFINED",
+        "TransmissionColour": "$",
+        "p21_id": "#100",
+        "DiffuseTransmissionColour": "$",
+        "DiffuseColour": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:199",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcSurfaceStyle",
+      "properties": {
+        "Side": "BOTH",
+        "p21_id": "#101",
+        "Name": "Rigid insulation"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:200",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcStyledItem",
+      "properties": {
+        "p21_id": "#102",
+        "Name": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:201",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcColourRgb",
+      "properties": {
+        "Red": 1.0,
+        "Blue": 1.0,
+        "p21_id": "#103",
+        "Green": 1.0,
+        "Name": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:202",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcSurfaceStyleRendering",
+      "properties": {
+        "Transparency": 0.0,
+        "ReflectionColour": "$",
+        "ReflectanceMethod": "NOTDEFINED",
+        "TransmissionColour": "$",
+        "p21_id": "#104",
+        "DiffuseTransmissionColour": "$",
+        "DiffuseColour": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:203",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcSurfaceStyle",
+      "properties": {
+        "Side": "BOTH",
+        "p21_id": "#105",
+        "Name": "Air"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:204",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcStyledItem",
+      "properties": {
+        "p21_id": "#106",
+        "Name": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:205",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcColourRgb",
+      "properties": {
+        "Red": 0.7098039215686275,
+        "Blue": 0.7098039215686275,
+        "p21_id": "#107",
+        "Green": 0.7098039215686275,
+        "Name": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:206",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcSurfaceStyleRendering",
+      "properties": {
+        "Transparency": 0.0,
+        "ReflectionColour": "$",
+        "ReflectanceMethod": "NOTDEFINED",
+        "TransmissionColour": "$",
+        "p21_id": "#108",
+        "DiffuseTransmissionColour": "$",
+        "DiffuseColour": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:207",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcSurfaceStyle",
+      "properties": {
+        "Side": "BOTH",
+        "p21_id": "#109",
+        "Name": "Concrete Masonry, Floor Block"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:208",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcStyledItem",
+      "properties": {
+        "p21_id": "#110",
+        "Name": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:209",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcColourRgb",
+      "properties": {
+        "Red": 0.7529411764705882,
+        "Blue": 0.7529411764705882,
+        "p21_id": "#111",
+        "Green": 0.7529411764705882,
+        "Name": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:210",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcSurfaceStyleRendering",
+      "properties": {
+        "Transparency": 0.0,
+        "ReflectionColour": "$",
+        "ReflectanceMethod": "NOTDEFINED",
+        "TransmissionColour": "$",
+        "p21_id": "#112",
+        "DiffuseTransmissionColour": "$",
+        "DiffuseColour": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:211",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcSurfaceStyle",
+      "properties": {
+        "Side": "BOTH",
+        "p21_id": "#113",
+        "Name": "Concrete, Precast"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:212",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcStyledItem",
+      "properties": {
+        "p21_id": "#114",
+        "Name": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:213",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcShapeRepresentation",
+      "properties": {
+        "RepresentationIdentifier": "Body",
+        "p21_id": "#115",
+        "RepresentationType": "SweptSolid"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:214",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcShapeRepresentation",
+      "properties": {
+        "RepresentationIdentifier": "Body",
+        "p21_id": "#116",
+        "RepresentationType": "SweptSolid"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:215",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcShapeAspect",
+      "properties": {
+        "ProductDefinitional": "UNKNOWN",
+        "Description": "$",
+        "p21_id": "#117",
+        "Name": "Concrete, Sand/Cement Screed"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:216",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcShapeRepresentation",
+      "properties": {
+        "RepresentationIdentifier": "Body",
+        "p21_id": "#118",
+        "RepresentationType": "SweptSolid"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:217",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcShapeAspect",
+      "properties": {
+        "ProductDefinitional": "UNKNOWN",
+        "Description": "$",
+        "p21_id": "#119",
+        "Name": "Rigid insulation"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:218",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcShapeRepresentation",
+      "properties": {
+        "RepresentationIdentifier": "Body",
+        "p21_id": "#120",
+        "RepresentationType": "SweptSolid"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:219",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcShapeAspect",
+      "properties": {
+        "ProductDefinitional": "UNKNOWN",
+        "Description": "$",
+        "p21_id": "#121",
+        "Name": "Air"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:220",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcShapeRepresentation",
+      "properties": {
+        "RepresentationIdentifier": "Body",
+        "p21_id": "#122",
+        "RepresentationType": "SweptSolid"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:221",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcShapeAspect",
+      "properties": {
+        "ProductDefinitional": "UNKNOWN",
+        "Description": "$",
+        "p21_id": "#123",
+        "Name": "Concrete Masonry, Floor Block"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:222",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcShapeRepresentation",
+      "properties": {
+        "RepresentationIdentifier": "Body",
+        "p21_id": "#124",
+        "RepresentationType": "SweptSolid"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:223",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcShapeAspect",
+      "properties": {
+        "ProductDefinitional": "UNKNOWN",
+        "Description": "$",
+        "p21_id": "#125",
+        "Name": "Concrete, Precast"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:224",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcMaterial",
+      "properties": {
+        "Description": "$",
+        "Category": "Concrete",
+        "p21_id": "#127",
+        "Name": "Concrete, Sand/Cement Screed"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:228",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcCartesianPoint",
+      "properties": {
+        "Coordinates": "(0.0, 0.0)",
+        "p21_id": "#4"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:229",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcDirection",
+      "properties": {
+        "DirectionRatios": "(1.0, 0.0, 0.0)",
+        "p21_id": "#5"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:230",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcDirection",
+      "properties": {
+        "DirectionRatios": "(-1.0, 0.0, 0.0)",
+        "p21_id": "#6"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:231",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcDirection",
+      "properties": {
+        "DirectionRatios": "(0.0, 1.0, 0.0)",
+        "p21_id": "#7"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:232",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcDirection",
+      "properties": {
+        "DirectionRatios": "(0.0, -1.0, 0.0)",
+        "p21_id": "#8"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:233",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcDirection",
+      "properties": {
+        "DirectionRatios": "(0.0, 0.0, 1.0)",
+        "p21_id": "#9"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:234",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcDirection",
+      "properties": {
+        "DirectionRatios": "(0.0, 0.0, -1.0)",
+        "p21_id": "#10"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:235",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcDirection",
+      "properties": {
+        "DirectionRatios": "(1.0, 0.0)",
+        "p21_id": "#11"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:236",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcDirection",
+      "properties": {
+        "DirectionRatios": "(-1.0, 0.0)",
+        "p21_id": "#12"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:237",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcDirection",
+      "properties": {
+        "DirectionRatios": "(0.0, 1.0)",
+        "p21_id": "#13"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:238",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcDirection",
+      "properties": {
+        "DirectionRatios": "(0.0, -1.0)",
+        "p21_id": "#14"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:249",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcGeometricRepresentationSubContext",
+      "properties": {
+        "ContextType": "Model",
+        "TargetScale": "$",
+        "ContextIdentifier": "Axis",
+        "Precision": "$",
+        "TargetView": "GRAPH_VIEW",
+        "WorldCoordinateSystem": "$",
+        "TrueNorth": "$",
+        "p21_id": "#25",
+        "UserDefinedTargetView": "$",
+        "CoordinateSpaceDimension": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:250",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcGeometricRepresentationSubContext",
+      "properties": {
+        "ContextType": "Model",
+        "TargetScale": "$",
+        "ContextIdentifier": "Body",
+        "Precision": "$",
+        "TargetView": "MODEL_VIEW",
+        "WorldCoordinateSystem": "$",
+        "TrueNorth": "$",
+        "p21_id": "#26",
+        "UserDefinedTargetView": "$",
+        "CoordinateSpaceDimension": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:251",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcGeometricRepresentationSubContext",
+      "properties": {
+        "ContextType": "Model",
+        "TargetScale": "$",
+        "ContextIdentifier": "Box",
+        "Precision": "$",
+        "TargetView": "MODEL_VIEW",
+        "WorldCoordinateSystem": "$",
+        "TrueNorth": "$",
+        "p21_id": "#27",
+        "UserDefinedTargetView": "$",
+        "CoordinateSpaceDimension": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:252",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcGeometricRepresentationSubContext",
+      "properties": {
+        "ContextType": "Model",
+        "TargetScale": "$",
+        "ContextIdentifier": "FootPrint",
+        "Precision": "$",
+        "TargetView": "MODEL_VIEW",
+        "WorldCoordinateSystem": "$",
+        "TrueNorth": "$",
+        "p21_id": "#28",
+        "UserDefinedTargetView": "$",
+        "CoordinateSpaceDimension": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:253",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcClassification",
+      "properties": {
+        "Description": "UniFormat Classification",
+        "EditionDate": "$",
+        "p21_id": "#30",
+        "Source": "CSI (Construction Specifications Institute)",
+        "Edition": "1998",
+        "ReferenceTokens": "$",
+        "Name": "Uniformat",
+        "Location": "https://www.csiresources.org/standards/uniformat"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:265",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcAxis2Placement3D",
+      "properties": {
+        "RefDirection": "$",
+        "p21_id": "#48",
+        "Axis": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:266",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcLocalPlacement",
+      "properties": {
+        "p21_id": "#49"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:267",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcCartesianPointList2D",
+      "properties": {
+        "p21_id": "#56",
+        "CoordList": "((-3853.830381931936, -835.7925769957808), (-3853.830381931936, 2464.2074230042194), (2446.1696180680647, 2464.2074230042194), (2446.1696180680647, -835.7925769957808), (-3853.830381931936, -835.7925769957808))"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:268",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcIndexedPolyCurve",
+      "properties": {
+        "Segments": "$",
+        "p21_id": "#57",
+        "SelfIntersect": false
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:269",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcShapeRepresentation",
+      "properties": {
+        "RepresentationIdentifier": "FootPrint",
+        "p21_id": "#58",
+        "RepresentationType": "Curve2D"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:270",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcProductDefinitionShape",
+      "properties": {
+        "Description": "$",
+        "p21_id": "#59",
+        "Name": "$"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:271",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcCartesianPointList2D",
+      "properties": {
+        "p21_id": "#61",
+        "CoordList": "((-3149.9999999999995, -1650.0), (3150.000000000001, -1650.0), (3149.9999999999995, 1650.0), (-3149.9999999999995, 1650.0), (-3149.9999999999995, -1650.0))"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:272",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcIndexedPolyCurve",
+      "properties": {
+        "Segments": "$",
+        "p21_id": "#62",
+        "SelfIntersect": false
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:273",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcArbitraryClosedProfileDef",
+      "properties": {
+        "ProfileType": "AREA",
+        "ProfileName": "Floor-Grnd-Susp_65Scr-80Ins-100Blk-75PC",
+        "p21_id": "#63"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:276",
+      "labels": [
+        "SecondaryNode",
+        "GenericNode"
+      ],
+      "EntityType": "IfcPresentationLayerAssignment",
+      "properties": {
+        "Description": "$",
+        "Identifier": "$",
+        "p21_id": "#209",
+        "Name": "A-FLOR-____-OTLN"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:278",
+      "labels": [
+        "InlineNode"
+      ],
+      "EntityType": "IfcNormalisedRatioMeasure",
+      "properties": {
+        "wrappedValue": 0.5
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:279",
+      "labels": [
+        "InlineNode"
+      ],
+      "EntityType": "IfcSpecularExponent",
+      "properties": {
+        "wrappedValue": 64.0
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:280",
+      "labels": [
+        "InlineNode"
+      ],
+      "EntityType": "IfcNormalisedRatioMeasure",
+      "properties": {
+        "wrappedValue": 0.5
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:281",
+      "labels": [
+        "InlineNode"
+      ],
+      "EntityType": "IfcSpecularExponent",
+      "properties": {
+        "wrappedValue": 64.0
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:282",
+      "labels": [
+        "InlineNode"
+      ],
+      "EntityType": "IfcIdentifier",
+      "properties": {
+        "wrappedValue": "Floor-Grnd-Susp_65Scr-80Ins-100Blk-75PC"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:283",
+      "labels": [
+        "InlineNode"
+      ],
+      "EntityType": "IfcLabel",
+      "properties": {
+        "wrappedValue": "Floor-Grnd-Susp_65Scr-80Ins-100Blk-75PC"
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:284",
+      "labels": [
+        "InlineNode"
+      ],
+      "EntityType": "IfcPlaneAngleMeasure",
+      "properties": {
+        "wrappedValue": 0.0
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:286",
+      "labels": [
+        "InlineNode"
+      ],
+      "EntityType": "IfcBoolean",
+      "properties": {
+        "wrappedValue": true
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:287",
+      "labels": [
+        "InlineNode"
+      ],
+      "EntityType": "IfcThermalTransmittanceMeasure",
+      "properties": {
+        "wrappedValue": 0.11743760826329636
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:290",
+      "labels": [
+        "InlineNode"
+      ],
+      "EntityType": "IfcPlaneAngleMeasure",
+      "properties": {
+        "wrappedValue": 0.017453292519943278
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:291",
+      "labels": [
+        "InlineNode"
+      ],
+      "EntityType": "IfcNormalisedRatioMeasure",
+      "properties": {
+        "wrappedValue": 0.5
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:292",
+      "labels": [
+        "InlineNode"
+      ],
+      "EntityType": "IfcSpecularExponent",
+      "properties": {
+        "wrappedValue": 0.0
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:293",
+      "labels": [
+        "InlineNode"
+      ],
+      "EntityType": "IfcNormalisedRatioMeasure",
+      "properties": {
+        "wrappedValue": 0.5
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:294",
+      "labels": [
+        "InlineNode"
+      ],
+      "EntityType": "IfcSpecularExponent",
+      "properties": {
+        "wrappedValue": 64.0
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:295",
+      "labels": [
+        "InlineNode"
+      ],
+      "EntityType": "IfcNormalisedRatioMeasure",
+      "properties": {
+        "wrappedValue": 0.5
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:296",
+      "labels": [
+        "InlineNode"
+      ],
+      "EntityType": "IfcSpecularExponent",
+      "properties": {
+        "wrappedValue": 64.0
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:297",
+      "labels": [
+        "InlineNode"
+      ],
+      "EntityType": "IfcNormalisedRatioMeasure",
+      "properties": {
+        "wrappedValue": 0.5
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:298",
+      "labels": [
+        "InlineNode"
+      ],
+      "EntityType": "IfcSpecularExponent",
+      "properties": {
+        "wrappedValue": 128.0
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:299",
+      "labels": [
+        "InlineNode"
+      ],
+      "EntityType": "IfcNormalisedRatioMeasure",
+      "properties": {
+        "wrappedValue": 0.5
+      }
+    },
+    {
+      "id": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:300",
+      "labels": [
+        "InlineNode"
+      ],
+      "EntityType": "IfcSpecularExponent",
+      "properties": {
+        "wrappedValue": 128.0
+      }
+    }
+  ],
+  "added_relationships": [
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:75",
+      "from_etype": "IfcSlab",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:242",
+      "to_etype": "IfcOwnerHistory",
+      "to_is_new": false,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": true
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:75",
+      "from_etype": "IfcSlab",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:266",
+      "to_etype": "IfcLocalPlacement",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ObjectPlacement",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:75",
+      "from_etype": "IfcSlab",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:270",
+      "to_etype": "IfcProductDefinitionShape",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Representation",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:80",
+      "from_etype": "IfcSlabType",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:85",
+      "to_etype": "IfcPropertySet",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "HasPropertySets",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:80",
+      "from_etype": "IfcSlabType",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:242",
+      "to_etype": "IfcOwnerHistory",
+      "to_is_new": false,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": true
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:82",
+      "from_etype": "IfcPropertySet",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:139",
+      "to_etype": "IfcPropertySingleValue",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "HasProperties",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:82",
+      "from_etype": "IfcPropertySet",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:242",
+      "to_etype": "IfcOwnerHistory",
+      "to_is_new": false,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": true
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:83",
+      "from_etype": "IfcPropertySet",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:140",
+      "to_etype": "IfcPropertySingleValue",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "HasProperties",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:83",
+      "from_etype": "IfcPropertySet",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:242",
+      "to_etype": "IfcOwnerHistory",
+      "to_is_new": false,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": true
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:84",
+      "from_etype": "IfcPropertySet",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:139",
+      "to_etype": "IfcPropertySingleValue",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "HasProperties",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:84",
+      "from_etype": "IfcPropertySet",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:141",
+      "to_etype": "IfcPropertySingleValue",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "HasProperties",
+        "list_index": 1
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:84",
+      "from_etype": "IfcPropertySet",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:142",
+      "to_etype": "IfcPropertySingleValue",
+      "to_is_new": false,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "HasProperties",
+        "list_index": 2
+      },
+      "gluing_to_preserved_context": true
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:84",
+      "from_etype": "IfcPropertySet",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:143",
+      "to_etype": "IfcPropertySingleValue",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "HasProperties",
+        "list_index": 3
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:84",
+      "from_etype": "IfcPropertySet",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:242",
+      "to_etype": "IfcOwnerHistory",
+      "to_is_new": false,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": true
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:85",
+      "from_etype": "IfcPropertySet",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:159",
+      "to_etype": "IfcPropertySingleValue",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "HasProperties",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:85",
+      "from_etype": "IfcPropertySet",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:242",
+      "to_etype": "IfcOwnerHistory",
+      "to_is_new": false,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": true
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:92",
+      "from_etype": "IfcElementQuantity",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:133",
+      "to_etype": "IfcPhysicalComplexQuantity",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Quantities",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:92",
+      "from_etype": "IfcElementQuantity",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:134",
+      "to_etype": "IfcPhysicalComplexQuantity",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Quantities",
+        "list_index": 1
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:92",
+      "from_etype": "IfcElementQuantity",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:135",
+      "to_etype": "IfcPhysicalComplexQuantity",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Quantities",
+        "list_index": 2
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:92",
+      "from_etype": "IfcElementQuantity",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:136",
+      "to_etype": "IfcPhysicalComplexQuantity",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Quantities",
+        "list_index": 3
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:92",
+      "from_etype": "IfcElementQuantity",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:137",
+      "to_etype": "IfcPhysicalComplexQuantity",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Quantities",
+        "list_index": 4
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:92",
+      "from_etype": "IfcElementQuantity",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:138",
+      "to_etype": "IfcQuantityLength",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Quantities",
+        "list_index": 5
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:92",
+      "from_etype": "IfcElementQuantity",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:145",
+      "to_etype": "IfcQuantityLength",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Quantities",
+        "list_index": 6
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:92",
+      "from_etype": "IfcElementQuantity",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:146",
+      "to_etype": "IfcQuantityLength",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Quantities",
+        "list_index": 7
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:92",
+      "from_etype": "IfcElementQuantity",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:147",
+      "to_etype": "IfcQuantityLength",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Quantities",
+        "list_index": 8
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:92",
+      "from_etype": "IfcElementQuantity",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:148",
+      "to_etype": "IfcQuantityArea",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Quantities",
+        "list_index": 9
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:92",
+      "from_etype": "IfcElementQuantity",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:149",
+      "to_etype": "IfcQuantityArea",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Quantities",
+        "list_index": 10
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:92",
+      "from_etype": "IfcElementQuantity",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:150",
+      "to_etype": "IfcQuantityVolume",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Quantities",
+        "list_index": 11
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:92",
+      "from_etype": "IfcElementQuantity",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:151",
+      "to_etype": "IfcQuantityVolume",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Quantities",
+        "list_index": 12
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:92",
+      "from_etype": "IfcElementQuantity",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:242",
+      "to_etype": "IfcOwnerHistory",
+      "to_is_new": false,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": true
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:93",
+      "from_etype": "IfcRelAssociatesMaterial",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:75",
+      "to_etype": "IfcSlab",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "RelatedObjects",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:93",
+      "from_etype": "IfcRelAssociatesMaterial",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:80",
+      "to_etype": "IfcSlabType",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "RelatedObjects",
+        "list_index": 1
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:93",
+      "from_etype": "IfcRelAssociatesMaterial",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:132",
+      "to_etype": "IfcMaterialConstituentSet",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "RelatingMaterial",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:93",
+      "from_etype": "IfcRelAssociatesMaterial",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:242",
+      "to_etype": "IfcOwnerHistory",
+      "to_is_new": false,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": true
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:94",
+      "from_etype": "IfcRelContainedInSpatialStructure",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:75",
+      "to_etype": "IfcSlab",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "RelatedElements",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:94",
+      "from_etype": "IfcRelContainedInSpatialStructure",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:77",
+      "to_etype": "IfcBuildingStorey",
+      "to_is_new": false,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "RelatingStructure",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": true
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:94",
+      "from_etype": "IfcRelContainedInSpatialStructure",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:242",
+      "to_etype": "IfcOwnerHistory",
+      "to_is_new": false,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": true
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:99",
+      "from_etype": "IfcRelDefinesByProperties",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:75",
+      "to_etype": "IfcSlab",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "RelatedObjects",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:99",
+      "from_etype": "IfcRelDefinesByProperties",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:82",
+      "to_etype": "IfcPropertySet",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "RelatingPropertyDefinition",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:99",
+      "from_etype": "IfcRelDefinesByProperties",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:242",
+      "to_etype": "IfcOwnerHistory",
+      "to_is_new": false,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": true
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:100",
+      "from_etype": "IfcRelDefinesByProperties",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:75",
+      "to_etype": "IfcSlab",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "RelatedObjects",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:100",
+      "from_etype": "IfcRelDefinesByProperties",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:83",
+      "to_etype": "IfcPropertySet",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "RelatingPropertyDefinition",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:100",
+      "from_etype": "IfcRelDefinesByProperties",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:242",
+      "to_etype": "IfcOwnerHistory",
+      "to_is_new": false,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": true
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:101",
+      "from_etype": "IfcRelDefinesByProperties",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:75",
+      "to_etype": "IfcSlab",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "RelatedObjects",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:101",
+      "from_etype": "IfcRelDefinesByProperties",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:84",
+      "to_etype": "IfcPropertySet",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "RelatingPropertyDefinition",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:101",
+      "from_etype": "IfcRelDefinesByProperties",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:242",
+      "to_etype": "IfcOwnerHistory",
+      "to_is_new": false,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": true
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:102",
+      "from_etype": "IfcRelDefinesByProperties",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:75",
+      "to_etype": "IfcSlab",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "RelatedObjects",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:102",
+      "from_etype": "IfcRelDefinesByProperties",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:92",
+      "to_etype": "IfcElementQuantity",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "RelatingPropertyDefinition",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:102",
+      "from_etype": "IfcRelDefinesByProperties",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:242",
+      "to_etype": "IfcOwnerHistory",
+      "to_is_new": false,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": true
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:109",
+      "from_etype": "IfcRelDefinesByType",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:75",
+      "to_etype": "IfcSlab",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "RelatedObjects",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:109",
+      "from_etype": "IfcRelDefinesByType",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:80",
+      "to_etype": "IfcSlabType",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "RelatingType",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:109",
+      "from_etype": "IfcRelDefinesByType",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:242",
+      "to_etype": "IfcOwnerHistory",
+      "to_is_new": false,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "OwnerHistory",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": true
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:112",
+      "from_etype": "IfcSurfaceStyleRendering",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:111",
+      "to_etype": "IfcColourRgb",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SurfaceColour",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:112",
+      "from_etype": "IfcSurfaceStyleRendering",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:278",
+      "to_etype": "IfcNormalisedRatioMeasure",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SpecularColour",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:112",
+      "from_etype": "IfcSurfaceStyleRendering",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:279",
+      "to_etype": "IfcSpecularExponent",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SpecularHighlight",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:113",
+      "from_etype": "IfcSurfaceStyle",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:112",
+      "to_etype": "IfcSurfaceStyleRendering",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Styles",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:118",
+      "from_etype": "IfcSurfaceStyleRendering",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:117",
+      "to_etype": "IfcColourRgb",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SurfaceColour",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:118",
+      "from_etype": "IfcSurfaceStyleRendering",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:280",
+      "to_etype": "IfcNormalisedRatioMeasure",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SpecularColour",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:118",
+      "from_etype": "IfcSurfaceStyleRendering",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:281",
+      "to_etype": "IfcSpecularExponent",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SpecularHighlight",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:119",
+      "from_etype": "IfcSurfaceStyle",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:118",
+      "to_etype": "IfcSurfaceStyleRendering",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Styles",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:122",
+      "from_etype": "IfcMaterialConstituent",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:224",
+      "to_etype": "IfcMaterial",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Material",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:124",
+      "from_etype": "IfcMaterialConstituent",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:114",
+      "to_etype": "IfcMaterial",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Material",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:126",
+      "from_etype": "IfcMaterialConstituent",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:115",
+      "to_etype": "IfcMaterial",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Material",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:128",
+      "from_etype": "IfcMaterialConstituent",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:120",
+      "to_etype": "IfcMaterial",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Material",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:130",
+      "from_etype": "IfcMaterialConstituent",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:121",
+      "to_etype": "IfcMaterial",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Material",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:132",
+      "from_etype": "IfcMaterialConstituentSet",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:122",
+      "to_etype": "IfcMaterialConstituent",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "MaterialConstituents",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:132",
+      "from_etype": "IfcMaterialConstituentSet",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:124",
+      "to_etype": "IfcMaterialConstituent",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "MaterialConstituents",
+        "list_index": 1
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:132",
+      "from_etype": "IfcMaterialConstituentSet",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:126",
+      "to_etype": "IfcMaterialConstituent",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "MaterialConstituents",
+        "list_index": 2
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:132",
+      "from_etype": "IfcMaterialConstituentSet",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:128",
+      "to_etype": "IfcMaterialConstituent",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "MaterialConstituents",
+        "list_index": 3
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:132",
+      "from_etype": "IfcMaterialConstituentSet",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:130",
+      "to_etype": "IfcMaterialConstituent",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "MaterialConstituents",
+        "list_index": 4
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:133",
+      "from_etype": "IfcPhysicalComplexQuantity",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:123",
+      "to_etype": "IfcQuantityLength",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "HasQuantities",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:134",
+      "from_etype": "IfcPhysicalComplexQuantity",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:125",
+      "to_etype": "IfcQuantityLength",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "HasQuantities",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:135",
+      "from_etype": "IfcPhysicalComplexQuantity",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:127",
+      "to_etype": "IfcQuantityLength",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "HasQuantities",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:136",
+      "from_etype": "IfcPhysicalComplexQuantity",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:129",
+      "to_etype": "IfcQuantityLength",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "HasQuantities",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:137",
+      "from_etype": "IfcPhysicalComplexQuantity",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:131",
+      "to_etype": "IfcQuantityLength",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "HasQuantities",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:139",
+      "from_etype": "IfcPropertySingleValue",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:282",
+      "to_etype": "IfcIdentifier",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "NominalValue",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:140",
+      "from_etype": "IfcPropertySingleValue",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:283",
+      "to_etype": "IfcLabel",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "NominalValue",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:141",
+      "from_etype": "IfcPropertySingleValue",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:284",
+      "to_etype": "IfcPlaneAngleMeasure",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "NominalValue",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:143",
+      "from_etype": "IfcPropertySingleValue",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:286",
+      "to_etype": "IfcBoolean",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "NominalValue",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:153",
+      "from_etype": "IfcDerivedUnitElement",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:152",
+      "to_etype": "IfcSIUnit",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Unit",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:155",
+      "from_etype": "IfcDerivedUnitElement",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:154",
+      "to_etype": "IfcSIUnit",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Unit",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:157",
+      "from_etype": "IfcDerivedUnitElement",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:156",
+      "to_etype": "IfcSIUnit",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Unit",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:158",
+      "from_etype": "IfcDerivedUnit",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:153",
+      "to_etype": "IfcDerivedUnitElement",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Elements",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:158",
+      "from_etype": "IfcDerivedUnit",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:155",
+      "to_etype": "IfcDerivedUnitElement",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Elements",
+        "list_index": 1
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:158",
+      "from_etype": "IfcDerivedUnit",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:157",
+      "to_etype": "IfcDerivedUnitElement",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Elements",
+        "list_index": 2
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:159",
+      "from_etype": "IfcPropertySingleValue",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:287",
+      "to_etype": "IfcThermalTransmittanceMeasure",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "NominalValue",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:163",
+      "from_etype": "IfcAxis2Placement3D",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:162",
+      "to_etype": "IfcCartesianPoint",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Location",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:163",
+      "from_etype": "IfcAxis2Placement3D",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:230",
+      "to_etype": "IfcDirection",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "RefDirection",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:163",
+      "from_etype": "IfcAxis2Placement3D",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:233",
+      "to_etype": "IfcDirection",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Axis",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:164",
+      "from_etype": "IfcExtrudedAreaSolid",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:163",
+      "to_etype": "IfcAxis2Placement3D",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Position",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:164",
+      "from_etype": "IfcExtrudedAreaSolid",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:233",
+      "to_etype": "IfcDirection",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ExtrudedDirection",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:164",
+      "from_etype": "IfcExtrudedAreaSolid",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:273",
+      "to_etype": "IfcArbitraryClosedProfileDef",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SweptArea",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:167",
+      "from_etype": "IfcMeasureWithUnit",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:165",
+      "to_etype": "IfcSIUnit",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "UnitComponent",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:167",
+      "from_etype": "IfcMeasureWithUnit",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:290",
+      "to_etype": "IfcPlaneAngleMeasure",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ValueComponent",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:168",
+      "from_etype": "IfcConversionBasedUnit",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:166",
+      "to_etype": "IfcDimensionalExponents",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Dimensions",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:168",
+      "from_etype": "IfcConversionBasedUnit",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:167",
+      "to_etype": "IfcMeasureWithUnit",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ConversionFactor",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:170",
+      "from_etype": "IfcIndexedPolyCurve",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:169",
+      "to_etype": "IfcCartesianPointList2D",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Points",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:171",
+      "from_etype": "IfcArbitraryClosedProfileDef",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:170",
+      "to_etype": "IfcIndexedPolyCurve",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "OuterCurve",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:173",
+      "from_etype": "IfcAxis2Placement3D",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:172",
+      "to_etype": "IfcCartesianPoint",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Location",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:173",
+      "from_etype": "IfcAxis2Placement3D",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:230",
+      "to_etype": "IfcDirection",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "RefDirection",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:173",
+      "from_etype": "IfcAxis2Placement3D",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:233",
+      "to_etype": "IfcDirection",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Axis",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:174",
+      "from_etype": "IfcExtrudedAreaSolid",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:171",
+      "to_etype": "IfcArbitraryClosedProfileDef",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SweptArea",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:174",
+      "from_etype": "IfcExtrudedAreaSolid",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:173",
+      "to_etype": "IfcAxis2Placement3D",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Position",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:174",
+      "from_etype": "IfcExtrudedAreaSolid",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:233",
+      "to_etype": "IfcDirection",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ExtrudedDirection",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:176",
+      "from_etype": "IfcIndexedPolyCurve",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:175",
+      "to_etype": "IfcCartesianPointList2D",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Points",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:177",
+      "from_etype": "IfcArbitraryClosedProfileDef",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:176",
+      "to_etype": "IfcIndexedPolyCurve",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "OuterCurve",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:179",
+      "from_etype": "IfcAxis2Placement3D",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:178",
+      "to_etype": "IfcCartesianPoint",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Location",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:179",
+      "from_etype": "IfcAxis2Placement3D",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:230",
+      "to_etype": "IfcDirection",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "RefDirection",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:179",
+      "from_etype": "IfcAxis2Placement3D",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:233",
+      "to_etype": "IfcDirection",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Axis",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:180",
+      "from_etype": "IfcExtrudedAreaSolid",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:177",
+      "to_etype": "IfcArbitraryClosedProfileDef",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SweptArea",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:180",
+      "from_etype": "IfcExtrudedAreaSolid",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:179",
+      "to_etype": "IfcAxis2Placement3D",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Position",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:180",
+      "from_etype": "IfcExtrudedAreaSolid",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:233",
+      "to_etype": "IfcDirection",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ExtrudedDirection",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:182",
+      "from_etype": "IfcIndexedPolyCurve",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:181",
+      "to_etype": "IfcCartesianPointList2D",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Points",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:183",
+      "from_etype": "IfcArbitraryClosedProfileDef",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:182",
+      "to_etype": "IfcIndexedPolyCurve",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "OuterCurve",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:185",
+      "from_etype": "IfcAxis2Placement3D",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:184",
+      "to_etype": "IfcCartesianPoint",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Location",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:185",
+      "from_etype": "IfcAxis2Placement3D",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:230",
+      "to_etype": "IfcDirection",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "RefDirection",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:185",
+      "from_etype": "IfcAxis2Placement3D",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:233",
+      "to_etype": "IfcDirection",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Axis",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:186",
+      "from_etype": "IfcExtrudedAreaSolid",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:183",
+      "to_etype": "IfcArbitraryClosedProfileDef",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SweptArea",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:186",
+      "from_etype": "IfcExtrudedAreaSolid",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:185",
+      "to_etype": "IfcAxis2Placement3D",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Position",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:186",
+      "from_etype": "IfcExtrudedAreaSolid",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:233",
+      "to_etype": "IfcDirection",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ExtrudedDirection",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:188",
+      "from_etype": "IfcIndexedPolyCurve",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:187",
+      "to_etype": "IfcCartesianPointList2D",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Points",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:189",
+      "from_etype": "IfcArbitraryClosedProfileDef",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:188",
+      "to_etype": "IfcIndexedPolyCurve",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "OuterCurve",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:191",
+      "from_etype": "IfcAxis2Placement3D",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:190",
+      "to_etype": "IfcCartesianPoint",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Location",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:191",
+      "from_etype": "IfcAxis2Placement3D",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:230",
+      "to_etype": "IfcDirection",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "RefDirection",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:191",
+      "from_etype": "IfcAxis2Placement3D",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:233",
+      "to_etype": "IfcDirection",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Axis",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:192",
+      "from_etype": "IfcExtrudedAreaSolid",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:189",
+      "to_etype": "IfcArbitraryClosedProfileDef",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SweptArea",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:192",
+      "from_etype": "IfcExtrudedAreaSolid",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:191",
+      "to_etype": "IfcAxis2Placement3D",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Position",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:192",
+      "from_etype": "IfcExtrudedAreaSolid",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:233",
+      "to_etype": "IfcDirection",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ExtrudedDirection",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:194",
+      "from_etype": "IfcSurfaceStyleRendering",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:193",
+      "to_etype": "IfcColourRgb",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SurfaceColour",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:194",
+      "from_etype": "IfcSurfaceStyleRendering",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:291",
+      "to_etype": "IfcNormalisedRatioMeasure",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SpecularColour",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:194",
+      "from_etype": "IfcSurfaceStyleRendering",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:292",
+      "to_etype": "IfcSpecularExponent",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SpecularHighlight",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:195",
+      "from_etype": "IfcSurfaceStyle",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:194",
+      "to_etype": "IfcSurfaceStyleRendering",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Styles",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:196",
+      "from_etype": "IfcStyledItem",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:164",
+      "to_etype": "IfcExtrudedAreaSolid",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Item",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:196",
+      "from_etype": "IfcStyledItem",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:195",
+      "to_etype": "IfcSurfaceStyle",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Styles",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:198",
+      "from_etype": "IfcSurfaceStyleRendering",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:197",
+      "to_etype": "IfcColourRgb",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SurfaceColour",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:198",
+      "from_etype": "IfcSurfaceStyleRendering",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:293",
+      "to_etype": "IfcNormalisedRatioMeasure",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SpecularColour",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:198",
+      "from_etype": "IfcSurfaceStyleRendering",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:294",
+      "to_etype": "IfcSpecularExponent",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SpecularHighlight",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:199",
+      "from_etype": "IfcSurfaceStyle",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:198",
+      "to_etype": "IfcSurfaceStyleRendering",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Styles",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:200",
+      "from_etype": "IfcStyledItem",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:174",
+      "to_etype": "IfcExtrudedAreaSolid",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Item",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:200",
+      "from_etype": "IfcStyledItem",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:199",
+      "to_etype": "IfcSurfaceStyle",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Styles",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:202",
+      "from_etype": "IfcSurfaceStyleRendering",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:201",
+      "to_etype": "IfcColourRgb",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SurfaceColour",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:202",
+      "from_etype": "IfcSurfaceStyleRendering",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:295",
+      "to_etype": "IfcNormalisedRatioMeasure",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SpecularColour",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:202",
+      "from_etype": "IfcSurfaceStyleRendering",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:296",
+      "to_etype": "IfcSpecularExponent",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SpecularHighlight",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:203",
+      "from_etype": "IfcSurfaceStyle",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:202",
+      "to_etype": "IfcSurfaceStyleRendering",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Styles",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:204",
+      "from_etype": "IfcStyledItem",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:180",
+      "to_etype": "IfcExtrudedAreaSolid",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Item",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:204",
+      "from_etype": "IfcStyledItem",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:203",
+      "to_etype": "IfcSurfaceStyle",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Styles",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:206",
+      "from_etype": "IfcSurfaceStyleRendering",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:205",
+      "to_etype": "IfcColourRgb",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SurfaceColour",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:206",
+      "from_etype": "IfcSurfaceStyleRendering",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:297",
+      "to_etype": "IfcNormalisedRatioMeasure",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SpecularColour",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:206",
+      "from_etype": "IfcSurfaceStyleRendering",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:298",
+      "to_etype": "IfcSpecularExponent",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SpecularHighlight",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:207",
+      "from_etype": "IfcSurfaceStyle",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:206",
+      "to_etype": "IfcSurfaceStyleRendering",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Styles",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:208",
+      "from_etype": "IfcStyledItem",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:186",
+      "to_etype": "IfcExtrudedAreaSolid",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Item",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:208",
+      "from_etype": "IfcStyledItem",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:207",
+      "to_etype": "IfcSurfaceStyle",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Styles",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:210",
+      "from_etype": "IfcSurfaceStyleRendering",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:209",
+      "to_etype": "IfcColourRgb",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SurfaceColour",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:210",
+      "from_etype": "IfcSurfaceStyleRendering",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:299",
+      "to_etype": "IfcNormalisedRatioMeasure",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SpecularColour",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:210",
+      "from_etype": "IfcSurfaceStyleRendering",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:300",
+      "to_etype": "IfcSpecularExponent",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "SpecularHighlight",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:211",
+      "from_etype": "IfcSurfaceStyle",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:210",
+      "to_etype": "IfcSurfaceStyleRendering",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Styles",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:212",
+      "from_etype": "IfcStyledItem",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:192",
+      "to_etype": "IfcExtrudedAreaSolid",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Item",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:212",
+      "from_etype": "IfcStyledItem",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:211",
+      "to_etype": "IfcSurfaceStyle",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Styles",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:213",
+      "from_etype": "IfcShapeRepresentation",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:164",
+      "to_etype": "IfcExtrudedAreaSolid",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Items",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:213",
+      "from_etype": "IfcShapeRepresentation",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:174",
+      "to_etype": "IfcExtrudedAreaSolid",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Items",
+        "list_index": 1
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:213",
+      "from_etype": "IfcShapeRepresentation",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:180",
+      "to_etype": "IfcExtrudedAreaSolid",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Items",
+        "list_index": 2
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:213",
+      "from_etype": "IfcShapeRepresentation",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:186",
+      "to_etype": "IfcExtrudedAreaSolid",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Items",
+        "list_index": 3
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:213",
+      "from_etype": "IfcShapeRepresentation",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:192",
+      "to_etype": "IfcExtrudedAreaSolid",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Items",
+        "list_index": 4
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:213",
+      "from_etype": "IfcShapeRepresentation",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:250",
+      "to_etype": "IfcGeometricRepresentationSubContext",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ContextOfItems",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:214",
+      "from_etype": "IfcShapeRepresentation",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:164",
+      "to_etype": "IfcExtrudedAreaSolid",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Items",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:214",
+      "from_etype": "IfcShapeRepresentation",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:250",
+      "to_etype": "IfcGeometricRepresentationSubContext",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ContextOfItems",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:215",
+      "from_etype": "IfcShapeAspect",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:214",
+      "to_etype": "IfcShapeRepresentation",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ShapeRepresentations",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:215",
+      "from_etype": "IfcShapeAspect",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:270",
+      "to_etype": "IfcProductDefinitionShape",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "PartOfProductDefinitionShape",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:216",
+      "from_etype": "IfcShapeRepresentation",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:174",
+      "to_etype": "IfcExtrudedAreaSolid",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Items",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:216",
+      "from_etype": "IfcShapeRepresentation",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:250",
+      "to_etype": "IfcGeometricRepresentationSubContext",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ContextOfItems",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:217",
+      "from_etype": "IfcShapeAspect",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:216",
+      "to_etype": "IfcShapeRepresentation",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ShapeRepresentations",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:217",
+      "from_etype": "IfcShapeAspect",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:270",
+      "to_etype": "IfcProductDefinitionShape",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "PartOfProductDefinitionShape",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:218",
+      "from_etype": "IfcShapeRepresentation",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:180",
+      "to_etype": "IfcExtrudedAreaSolid",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Items",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:218",
+      "from_etype": "IfcShapeRepresentation",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:250",
+      "to_etype": "IfcGeometricRepresentationSubContext",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ContextOfItems",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:219",
+      "from_etype": "IfcShapeAspect",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:218",
+      "to_etype": "IfcShapeRepresentation",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ShapeRepresentations",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:219",
+      "from_etype": "IfcShapeAspect",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:270",
+      "to_etype": "IfcProductDefinitionShape",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "PartOfProductDefinitionShape",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:220",
+      "from_etype": "IfcShapeRepresentation",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:186",
+      "to_etype": "IfcExtrudedAreaSolid",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Items",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:220",
+      "from_etype": "IfcShapeRepresentation",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:250",
+      "to_etype": "IfcGeometricRepresentationSubContext",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ContextOfItems",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:221",
+      "from_etype": "IfcShapeAspect",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:220",
+      "to_etype": "IfcShapeRepresentation",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ShapeRepresentations",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:221",
+      "from_etype": "IfcShapeAspect",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:270",
+      "to_etype": "IfcProductDefinitionShape",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "PartOfProductDefinitionShape",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:222",
+      "from_etype": "IfcShapeRepresentation",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:192",
+      "to_etype": "IfcExtrudedAreaSolid",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Items",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:222",
+      "from_etype": "IfcShapeRepresentation",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:250",
+      "to_etype": "IfcGeometricRepresentationSubContext",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ContextOfItems",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:223",
+      "from_etype": "IfcShapeAspect",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:222",
+      "to_etype": "IfcShapeRepresentation",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ShapeRepresentations",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:223",
+      "from_etype": "IfcShapeAspect",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:270",
+      "to_etype": "IfcProductDefinitionShape",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "PartOfProductDefinitionShape",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:249",
+      "from_etype": "IfcGeometricRepresentationSubContext",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:248",
+      "to_etype": "IfcGeometricRepresentationContext",
+      "to_is_new": false,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ParentContext",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": true
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:250",
+      "from_etype": "IfcGeometricRepresentationSubContext",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:248",
+      "to_etype": "IfcGeometricRepresentationContext",
+      "to_is_new": false,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ParentContext",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": true
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:251",
+      "from_etype": "IfcGeometricRepresentationSubContext",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:248",
+      "to_etype": "IfcGeometricRepresentationContext",
+      "to_is_new": false,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ParentContext",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": true
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:252",
+      "from_etype": "IfcGeometricRepresentationSubContext",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:248",
+      "to_etype": "IfcGeometricRepresentationContext",
+      "to_is_new": false,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ParentContext",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": true
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:265",
+      "from_etype": "IfcAxis2Placement3D",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:227",
+      "to_etype": "IfcCartesianPoint",
+      "to_is_new": false,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Location",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": true
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:266",
+      "from_etype": "IfcLocalPlacement",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:258",
+      "to_etype": "IfcLocalPlacement",
+      "to_is_new": false,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "PlacementRelTo",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": true
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:266",
+      "from_etype": "IfcLocalPlacement",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:265",
+      "to_etype": "IfcAxis2Placement3D",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "RelativePlacement",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:268",
+      "from_etype": "IfcIndexedPolyCurve",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:267",
+      "to_etype": "IfcCartesianPointList2D",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Points",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:269",
+      "from_etype": "IfcShapeRepresentation",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:252",
+      "to_etype": "IfcGeometricRepresentationSubContext",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "ContextOfItems",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:269",
+      "from_etype": "IfcShapeRepresentation",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:268",
+      "to_etype": "IfcIndexedPolyCurve",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Items",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:270",
+      "from_etype": "IfcProductDefinitionShape",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:213",
+      "to_etype": "IfcShapeRepresentation",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Representations",
+        "list_index": 1
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:270",
+      "from_etype": "IfcProductDefinitionShape",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:269",
+      "to_etype": "IfcShapeRepresentation",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Representations",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:272",
+      "from_etype": "IfcIndexedPolyCurve",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:271",
+      "to_etype": "IfcCartesianPointList2D",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Points",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:273",
+      "from_etype": "IfcArbitraryClosedProfileDef",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:272",
+      "to_etype": "IfcIndexedPolyCurve",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "OuterCurve",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:276",
+      "from_etype": "IfcPresentationLayerAssignment",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:213",
+      "to_etype": "IfcShapeRepresentation",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "AssignedItems",
+        "list_index": 0
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:276",
+      "from_etype": "IfcPresentationLayerAssignment",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:214",
+      "to_etype": "IfcShapeRepresentation",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "AssignedItems",
+        "list_index": 1
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:276",
+      "from_etype": "IfcPresentationLayerAssignment",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:216",
+      "to_etype": "IfcShapeRepresentation",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "AssignedItems",
+        "list_index": 2
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:276",
+      "from_etype": "IfcPresentationLayerAssignment",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:218",
+      "to_etype": "IfcShapeRepresentation",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "AssignedItems",
+        "list_index": 3
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:276",
+      "from_etype": "IfcPresentationLayerAssignment",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:220",
+      "to_etype": "IfcShapeRepresentation",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "AssignedItems",
+        "list_index": 4
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:276",
+      "from_etype": "IfcPresentationLayerAssignment",
+      "from_is_new": true,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:222",
+      "to_etype": "IfcShapeRepresentation",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "AssignedItems",
+        "list_index": 5
+      },
+      "gluing_to_preserved_context": false
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:277",
+      "from_etype": "IfcUnitAssignment",
+      "from_is_new": false,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:158",
+      "to_etype": "IfcDerivedUnit",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Units",
+        "list_index": 4
+      },
+      "gluing_to_preserved_context": true
+    },
+    {
+      "from": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:277",
+      "from_etype": "IfcUnitAssignment",
+      "from_is_new": false,
+      "to": "4:a1ccaf9c-6859-4f16-bf8d-3d35409e62ed:168",
+      "to_etype": "IfcConversionBasedUnit",
+      "to_is_new": true,
+      "rel_type": "rel",
+      "properties": {
+        "rel_type": "Units",
+        "list_index": 3
+      },
+      "gluing_to_preserved_context": true
+    }
+  ]
+}

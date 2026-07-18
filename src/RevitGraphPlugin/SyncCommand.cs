@@ -4,6 +4,7 @@ using Autodesk.Revit.UI;
 using GeometryGym.Ifc;
 using RevitGraphPlugin.Cypher;
 using RevitGraphPlugin.Ifc;
+using RevitGraphPlugin.Ifc.Converters;
 
 namespace RevitGraphPlugin;
 
@@ -19,16 +20,16 @@ public class SyncCommand : IExternalCommand
             return Result.Cancelled;
         }
 
-        // Phase A — build the in-memory IFC tree on the UI thread (Revit API access).
-        DatabaseIfc db;
+        // Phase A — build the in-memory IFC tree (shared with SyncDirectCommand).
+        IfcModelContext ctx;
         try
         {
-            db = BoilerplateBuilder.Build(doc);
+            ctx = ModelAssembler.Build(doc);
         }
         catch (Exception ex)
         {
             TaskDialog.Show("RevitGraphPlugin",
-                $"Failed to build IFC boilerplate:\n{ex.GetBaseException().Message}");
+                $"Failed to build IFC model:\n{ex.GetBaseException().Message}");
             return Result.Failed;
         }
 
@@ -39,7 +40,7 @@ public class SyncCommand : IExternalCommand
         IfcSnippetSink.SinkResult result;
         try
         {
-            result = IfcSnippetSink.Run(db, action: "CREATE", timestamp: "plugin-2");
+            result = IfcSnippetSink.Run(ctx.Db, action: "CREATE", timestamp: "plugin-bridge");
         }
         catch (Exception ex)
         {
@@ -49,7 +50,8 @@ public class SyncCommand : IExternalCommand
         }
 
         TaskDialog.Show("RevitGraphPlugin",
-            $"Sync done via Python bridge.\n\n" +
+            $"Sync done via TEMP-IFC BRIDGE (ConMan2).\n\n" +
+            $"Timestamp: plugin-bridge\n" +
             $"Temp IFC: {result.TempIfcPath}\n\n" +
             $"--- script output ---\n{result.Stdout}");
         return Result.Succeeded;

@@ -10,9 +10,9 @@ public class RevitGraphApp : IExternalApplication
 
     public Result OnStartup(UIControlledApplication application)
     {
-        // Neo4j is written by the Python bridge (ConMan2's Neo4jConnection), so the
-        // plugin no longer opens a C# driver here. SyncCommand spawns the bridge on
-        // demand. See doc_process/2026-05-29-architecture-revisit-ifc-snippets.md.
+        // Two sinks, two buttons (see BuildRibbon): the temp-IFC bridge (SyncCommand)
+        // and the direct C# write (SyncDirectCommand). Drivers/processes are opened on
+        // demand inside each command, not here.
         BuildRibbon(application);
         return Result.Succeeded;
     }
@@ -30,14 +30,27 @@ public class RevitGraphApp : IExternalApplication
         var panel = application.CreateRibbonPanel(RibbonTab, RibbonPanel);
         var assemblyPath = Assembly.GetExecutingAssembly().Location;
 
-        var button = new PushButtonData(
-            "SyncCurrentDocument",
-            "Sync\ncurrent doc",
+        var bridgeButton = new PushButtonData(
+            "SyncBridge",
+            "Sync\n(bridge)",
             assemblyPath,
             typeof(SyncCommand).FullName)
         {
-            ToolTip = "Skeleton: verifies Neo4j connectivity. Sync logic to be implemented."
+            ToolTip = "Write the current model to Neo4j via the TEMP-IFC bridge "
+                    + "(ggifc → .ifc → ConMan2). Timestamp: plugin-bridge."
         };
-        panel.AddItem(button);
+
+        var directButton = new PushButtonData(
+            "SyncDirect",
+            "Sync\n(direct)",
+            assemblyPath,
+            typeof(SyncDirectCommand).FullName)
+        {
+            ToolTip = "Write the current model to Neo4j directly (no temp IFC) via "
+                    + "CypherEmitter. Timestamp: plugin-direct."
+        };
+
+        panel.AddItem(bridgeButton);
+        panel.AddItem(directButton);
     }
 }
