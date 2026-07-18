@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics;
 using System.Reflection;
 using GeometryGym.Ifc;
 using RevitGraphPlugin.Ifc;
@@ -70,6 +71,16 @@ public static class EntityWalker
         var edges = new List<EdgeData>();
         var inlines = new List<InlineData>();
 
+        // Node properties: lossless STEP-line source (方案 B). Every primitive attribute
+        // value ($/''/*/.ENUM./int/real/list) is taken verbatim from ggifc's Part-21
+        // output, which faithfully preserves unset/derived/empty-string distinctions that
+        // the property getters collapse. See doc/log/2026-07-12_direct-roundtrip-diagnosis.md.
+        EmitPropertiesFromStepLine(entity, entityType, props);
+
+        // Edges + inline nodes: reflection (unchanged; verified isomorphic to the bridge
+        // graph — 128 relationships matched). Only entity references, inline IfcValues,
+        // and aggregates thereof are consumed here; primitive slots belong to the STEP
+        // properties above.
         foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {
             var name = prop.Name;
@@ -86,26 +97,61 @@ public static class EntityWalker
             try { value = prop.GetValue(entity); }
             catch { continue; }
 
-            EmitAttribute(p21, name, value, props, edges, inlines);
+            EmitEdgesAndInlines(p21, name, value, edges, inlines);
         }
 
         return new EntityData(p21, entityType, globalId, kind, props, edges, inlines);
     }
 
-    private static void EmitAttribute(
+    /// <summary>
+    /// Fills node properties from the entity's Part-21 (STEP) line, mapping each parameter
+    /// positionally onto its EXPRESS-declared attribute name. Only primitive slots become
+    /// properties; references / typed inline values are left to the reflection pass.
+    /// Throws (fail-loud) if ggifc's parameter count does not match the schema, so a
+    /// malformed serialization surfaces the offending entity instead of corrupting silently.
+    /// </summary>
+    private static void EmitPropertiesFromStepLine(
+        BaseClassIfc entity, string entityType, Dictionary<string, object> props)
+    {
+        var names = Ifc4Schema.GetOrderedAttributes(entityType);
+        if (names.Count == 0)
+        {
+            // Type absent from the IFC4 schema: no ordered attribute list to map onto.
+            // Edges/inlines still come from reflection below.
+            Debug.WriteLine(
+                $"[EntityWalker] '{entityType}' not in IFC4 schema — no STEP-based properties.");
+            return;
+        }
+
+        var stepLine = entity.ToString();
+        var tokens = StepLineParser.ParseArguments(stepLine);
+        if (tokens.Count != names.Count)
+            throw new InvalidOperationException(
+                $"STEP argument count {tokens.Count} != schema attribute count {names.Count} " +
+                $"for {entityType} (#{entity.StepId}). Line: {stepLine}");
+
+        for (var i = 0; i < names.Count; i++)
+        {
+            var name = names[i];
+            if (name == "GlobalId") continue; // already set from IfcRoot.GlobalId
+            if (StepLineParser.TryToPropertyValue(tokens[i], out var value))
+                props[name] = value;
+        }
+    }
+
+    /// <summary>
+    /// Extracts outgoing edges and inline-node children for one attribute value via
+    /// reflection. Primitive scalars and primitive aggregates are ignored here — those
+    /// are node properties, emitted from the STEP line by <see cref="EmitPropertiesFromStepLine"/>.
+    /// </summary>
+    private static void EmitEdgesAndInlines(
         int sourceP21,
         string name,
         object? value,
-        Dictionary<string, object> props,
         List<EdgeData> edges,
         List<InlineData> inlines)
     {
-        // null  →  "$"  (ConMan2 convention)
-        if (value is null)
-        {
-            props[name] = "$";
-            return;
-        }
+        if (value is null) return;
 
         // Entity reference (StepId > 0)
         if (value is BaseClassIfc refEntity)
@@ -127,54 +173,13 @@ public static class EntityWalker
             return;
         }
 
-        // Enum  →  uppercase string
-        if (value is Enum enumValue)
-        {
-            props[name] = enumValue.ToString().ToUpperInvariant();
-            return;
-        }
-
-        // DateTime  →  Unix epoch seconds (matches ConMan2's IfcTimeStamp encoding,
-        // which keeps the raw integer from the .ifc STEP file).
-        if (value is DateTime dt)
-        {
-            var utc = dt.Kind == DateTimeKind.Utc ? dt : dt.ToUniversalTime();
-            props[name] = new DateTimeOffset(utc, TimeSpan.Zero).ToUnixTimeSeconds();
-            return;
-        }
-
-        // Primitive
-        if (value is string s)
-        {
-            props[name] = string.IsNullOrEmpty(s) ? "$" : s;
-            return;
-        }
-        // Non-finite reals (NaN / Infinity) are what ggifc's getter returns for an
-        // UNSET optional real attribute (e.g. IfcBuilding.ElevationOfTerrain,
-        // IfcGeometricRepresentationSubContext.TargetScale). Same lossy-getter family
-        // as null-string → "$". Store "$" so graph_2_ifc skips them; otherwise
-        // ifcopenshell rejects them on rebuild ("Only finite values are allowed").
-        if (value is double dbl)
-        {
-            props[name] = double.IsFinite(dbl) ? (object)dbl : "$";
-            return;
-        }
-        if (value is float flt)
-        {
-            props[name] = float.IsFinite(flt) ? (object)flt : "$";
-            return;
-        }
-        if (value is int or long or bool or decimal)
-        {
-            props[name] = value;
-            return;
-        }
+        // String is IEnumerable<char>; it is a primitive property, not a collection.
+        if (value is string) return;
 
         // Dictionary (e.g. IfcPropertySet.HasProperties, keyed by property name).
         // ggifc stores these as Dictionary<string, IfcProperty>; emit an edge to each
         // value entity. MUST precede the IEnumerable branch (a Dictionary enumerates
-        // as KeyValuePair, which would otherwise be stringified — the missing
-        // HasProperties edges).
+        // as KeyValuePair, which would otherwise be missed — the HasProperties edges).
         if (value is IDictionary dictionary)
         {
             var di = 0;
@@ -189,58 +194,32 @@ public static class EntityWalker
             return;
         }
 
-        // Collection
+        // Collection of entities (edges) or inline values (inline nodes). Primitive
+        // aggregates (coordinate lists, direction ratios, …) are skipped — the STEP line
+        // carries them as a node property.
         if (value is IEnumerable enumerable)
         {
-            var primitiveItems = new List<object>();
             int idx = 0;
-            bool sawEntityItem = false;
-
             foreach (var item in enumerable)
             {
                 if (item is BaseClassIfc itemEntity)
                 {
                     if (itemEntity.StepId > 0)
-                    {
                         edges.Add(new EdgeData(sourceP21, name, idx, itemEntity.StepId));
-                        sawEntityItem = true;
-                    }
                     // else: inline BaseClassIfc — rare; not seen in current models
                 }
                 else if (item is IfcValue itemValue)
                 {
                     inlines.Add(new InlineData(
                         sourceP21, name, idx, itemValue.GetType().Name, WrappedValue(itemValue)));
-                    sawEntityItem = true;   // a list of values, not a primitive list
                 }
-                else if (item != null)
-                {
-                    primitiveItems.Add(item);
-                }
+                // primitive item → ignored; STEP emits the primitive-list property.
                 idx++;
-            }
-
-            if (!sawEntityItem)
-            {
-                // ConMan2 stringifies primitive lists as "(a,b,c)" (or "$" if empty).
-                props[name] = primitiveItems.Count == 0
-                    ? "$"
-                    : $"({string.Join(",", primitiveItems)})";
             }
             return;
         }
 
-        // Fallback — ggifc measure / defined-type structs ToString as "TYPENAME(content)".
-        var str = value.ToString();
-        if (string.IsNullOrEmpty(str)) { props[name] = "$"; return; }
-        // Aggregate defined-types (e.g. IfcCompoundPlaneAngleMeasure →
-        // "IFCCOMPOUNDPLANEANGLEMEASURE(51,30,23,112487)") must reach ConMan2 as the bare
-        // "(51,30,23,112487)" so ast.literal_eval restores the int list (AGGREGATE OF INT).
-        // Strip the leading type name when the parentheses hold a comma-separated list.
-        var open = str.IndexOf('(');
-        if (open > 0 && str.EndsWith(")") && str.IndexOf(',', open) > open)
-            str = str.Substring(open);
-        props[name] = str;
+        // Enum / DateTime / numeric / measure structs → primitive property, from STEP.
     }
 
     /// <summary>
