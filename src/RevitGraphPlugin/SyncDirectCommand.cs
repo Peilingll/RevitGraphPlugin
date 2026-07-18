@@ -50,7 +50,8 @@ public class SyncDirectCommand : IExternalCommand
             // Run on a thread-pool thread: blocking on the async write directly from
             // Revit's UI thread (which carries a SynchronizationContext) deadlocks the
             // library's awaiting continuations. Task.Run gives them a context-free thread.
-            stats = Task.Run(() => CypherEmitter.WriteAsync(driver, ctx.Db, Timestamp))
+            stats = Task.Run(() => CypherEmitter.WriteAsync(
+                            driver, ctx.Db, Timestamp, ctx.OwnerByStepId))
                         .GetAwaiter().GetResult();
         }
         catch (Exception ex)

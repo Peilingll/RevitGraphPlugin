@@ -39,4 +39,16 @@ public sealed class IfcModelContext
     /// </summary>
     public IDictionary<ElementId, IfcElement> ConvertedElements { get; }
         = new Dictionary<ElementId, IfcElement>();
+
+    /// <summary>
+    /// ggifc StepId → the Revit element id (its <see cref="ElementId.Value"/>) whose
+    /// conversion created that entity. Ownership is captured by the registry as a
+    /// StepId watermark around each converter call, so every entity a converter adds
+    /// (element, placement, geometry, psets, openings…) is tagged with its element.
+    /// Boilerplate entities (storeys, units, contexts, owner history) are created
+    /// before any converter runs and stay untagged — they are shared resources that
+    /// incremental removal must never touch. Consumed by the direct pipeline, which
+    /// writes it as the <c>revit_element_id</c> node property.
+    /// </summary>
+    public Dictionary<int, long> OwnerByStepId { get; } = new();
 }

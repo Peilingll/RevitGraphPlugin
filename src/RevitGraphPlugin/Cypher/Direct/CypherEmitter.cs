@@ -16,17 +16,13 @@ public static class CypherEmitter
 {
     public sealed record EmitStats(int PrimaryNodes, int ConnectionNodes, int SecondaryNodes, int InlineNodes, int Edges);
 
-    public static async Task<EmitStats> WriteAsync(IDriver driver, DatabaseIfc db, string timestamp = "1")
+    public static async Task<EmitStats> WriteAsync(
+        IDriver driver,
+        DatabaseIfc db,
+        string timestamp = "1",
+        IReadOnlyDictionary<int, long>? ownerByStepId = null)
     {
-        // Walk every STEP entity. Inline value wrappers (StepId == 0) have no node of
-        // their own — they are captured as InlineData on their parent entity instead.
-        var allData = new List<EntityData>();
-        foreach (var entity in db)
-        {
-            if (entity is null) continue;
-            if (entity.StepId <= 0) continue;
-            allData.Add(EntityWalker.Walk(entity, timestamp));
-        }
+        var allData = WalkAll(db, timestamp, ownerByStepId);
 
         var primary    = allData.Where(d => d.Kind == NodeKind.Primary).ToList();
         var connection = allData.Where(d => d.Kind == NodeKind.Connection).ToList();
@@ -49,6 +45,33 @@ public static class CypherEmitter
         await BulkCreateInlines(session, inlines, timestamp);
 
         return new EmitStats(primary.Count, connection.Count, secondary.Count, inlines.Count, edges.Count);
+    }
+
+    /// <summary>
+    /// Walk every STEP entity of <paramref name="db"/> into its <see cref="EntityData"/>.
+    /// Inline value wrappers (StepId == 0) have no node of their own — they are captured
+    /// as InlineData on their parent entity instead. When <paramref name="ownerByStepId"/>
+    /// is given (see <c>IfcModelContext.OwnerByStepId</c>), element-owned entities get a
+    /// <c>revit_element_id</c> node property — the plugin-only ownership column that
+    /// incremental sync keys graphlet removal/replacement on. Shared boilerplate entities
+    /// are absent from the map and carry no such property. ConMan2's <c>graph_2_ifc</c>
+    /// ignores it (not an IFC attribute), and compare_neo4j masks it.
+    /// </summary>
+    public static List<EntityData> WalkAll(
+        DatabaseIfc db, string timestamp, IReadOnlyDictionary<int, long>? ownerByStepId = null)
+    {
+        var allData = new List<EntityData>();
+        foreach (var entity in db)
+        {
+            if (entity is null) continue;
+            if (entity.StepId <= 0) continue;
+
+            var data = EntityWalker.Walk(entity, timestamp);
+            if (ownerByStepId is not null && ownerByStepId.TryGetValue(entity.StepId, out var elementId))
+                data.Properties["revit_element_id"] = elementId;
+            allData.Add(data);
+        }
+        return allData;
     }
 
     private static async Task BulkMergeNodes(IAsyncSession session, NodeKind kind, List<EntityData> data)

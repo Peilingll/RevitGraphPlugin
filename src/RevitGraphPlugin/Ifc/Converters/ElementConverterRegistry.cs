@@ -34,7 +34,25 @@ public sealed class ElementConverterRegistry
                 .ToElements();
 
             foreach (var element in elements)
-                converter.Convert(element, ctx);
+                ConvertOne(converter, element, ctx);
         }
+    }
+
+    /// <summary>
+    /// Convert one element, recording ownership of every ggifc entity the converter
+    /// creates: StepIds are allocated monotonically, so the ids minted during the call
+    /// are exactly (before, after] between two <see cref="StepIdWatermark"/> reads.
+    /// The tags feed <see cref="IfcModelContext.OwnerByStepId"/> → the graph's
+    /// <c>revit_element_id</c> property, which incremental sync uses to locate an
+    /// element's graphlet (remove/replace without touching shared boilerplate).
+    /// </summary>
+    private static void ConvertOne(IElementConverter converter, Element element, IfcModelContext ctx)
+    {
+        var before = StepIdWatermark.Current(ctx.Db);
+        converter.Convert(element, ctx);
+        var after = StepIdWatermark.Current(ctx.Db);
+
+        for (var stepId = before + 1; stepId <= after; stepId++)
+            ctx.OwnerByStepId[stepId] = element.Id.Value;
     }
 }
