@@ -68,7 +68,14 @@ public static class CypherEmitter
 
             var data = EntityWalker.Walk(entity, timestamp);
             if (ownerByStepId is not null && ownerByStepId.TryGetValue(entity.StepId, out var elementId))
+            {
                 data.Properties["revit_element_id"] = elementId;
+                // Inline nodes belong to their parent's graphlet: propagate the owner
+                // so BulkCreateInlines tags them too — otherwise graphlet removal by
+                // revit_element_id would leave orphaned InlineNodes behind.
+                for (var k = 0; k < data.Inlines.Count; k++)
+                    data.Inlines[k] = data.Inlines[k] with { OwnerElementId = elementId };
+            }
             allData.Add(data);
         }
         return allData;
@@ -121,20 +128,29 @@ MERGE (a)-[:rel {rel_type: e.rel_type, list_index: e.list_index}]->(b)";
     {
         if (inlines.Count == 0) return;
 
-        var batch = inlines.Select(i => (object)new Dictionary<string, object>
+        var batch = inlines.Select(i =>
         {
-            ["source_p21_id"] = $"#{i.SourceP21}",
-            ["rel_type"]      = i.RelType,
-            ["list_index"]    = i.ListIndex,
-            ["entity_type"]   = i.EntityType,
-            ["wrapped_value"] = i.WrappedValue,
-            ["timestamp"]     = timestamp,
+            var row = new Dictionary<string, object>
+            {
+                ["source_p21_id"] = $"#{i.SourceP21}",
+                ["rel_type"]      = i.RelType,
+                ["list_index"]    = i.ListIndex,
+                ["entity_type"]   = i.EntityType,
+                ["wrapped_value"] = i.WrappedValue,
+                ["timestamp"]     = timestamp,
+            };
+            // Owned inline nodes carry their parent's revit_element_id (a missing map
+            // key reads as null in Cypher, so unowned rows simply set no property).
+            if (i.OwnerElementId is long owner)
+                row["revit_element_id"] = owner;
+            return (object)row;
         }).ToList();
 
         const string cypher = @"
 UNWIND $batch AS r
 MATCH (a:GenericNode {p21_id: r.source_p21_id, timestamp: r.timestamp})
-CREATE (b:InlineNode:Node {EntityType: r.entity_type, wrappedValue: r.wrapped_value, timestamp: r.timestamp})
+CREATE (b:InlineNode:Node {EntityType: r.entity_type, wrappedValue: r.wrapped_value,
+                           timestamp: r.timestamp, revit_element_id: r.revit_element_id})
 CREATE (a)-[:rel {rel_type: r.rel_type, list_index: r.list_index}]->(b)";
 
         await session.RunAsync(cypher, new { batch });

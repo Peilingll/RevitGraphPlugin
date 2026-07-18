@@ -70,6 +70,25 @@ public class OwnershipTaggingTests
     }
 
     [Fact]
+    public void WalkAll_propagates_owner_to_inline_values_of_owned_entities()
+    {
+        var db = NewDb();
+        var owned = new IfcPropertySingleValue(db, "IsExternal", new IfcBoolean(true));
+        var shared = new IfcPropertySingleValue(db, "AboveGround", new IfcLogical(IfcLogicalEnum.UNKNOWN));
+
+        var owner = new Dictionary<int, long> { [owned.StepId] = 42L };
+        var all = CypherEmitter.WalkAll(db, "t", owner);
+        var byId = all.ToDictionary(d => d.P21);
+
+        // The owned parent's inline value inherits the element id; the shared one doesn't.
+        var ownedInline = Assert.Single(byId[owned.StepId].Inlines);
+        Assert.Equal(42L, ownedInline.OwnerElementId);
+
+        var sharedInline = Assert.Single(byId[shared.StepId].Inlines);
+        Assert.Null(sharedInline.OwnerElementId);
+    }
+
+    [Fact]
     public void WalkAll_without_map_adds_no_ownership_property()
     {
         var db = NewDb();
