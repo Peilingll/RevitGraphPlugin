@@ -28,6 +28,20 @@ public sealed class ElementConverterRegistry
         => _converters.Any(c => c.Category == category);
 
     /// <summary>
+    /// Conversion order of a category — its converter's registration index. The
+    /// registration order intentionally puts hosts before hosted elements (walls
+    /// before windows/doors), and the live path must respect the same order when a
+    /// batch of changes arrives (a window's converter wires back to its host wall
+    /// via ConvertedElements). Unsupported categories sort last.
+    /// </summary>
+    public int ConversionPriority(BuiltInCategory category)
+    {
+        for (var i = 0; i < _converters.Count; i++)
+            if (_converters[i].Category == category) return i;
+        return int.MaxValue;
+    }
+
+    /// <summary>
     /// Convert a single element through its category's converter (ownership-tagged,
     /// same as the full pass) — the live incremental path's entry point. Returns
     /// false when no converter covers the element's category.

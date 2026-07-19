@@ -26,10 +26,15 @@ public sealed class LiveSyncSession : IDisposable
     private readonly IfcModelContext _ctx;
     private readonly ElementConverterRegistry _registry = new();
 
+    /// <summary>The document this session mirrors (event filtering key).</summary>
+    public Document Document { get; }
+
     public CypherEmitter.EmitStats BaselineStats { get; }
 
-    private LiveSyncSession(IDriver driver, IfcModelContext ctx, CypherEmitter.EmitStats baseline)
+    private LiveSyncSession(
+        Document doc, IDriver driver, IfcModelContext ctx, CypherEmitter.EmitStats baseline)
     {
+        Document = doc;
         _driver = driver;
         _ctx = ctx;
         BaselineStats = baseline;
@@ -49,7 +54,7 @@ public sealed class LiveSyncSession : IDisposable
         {
             var stats = Task.Run(() => CypherEmitter.WriteAsync(driver, ctx.Db, Timestamp, ctx.OwnerByStepId))
                             .GetAwaiter().GetResult();
-            return new LiveSyncSession(driver, ctx, stats);
+            return new LiveSyncSession(doc, driver, ctx, stats);
         }
         catch
         {
@@ -61,6 +66,12 @@ public sealed class LiveSyncSession : IDisposable
     /// <summary>True if the live pipeline covers this element's category.</summary>
     public bool Supports(Element element)
         => element.Category is not null && _registry.Supports(element.Category.BuiltInCategory);
+
+    /// <summary>Batch processing order (hosts before hosted; unsupported last).</summary>
+    public int Priority(Element element)
+        => element.Category is null
+            ? int.MaxValue
+            : _registry.ConversionPriority(element.Category.BuiltInCategory);
 
     /// <summary>Element added in Revit → convert + Insert rule. False if unsupported.</summary>
     public bool ApplyAdded(Element element) => Upsert(element, RuleOp.Insert);
