@@ -53,6 +53,15 @@ public sealed class ElementConverterRegistry
         var after = StepIdWatermark.Current(ctx.Db);
 
         for (var stepId = before + 1; stepId <= after; stepId++)
+        {
+            // Shared context entities (e.g. the storey's containment rel, which ggifc
+            // creates while converting the FIRST element on that storey) belong to no
+            // single element — removal of their creator must not tear them out.
+            if (ctx.Db[stepId] is { } created
+                && Cypher.GraphRule.SharedResourceTypes.Contains(created.GetType().Name))
+                continue;
+
             ctx.OwnerByStepId[stepId] = element.Id.Value;
+        }
     }
 }
