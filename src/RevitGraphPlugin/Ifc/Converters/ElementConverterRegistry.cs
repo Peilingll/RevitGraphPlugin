@@ -23,6 +23,26 @@ public sealed class ElementConverterRegistry
         new DoorConverter(),
     };
 
+    /// <summary>True if some registered converter handles this category.</summary>
+    public bool Supports(BuiltInCategory category)
+        => _converters.Any(c => c.Category == category);
+
+    /// <summary>
+    /// Convert a single element through its category's converter (ownership-tagged,
+    /// same as the full pass) — the live incremental path's entry point. Returns
+    /// false when no converter covers the element's category.
+    /// </summary>
+    public bool TryConvertOne(Element element, IfcModelContext ctx)
+    {
+        if (element.Category is null) return false;
+        var category = element.Category.BuiltInCategory;
+        var converter = _converters.FirstOrDefault(c => c.Category == category);
+        if (converter is null) return false;
+
+        ConvertOne(converter, element, ctx);
+        return true;
+    }
+
     /// <summary>Run every registered converter over the model's elements.</summary>
     public void ConvertAll(Document doc, IfcModelContext ctx)
     {
