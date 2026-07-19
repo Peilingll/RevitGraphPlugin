@@ -121,20 +121,28 @@ public static class CypherEmitter
         {
             if (entity is null) continue;
             if (entity.StepId <= 0) continue;
-
-            var data = EntityWalker.Walk(entity, timestamp);
-            if (ownerByStepId is not null && ownerByStepId.TryGetValue(entity.StepId, out var elementId))
-            {
-                data.Properties["revit_element_id"] = elementId;
-                // Inline nodes belong to their parent's graphlet: propagate the owner
-                // so BulkCreateInlines tags them too — otherwise graphlet removal by
-                // revit_element_id would leave orphaned InlineNodes behind.
-                for (var k = 0; k < data.Inlines.Count; k++)
-                    data.Inlines[k] = data.Inlines[k] with { OwnerElementId = elementId };
-            }
-            allData.Add(data);
+            allData.Add(WalkOwned(entity, timestamp, ownerByStepId));
         }
         return allData;
+    }
+
+    /// <summary>
+    /// Walk one entity and, when the ownership map claims it, stamp the
+    /// <c>revit_element_id</c> onto its node properties AND its inline values —
+    /// inline nodes belong to their parent's graphlet, so graphlet removal by
+    /// <c>revit_element_id</c> must reach them too or they leak as orphans.
+    /// </summary>
+    public static EntityData WalkOwned(
+        BaseClassIfc entity, string timestamp, IReadOnlyDictionary<int, long>? ownerByStepId)
+    {
+        var data = EntityWalker.Walk(entity, timestamp);
+        if (ownerByStepId is not null && ownerByStepId.TryGetValue(entity.StepId, out var elementId))
+        {
+            data.Properties["revit_element_id"] = elementId;
+            for (var k = 0; k < data.Inlines.Count; k++)
+                data.Inlines[k] = data.Inlines[k] with { OwnerElementId = elementId };
+        }
+        return data;
     }
 
     private static async Task BulkMergeNodes(IAsyncQueryRunner session, NodeKind kind, List<EntityData> data)

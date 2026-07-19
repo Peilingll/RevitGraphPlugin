@@ -84,6 +84,28 @@ public static class GraphletExtractor
     }
 
     /// <summary>
+    /// Walk only the entities in the watermark range (<paramref name="watermarkBefore"/>,
+    /// <paramref name="watermarkAfter"/>] — the graphlet one element's conversion just
+    /// created — with ownership stamping. O(graphlet) instead of walking the whole
+    /// database; the live path calls this once per changed element.
+    /// </summary>
+    public static List<EntityData> WalkNew(
+        DatabaseIfc db,
+        IReadOnlyDictionary<int, long> ownerByStepId,
+        int watermarkBefore,
+        int watermarkAfter,
+        string timestamp)
+    {
+        var result = new List<EntityData>();
+        for (var id = watermarkBefore + 1; id <= watermarkAfter; id++)
+        {
+            if (db[id] is { StepId: > 0 } entity)
+                result.Add(CypherEmitter.WalkOwned(entity, timestamp, ownerByStepId));
+        }
+        return result;
+    }
+
+    /// <summary>
     /// Collect the shared containment rels of the given storeys for a <see cref="GraphRule"/>:
     /// rels with members are freshly walked into <c>Refresh</c> (membership edges carry
     /// list_index renumbered from ggifc's CURRENT list, so applying them reproduces exactly
