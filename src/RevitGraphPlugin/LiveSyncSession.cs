@@ -92,7 +92,38 @@ public sealed class LiveSyncSession : IDisposable
             LiveRuleBuilder.DetachFromContainment(old!);
             LiveRuleBuilder.ForgetOwnership(_ctx.OwnerByStepId, element.Id.Value);
         }
-        return Upsert(element, known ? RuleOp.Replace : RuleOp.Insert);
+        var applied = Upsert(element, known ? RuleOp.Replace : RuleOp.Insert);
+
+        // A re-converted host (wall) is a brand-new ggifc object; any hosted insert's
+        // opening/void/fill still references the old, now-deleted object, so its
+        // IfcRelVoidsElement.RelatingBuildingElement goes null. Re-sync each insert so
+        // its opening re-attaches to the new host. (Placing OR moving a window/door
+        // modifies its host wall, so without this every hosted element breaks.)
+        if (applied) ResyncHostedInserts(element);
+        return applied;
+    }
+
+    /// <summary>
+    /// Re-sync the hosted inserts (windows / doors) of a just-re-converted host so their
+    /// opening chain re-attaches to the new host object. No-op for non-hosts. Each insert
+    /// is re-applied as a modify (Replace): its old opening/void/fill — owned by the
+    /// insert's revit_element_id — is deleted and rebuilt against the current host, which
+    /// the insert's converter finds via the (now-updated) ConvertedElements[host.Id].
+    /// </summary>
+    private void ResyncHostedInserts(Element element)
+    {
+        if (element is not HostObject host) return;
+
+        ICollection<ElementId> inserts;
+        try { inserts = host.FindInserts(true, true, false, true); }
+        catch { return; }   // some host types don't support FindInserts
+
+        foreach (var id in inserts)
+        {
+            var insert = Document.GetElement(id);
+            if (insert is not null && Supports(insert))
+                ApplyModified(insert);
+        }
     }
 
     /// <summary>
