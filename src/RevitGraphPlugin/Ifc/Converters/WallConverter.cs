@@ -52,10 +52,8 @@ public sealed class WallConverter : IElementConverter
             ifcWall.Representation = shape;
 
         AttachWallCommonPset(db, ifcWall, wall);
-
-        // Register so hosted-element converters (windows / doors) can wire their
-        // opening's IfcRelVoidsElement back to this wall.
-        ctx.ConvertedElements[wall.Id] = ifcWall;
+        // ConvertedElements registration (for hosted-element host lookup + live modify/
+        // remove) is done uniformly by ElementConverterRegistry.ConvertOne.
     }
 
     private static void AttachWallCommonPset(DatabaseIfc db, IfcWall ifcWall, Wall wall)

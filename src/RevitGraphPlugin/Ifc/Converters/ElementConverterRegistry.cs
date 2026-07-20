@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Autodesk.Revit.DB;
+using GeometryGym.Ifc;
 
 namespace RevitGraphPlugin.Ifc.Converters;
 
@@ -97,5 +98,30 @@ public sealed class ElementConverterRegistry
 
             ctx.OwnerByStepId[stepId] = element.Id.Value;
         }
+
+        // Register the element's principal IFC product so the live path can find it for
+        // modify (Replace vs Insert), remove (ggifc-side detach), and hosted-element
+        // host lookup. Every converter sets product.GlobalId = FromRevitUniqueId(UniqueId),
+        // so match on that — one place, so a new converter cannot forget to register
+        // (the missing registration made every non-wall modify duplicate instead of replace).
+        string? guid = null;
+        try { guid = IfcGuidConverter.FromRevitUniqueId(element.UniqueId); }
+        catch { /* no derivable GUID → leave unregistered */ }
+        if (guid is not null && FindProduct(ctx.Db, before, after, guid) is { } product)
+            ctx.ConvertedElements[element.Id] = product;
+    }
+
+    /// <summary>
+    /// The IfcElement created in the watermark range (<paramref name="before"/>,
+    /// <paramref name="after"/>] whose GlobalId matches <paramref name="globalId"/> —
+    /// i.e. the Revit element's principal IFC product (not its placement, geometry, or
+    /// opening). Null if the converter produced no such element.
+    /// </summary>
+    public static IfcElement? FindProduct(DatabaseIfc db, int before, int after, string globalId)
+    {
+        for (var id = before + 1; id <= after; id++)
+            if (db[id] is IfcElement e && e.GlobalId == globalId)
+                return e;
+        return null;
     }
 }
