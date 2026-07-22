@@ -7,7 +7,7 @@ namespace RevitGraphPlugin.Tests;
 
 /// <summary>
 /// Unit tests (no Neo4j, no Revit) for the incremental-sync building blocks:
-/// the ggifc shared-containment-rel premise behind 問題 A, watermark-based graphlet
+/// the ggifc shared-containment-rel premise behind issue A, watermark-based graphlet
 /// extraction, and containment-rel walking with list_index renumbering.
 /// </summary>
 public class GraphRuleTests
@@ -34,7 +34,7 @@ public class GraphRuleTests
         }
     }
 
-    // The premise of 問題 A, verified against real ggifc: elements on the same storey
+    // The premise of issue A, verified against real ggifc: elements on the same storey
     // share ONE containment rel, created during the FIRST element's conversion.
     [Fact]
     public void ggifc_shares_one_containment_rel_per_storey()

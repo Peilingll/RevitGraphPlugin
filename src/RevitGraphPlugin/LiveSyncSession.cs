@@ -7,7 +7,7 @@ using RevitGraphPlugin.Ifc.Converters;
 namespace RevitGraphPlugin;
 
 /// <summary>
-/// The live incremental sync session for one Revit document (plan 子步驟 3):
+/// The live incremental sync session for one Revit document (plan step 3):
 /// baseline-then-increment. <see cref="Start"/> performs a full snapshot through the
 /// verified direct pipeline and keeps the ggifc <see cref="IfcModelContext"/> alive as
 /// the in-memory mirror of the document; each subsequent element change is converted
@@ -16,7 +16,7 @@ namespace RevitGraphPlugin;
 /// timestamp), which also self-heals any p21_id drift across Revit restarts.
 /// All methods must be called from the Revit API thread (they touch Elements and the
 /// shared ggifc db); the Neo4j writes block via Task.Run like SyncDirectCommand —
-/// 子步驟 4 decides queueing/threading when wiring DocumentChanged.
+/// step 4 decides queueing/threading when wiring DocumentChanged.
 /// </summary>
 public sealed class LiveSyncSession : IDisposable
 {

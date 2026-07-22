@@ -76,7 +76,7 @@ public static class EntityWalker
         var edges = new List<EdgeData>();
         var inlines = new List<InlineData>();
 
-        // Node properties: lossless STEP-line source (方案 B). Every primitive attribute
+        // Node properties: lossless STEP-line source (option B). Every primitive attribute
         // value ($/''/*/.ENUM./int/real/list) is taken verbatim from ggifc's Part-21
         // output, which faithfully preserves unset/derived/empty-string distinctions that
         // the property getters collapse. See doc/log/2026-07-12_direct-roundtrip-diagnosis.md.

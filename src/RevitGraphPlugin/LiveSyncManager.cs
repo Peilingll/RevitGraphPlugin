@@ -6,7 +6,7 @@ namespace RevitGraphPlugin;
 
 /// <summary>
 /// Holds the (single) active <see cref="LiveSyncSession"/> and routes Revit events
-/// into it (plan 子步驟 4). DocumentChanged fires once per committed transaction with
+/// into it (plan step 4). DocumentChanged fires once per committed transaction with
 /// the added / deleted / modified element ids; each supported element becomes one
 /// GraphRule applied to the live graph. On any failure the session is disposed and
 /// live sync turns itself off (fail loud + stop writing rather than desync silently).

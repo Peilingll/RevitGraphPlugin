@@ -11,7 +11,7 @@ namespace RevitGraphPlugin.Tests;
 /// Integration tests for <see cref="CypherEmitter.ApplyRuleAsync"/> against a local
 /// Neo4j (same NEO4J_LOCAL_* convention as the plugin). Each test runs the full
 /// incremental lifecycle on a real ggifc storey+walls model under a dedicated test
-/// timestamp and asserts the核心不變量: the incrementally maintained graph equals a
+/// timestamp and asserts the core invariant: the incrementally maintained graph equals a
 /// fresh full snapshot of the same ggifc state. Tests no-op silently when Neo4j is
 /// not reachable (they log a warning) — CI without a database still passes.
 /// </summary>

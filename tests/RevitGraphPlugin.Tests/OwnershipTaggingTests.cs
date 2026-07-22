@@ -6,7 +6,7 @@ using Xunit;
 namespace RevitGraphPlugin.Tests;
 
 /// <summary>
-/// Verifies the ownership-tagging mechanics of 子步驟 1 (live incremental sync plan)
+/// Verifies the ownership-tagging mechanics of step 1 (live incremental sync plan)
 /// without Revit: the StepId-watermark assumption on ggifc's DatabaseIfc, and
 /// <see cref="CypherEmitter.WalkAll"/> injecting <c>revit_element_id</c> only into
 /// entities listed in the ownership map.

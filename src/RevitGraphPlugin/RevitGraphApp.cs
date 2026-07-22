@@ -15,7 +15,7 @@ public class RevitGraphApp : IExternalApplication
         // (LiveSyncToggleCommand). Drivers/processes are opened on demand.
         BuildRibbon(application);
 
-        // Live incremental sync (plan 子步驟 4): DocumentChanged fires per committed
+        // Live incremental sync (plan step 4): DocumentChanged fires per committed
         // transaction; the manager no-ops unless a session is active for that document.
         application.ControlledApplication.DocumentChanged += LiveSyncManager.OnDocumentChanged;
         application.ControlledApplication.DocumentClosing += LiveSyncManager.OnDocumentClosing;
