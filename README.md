@@ -1,36 +1,89 @@
 # RevitGraphPlugin
 
-A Revit 2025 add-in that translates Revit elements into IFC entities and persists them as a Neo4j property graph following the [ConMan2](https://github.com/seb-esser/ConMan2/) schema, for change-tracking and version-diff workflows.
+A Revit 2025 add-in that mirrors a Revit document into a Neo4j property graph — in real
+time — as IFC entities following the [ConMan2](https://github.com/seb-esser/ConMan2/)
+schema, for change-tracking and version-diff workflows.
 
-**Current state:** the empty-project IFC boilerplate (spatial breakdown, units, geometric contexts, OwnerHistory chain, default property sets) is written to Neo4j and matches the ConMan2 baseline. Per-element subgraphs (Wall, Window, …) are the next stage.
+**Current state:** **live incremental sync** is the primary mode. Turning it on writes a
+full baseline snapshot, then follows every committed Revit transaction (add / modify /
+delete) and updates only the affected graphlet in Neo4j. The empty-project boilerplate
+(spatial breakdown, units, geometric contexts, OwnerHistory chain, default property sets)
+plus per-element subgraphs for Wall, Window, Door, Floor, Ceiling, Roof, Beam and Column
+are written and matched against the ConMan2 baseline.
 
-## Architecture — C# / Python
+## Sync modes
 
-The pipeline splits at the IFC STEP text boundary: C# does what only .NET can (read Revit, build an IFC tree with GeometryGym), Python does what it does best (parse with ifcopenshell, write Neo4j via ConMan2). The handoff is an ISO-10303-21 STEP file — lossless to pass.
+The ribbon exposes three buttons; they share the converters and the graph schema, and
+each writes under its own timestamp so they don't collide in Neo4j.
+
+| Ribbon button       | Pipeline                                    | Trigger                              | Timestamp       |
+| ------------------- | ------------------------------------------- | ------------------------------------ | --------------- |
+| **Live Sync**       | direct-write, pure C# (**primary**)         | baseline on ON, then every change    | `plugin-live`   |
+| **Sync (direct)**   | direct-write, pure C#                        | one click = one full write           | `plugin-direct` |
+| **Sync (bridge)**   | temp `.ifc` → ConMan2 Python (reference)     | one click = one full write           | `plugin-bridge` |
+
+**Live Sync = the direct-write full snapshot as a baseline + keep the ggifc model as an
+in-memory mirror + event-driven incremental updates.** See
+[`doc/spec/livesync-architecture.md`](doc/spec/livesync-architecture.md) for the complete
+per-file walkthrough.
+
+## Architecture — live sync (pure C#)
+
+Live sync does **not** go through Python / ConMan2 / ifcopenshell. It reuses the
+direct-write pipeline (`Revit → ggifc tree → Cypher → Neo4j`, no temp `.ifc`) and adds
+three things on top: an in-memory ggifc mirror kept alive after the baseline, a
+`DocumentChanged` subscription, and an incremental rule engine.
 
 ```
- ┌── C# (in Revit process) ──────────────────┐   ┌── Python (subprocess) ───────────────┐
- │ Revit Document                             │   │                                       │
- │   → BoilerplateBuilder → ggifc tree        │   │                                       │
- │   → db.WriteFile() → temp .ifc (STEP) ─────┼───┼─► ifcopenshell parse                  │
- │                                            │   │   → ConMan2 IfcGraphInterface         │
- │                                            │   │   → Neo4j (nodes + edges)             │
- └────────────────────────────────────────────┘   └───────────────────────────────────────┘
+ ┌── C# (in the Revit process) ────────────────────────────────────────────────┐
+ │                                                                              │
+ │  ON  ── ModelAssembler.Build ──► ggifc tree ── CypherEmitter.WriteAsync ──► Neo4j   (baseline)
+ │             │                        │                                       │
+ │             │                        └── kept alive as the in-memory mirror  │
+ │             │                                                                │
+ │  DocumentChanged (per committed transaction)                                 │
+ │     └─ LiveSyncManager routes deletes → adds → modifies (hosts before hosted)│
+ │           └─ TryConvertOne → LiveRuleBuilder → GraphRule                      │
+ │                 └─ CypherEmitter.ApplyRuleAsync ──► Neo4j   (only the graphlet)│
+ └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
-Reusing ConMan2's own importer guarantees the graph schema matches the baseline with zero drift. Neo4j is written **only** by the Python side; the C# add-in no longer opens a Neo4j driver.
+- **Baseline** — `ModelAssembler.Build` (boilerplate + convert every element) →
+  `CypherEmitter.WriteAsync` (full wipe + rewrite). Identical to a one-shot **Sync
+  (direct)**; the only difference is the `IfcModelContext` is *kept* as the mirror.
+- **Increment** — a `StepIdWatermark` isolates exactly the entities one element's
+  conversion created (ggifc allocates StepIds monotonically), so the increment walks only
+  that graphlet — O(graphlet), not O(whole model). One Revit change becomes one
+  `GraphRule`, applied by `CypherEmitter.ApplyRuleAsync` in a single all-or-nothing
+  transaction.
+- **Fail loud** — any exception in the event path disposes the session and flips the
+  button OFF rather than desyncing silently. Diagnostics go to
+  `%TEMP%\RevitGraphPlugin\live.log` (`TaskDialog` is forbidden inside `DocumentChanged`).
 
-| Stage | Script                       | Input                                          | Output                        |
-| ----- | ---------------------------- | ---------------------------------------------- | ----------------------------- |
-| 1     | `BoilerplateBuilder.Build()` | Revit `Document` (ProjectInformation + Levels) | `DatabaseIfc` (ggifc tree)    |
-| 2     | `IfcSnippetSink.Run()`       | `DatabaseIfc`                                  | temp `.ifc` + spawns `python` |
-| 3     | `snippet_to_cypher.py`       | `.ifc` path + `--action` + `--timestamp`       | Neo4j graph (via ConMan2)     |
+### The bridge mode (reference)
+
+**Sync (bridge)** is the original path and is kept for cross-checking: it serialises the
+ggifc tree to a temp `.ifc` and hands it to ConMan2's own importer, so the graph schema
+matches the ConMan2 baseline with zero drift.
+
+```
+ggifc tree → db.WriteFile() → temp .ifc (STEP) → python snippet_to_cypher.py
+                                                    → ifcopenshell parse
+                                                    → ConMan2 IfcGraphInterface → Neo4j
+```
+
+Reusing ConMan2's importer is what originally validated the direct-write output. The
+direct/live pipeline now emits the same node/edge shapes without the Python round-trip.
 
 ## Quick start
 
-Prerequisites: Revit 2025 (at `D:\Autodesk\Revit 2025\`, override via `RevitInstallPath2025`), .NET 8 SDK (8.0.403, pinned by `global.json`), Neo4j Desktop (running 5.x instance).
+Prerequisites: Revit 2025 (at `D:\Autodesk\Revit 2025\`, override via
+`RevitInstallPath2025`), .NET 8 SDK (8.0.403, pinned by `global.json`), a running Neo4j
+instance. The Python environment is only needed for the **Sync (bridge)** button.
 
-**Clone ConMan2 as a sibling of this repo** — paths are then resolved relatively, no configuration needed:
+**Clone ConMan2 as a sibling of this repo** — paths are then resolved relatively, no
+configuration needed (required only for the bridge button, but the schema reference is
+useful either way):
 
 ```
 <parent>/
@@ -39,7 +92,7 @@ Prerequisites: Revit 2025 (at `D:\Autodesk\Revit 2025\`, override via `RevitInst
 ```
 
 ```powershell
-# 1. ConMan2 (sibling clone) + its Python environment.
+# 1. ConMan2 (sibling clone) + its Python environment — only for the bridge button.
 git clone https://github.com/seb-esser/ConMan2 ..\ConMan2
 py -m venv ..\ConMan2\venv
 ..\ConMan2\venv\Scripts\pip install -r ..\ConMan2\src\requirements.txt
@@ -51,76 +104,95 @@ py -m venv ..\ConMan2\venv
 dotnet build RevitGraphPlugin.sln -c Debug
 ```
 
-Then start a Neo4j instance, launch Revit, open/create an Architectural project, and click **Sync current doc** on the `RevitGraphPlugin` ribbon. A TaskDialog reports the temp IFC path and the script output.
+Then start a Neo4j instance, launch Revit, open/create an Architectural project, and click
+**Live Sync** on the `RevitGraphPlugin` ribbon. The button flips to **ON**, the baseline is
+written, and every subsequent change flows through automatically. Click again to turn it
+OFF (disposes the session; the graph is left as-is).
 
 ## Environment variables
 
-Path variables default to the sibling-clone layout (resolved relatively); set them only if ConMan2 lives elsewhere. `NEO4J_LOCAL_PASSWORD` is the only required one.
+Path variables default to the sibling-clone layout (resolved relatively); set them only if
+ConMan2 lives elsewhere. `NEO4J_LOCAL_PASSWORD` is the only one required for direct/live
+sync.
 
-| Variable                                       | Default                                     | Read by               |
-| ---------------------------------------------- | ------------------------------------------- | --------------------- |
-| `NEO4J_LOCAL_PASSWORD`                         | — (**required**)                            | Python                |
-| `NEO4J_LOCAL_USERNAME` / `_HOSTNAME` / `_PORT` | `neo4j` / `localhost` / `7687`              | Python                |
-| `CONMAN2_PATH`                                 | `<repo>/../ConMan2/src`                     | Python                |
-| `PLUGIN_PYTHON`                                | `<repo>/../ConMan2/venv/Scripts/python.exe` | C# (`IfcSnippetSink`) |
-| `PLUGIN_SNIPPET_SCRIPT`                        | `<repo>/tools/python/snippet_to_cypher.py`  | C# (`IfcSnippetSink`) |
+| Variable                                       | Default                                     | Read by                     |
+| ---------------------------------------------- | ------------------------------------------- | --------------------------- |
+| `NEO4J_LOCAL_PASSWORD`                         | — (**required**)                            | C# (direct/live) + Python   |
+| `NEO4J_LOCAL_USERNAME` / `_HOSTNAME` / `_PORT` | `neo4j` / `localhost` / `7687`              | C# (direct/live) + Python   |
+| `CONMAN2_PATH`                                 | `<repo>/../ConMan2/src`                      | Python (bridge only)        |
+| `PLUGIN_PYTHON`                                | `<repo>/../ConMan2/venv/Scripts/python.exe`  | C# (bridge only)            |
+| `PLUGIN_SNIPPET_SCRIPT`                        | `<repo>/tools/python/snippet_to_cypher.py`   | C# (bridge only)            |
 
-`tools/Neo4jSmokeTest` reads the same `NEO4J_LOCAL_*` names (falling back to legacy `NEO4J_*`) to verify connectivity with `dotnet run --project tools/Neo4jSmokeTest`.
-
-## How ConMan2 is used
-
-`snippet_to_cypher.py` imports ConMan2 (does not copy or reimplement it); the full "parse → classify by schema → write Cypher" path runs inside ConMan2's `ifc_2_graph()`:
-
-```python
-sys.path.insert(0, conman2_src)   # CONMAN2_PATH, or the sibling-clone default
-from ifc_graph_interface.IfcGraphInterface import IfcGraphInterface
-IfcGraphInterface().ifc_2_graph(ifc_path, timestamp)
-```
-
-It is referenced from a sibling clone (always upstream's latest), not vendored in. Vendoring a pinned revision into `tools/python/` is a later option if the plugin must be self-contained for distribution.
+`Neo4jConfig.Resolve()` builds the bolt URI + credentials from `NEO4J_LOCAL_*` and forces
+`localhost → 127.0.0.1` to match ConMan2. `tools/Neo4jSmokeTest` reads the same names
+(falling back to legacy `NEO4J_*`) to verify connectivity:
+`dotnet run --project tools/Neo4jSmokeTest`.
 
 ## Repository layout
 
 ```
 src/RevitGraphPlugin/
-├── RevitGraphApp.cs            # IExternalApplication: lifecycle + ribbon
-├── SyncCommand.cs              # button → BoilerplateBuilder → IfcSnippetSink
+├── RevitGraphApp.cs             # IExternalApplication: ribbon + DocumentChanged/Closing subscriptions
+├── LiveSyncToggleCommand.cs     # Live Sync button → LiveSyncManager.Toggle
+├── LiveSyncManager.cs           # static session holder; routes DocumentChanged; fail loud
+├── LiveSyncSession.cs           # per-document mirror: baseline + Insert/Replace/Remove
+├── LiveSyncLog.cs               # append-only %TEMP% diagnostics (no UI allowed in events)
+├── Neo4jConfig.cs               # resolves bolt URI + credentials from NEO4J_LOCAL_*
+├── SyncDirectCommand.cs         # Sync (direct) button → full direct write
+├── SyncCommand.cs               # Sync (bridge) button → temp IFC → Python
 ├── Ifc/
-│   ├── BoilerplateBuilder.cs   # Revit Document → in-memory IFC4 boilerplate tree
-│   ├── RevitOwnerHistory.cs    # overrides ggifc OwnerHistory to match Revit's exporter
-│   └── IfcGuidConverter.cs     # Revit UniqueId → IFC GlobalId
-├── Cypher/IfcSnippetSink.cs    # serialises ggifc tree to STEP, spawns the Python bridge
-├── RevitGraphPlugin.addin      # Revit add-in manifest
-└── RevitGraphPlugin.csproj     # .NET 8 / x64; Revit API + GeometryGymIFC
+│   ├── ModelAssembler.cs        # Phase A: boilerplate + convert-all → ggifc tree
+│   ├── IfcModelContext.cs       # the live in-memory mirror (Db, OwnerByStepId, ConvertedElements)
+│   ├── StepIdWatermark.cs       # highest-StepId watermark isolating one element's graphlet
+│   ├── BoilerplateBuilder.cs    # Revit Document → IFC4 boilerplate skeleton
+│   ├── Converters/              # per-element: Wall, Window, Door, Floor, Ceiling, Roof, Beam, Column
+│   ├── Geometry/ · Hosting/     # B-rep bodies · openings (windows/doors in host walls)
+│   ├── RevitOwnerHistory.cs     # OwnerHistory matching Revit's IFC exporter
+│   └── IfcGuidConverter.cs      # Revit UniqueId → IFC GlobalId
+├── Cypher/
+│   ├── Direct/                  # pure-C# pipeline: EntityWalker, NodeClassifier, StepLineParser,
+│   │                            #   GraphRule, LiveRuleBuilder, CypherEmitter (WriteAsync + ApplyRuleAsync)
+│   └── IfcSnippetSink.cs        # bridge: STEP → spawns Python
+├── RevitGraphPlugin.addin       # Revit add-in manifest
+└── RevitGraphPlugin.csproj      # .NET 8 / x64; Revit API + GeometryGymIFC + Neo4j.Driver
 tools/
-├── python/snippet_to_cypher.py # Python bridge: STEP → ifcopenshell → ConMan2 → Neo4j
-└── Neo4jSmokeTest/             # standalone Neo4j connectivity check
-tests/RevitGraphPlugin.Tests/   # xUnit: RevitOwnerHistory regression tests
-data/samples/                   # IFC + Cypher baseline dataset (00_empty … 06_deleted_window)
-doc/log/                        # English research logs   ·   doc_process/  working notes (繁中)
+├── python/snippet_to_cypher.py  # bridge: STEP → ifcopenshell → ConMan2 → Neo4j
+└── Neo4jSmokeTest/              # standalone Neo4j connectivity check
+tests/RevitGraphPlugin.Tests/    # xUnit: watermark/ownership, rule builder, ApplyRule integration, STEP parsing
+data/samples/                    # IFC + Cypher baseline dataset
+doc/spec/livesync-architecture.md # full per-file live-sync walkthrough
+doc/log/                         # English research logs   ·   doc_process/  working notes (繁中)
 ```
 
 ## Verify
 
-After **Sync current doc**, inspect the temp IFC (`%TEMP%\RevitGraphPlugin_last_sync.ifc`) and check Neo4j Browser:
+With **Live Sync** ON, make a change in Revit (draw a wall, delete a window) and re-run in
+Neo4j Browser — the counts should track the model live:
 
 ```cypher
-MATCH (n) RETURN n.EntityType AS entity, count(*) AS n ORDER BY n DESC;
+MATCH (n {timestamp: 'plugin-live'}) RETURN n.EntityType AS entity, count(*) AS n ORDER BY n DESC;
 ```
+
+The live diagnostics log at `%TEMP%\RevitGraphPlugin\live.log` records every routed change
+(deletes → adds → modifies) and any swallowed error.
 
 ## Troubleshooting
 
-| Symptom                                  | Likely cause                                                                                    |
-| ---------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Build fails finding `RevitAPI.dll`       | Revit not at `D:\Autodesk\Revit 2025\` — set `$env:RevitInstallPath2025` before building.       |
-| Ribbon tab missing after launch          | Debug build not deployed (Release skips it) — check `%AppData%\Autodesk\Revit\Addins\2025\`.    |
-| "Python interpreter / ConMan2 not found" | ConMan2 not a sibling clone — set `PLUGIN_PYTHON` / `CONMAN2_PATH` (User scope), restart Revit. |
-| Python exits with a Neo4j auth error     | `NEO4J_LOCAL_PASSWORD` wrong/unset — verify with `dotnet run --project tools/Neo4jSmokeTest`.   |
+| Symptom                                   | Likely cause                                                                                     |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Build fails finding `RevitAPI.dll`        | Revit not at `D:\Autodesk\Revit 2025\` — set `$env:RevitInstallPath2025` before building.        |
+| Ribbon tab missing after launch           | Debug build not deployed (Release skips it) — check `%AppData%\Autodesk\Revit\Addins\2025\`.     |
+| Live Sync flips itself OFF after a change  | An exception fired in the event path (fail loud) — read `%TEMP%\RevitGraphPlugin\live.log`.       |
+| Neo4j auth error on sync                  | `NEO4J_LOCAL_PASSWORD` wrong/unset — verify with `dotnet run --project tools/Neo4jSmokeTest`.     |
+| "Python interpreter / ConMan2 not found"  | Bridge button only — ConMan2 not a sibling clone; set `PLUGIN_PYTHON` / `CONMAN2_PATH`, restart. |
 
 ## Branches
 
-`feat/dev` active development · `archive/v1-mvp` preserved pure-C# v1 (reference only) · `main` milestones via PR.
+`feat/dev` active development · `archive/v1-mvp` preserved pure-C# v1 (reference only) ·
+`main` milestones via PR.
 
 ## Acknowledgements
 
-Builds on **ConMan2** (Sebastian Esser, reused as the Python importer), **SpaceTracker** (Sebastian Esser, `DocumentChanged` pattern), and **IfcInfraToolKit** (TUM CMS, IFC geometry export). Student project (TUM Hiwi); not for commercial use.
+Builds on **ConMan2** (Sebastian Esser, reused as the Python importer / schema baseline),
+**SpaceTracker** (Sebastian Esser, `DocumentChanged` pattern), and **IfcInfraToolKit**
+(TUM CMS, IFC geometry export). Student project (TUM Hiwi); not for commercial use.
