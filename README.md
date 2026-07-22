@@ -16,18 +16,18 @@ are written and matched against the ConMan2 baseline.
 The ribbon exposes three buttons; they share the converters and the graph schema, and
 each writes under its own timestamp so they don't collide in Neo4j.
 
-| Ribbon button       | Pipeline                                    | Trigger                              | Timestamp       |
-| ------------------- | ------------------------------------------- | ------------------------------------ | --------------- |
-| **Live Sync**       | direct-write, pure C# (**primary**)         | baseline on ON, then every change    | `plugin-live`   |
-| **Sync (direct)**   | direct-write, pure C#                        | one click = one full write           | `plugin-direct` |
-| **Sync (bridge)**   | temp `.ifc` → ConMan2 Python (reference)     | one click = one full write           | `plugin-bridge` |
+| Ribbon button     | Pipeline                                | Trigger                           | Timestamp       |
+| ----------------- | --------------------------------------- | --------------------------------- | --------------- |
+| **Live Sync**     | direct-write, pure C# (**primary**)     | baseline on ON, then every change | `plugin-live`   |
+| **Sync (direct)** | direct-write, pure C#                   | one click = one full write        | `plugin-direct` |
+| **Sync (bridge)** | temp`.ifc` → ConMan2 Python (reference) | one click = one full write        | `plugin-bridge` |
 
 **Live Sync = the direct-write full snapshot as a baseline + keep the ggifc model as an
 in-memory mirror + event-driven incremental updates.** See
 [`doc/spec/livesync-architecture.md`](doc/spec/livesync-architecture.md) for the complete
 per-file walkthrough.
 
-## Architecture — live sync (pure C#)
+## Architecture — live sync (C#)
 
 Live sync does **not** go through Python / ConMan2 / ifcopenshell. It reuses the
 direct-write pipeline (`Revit → ggifc tree → Cypher → Neo4j`, no temp `.ifc`) and adds
@@ -35,22 +35,23 @@ three things on top: an in-memory ggifc mirror kept alive after the baseline, a
 `DocumentChanged` subscription, and an incremental rule engine.
 
 ```
- ┌── C# (in the Revit process) ────────────────────────────────────────────────┐
- │                                                                              │
- │  ON  ── ModelAssembler.Build ──► ggifc tree ── CypherEmitter.WriteAsync ──► Neo4j   (baseline)
- │             │                        │                                       │
- │             │                        └── kept alive as the in-memory mirror  │
- │             │                                                                │
- │  DocumentChanged (per committed transaction)                                 │
- │     └─ LiveSyncManager routes deletes → adds → modifies (hosts before hosted)│
- │           └─ TryConvertOne → LiveRuleBuilder → GraphRule                      │
- │                 └─ CypherEmitter.ApplyRuleAsync ──► Neo4j   (only the graphlet)│
- └──────────────────────────────────────────────────────────────────────────────┘
+C# (in the Revit process) — no Python, no temp .ifc
+
+  Baseline (on ON)
+    ModelAssembler.Build ──► ggifc tree ──► CypherEmitter.WriteAsync ──► Neo4j
+                                 │
+                                 └─ kept alive as the in-memory mirror
+
+  Increment (per committed transaction)
+    DocumentChanged
+      └─ LiveSyncManager routes deletes → adds → modifies (hosts before hosted)
+           └─ TryConvertOne ──► LiveRuleBuilder ──► GraphRule
+                └─ CypherEmitter.ApplyRuleAsync ──► Neo4j   (only the graphlet)
 ```
 
 - **Baseline** — `ModelAssembler.Build` (boilerplate + convert every element) →
   `CypherEmitter.WriteAsync` (full wipe + rewrite). Identical to a one-shot **Sync
-  (direct)**; the only difference is the `IfcModelContext` is *kept* as the mirror.
+  (direct)**; the only difference is the `IfcModelContext` is _kept_ as the mirror.
 - **Increment** — a `StepIdWatermark` isolates exactly the entities one element's
   conversion created (ggifc allocates StepIds monotonically), so the increment walks only
   that graphlet — O(graphlet), not O(whole model). One Revit change becomes one
@@ -115,13 +116,13 @@ Path variables default to the sibling-clone layout (resolved relatively); set th
 ConMan2 lives elsewhere. `NEO4J_LOCAL_PASSWORD` is the only one required for direct/live
 sync.
 
-| Variable                                       | Default                                     | Read by                     |
-| ---------------------------------------------- | ------------------------------------------- | --------------------------- |
-| `NEO4J_LOCAL_PASSWORD`                         | — (**required**)                            | C# (direct/live) + Python   |
-| `NEO4J_LOCAL_USERNAME` / `_HOSTNAME` / `_PORT` | `neo4j` / `localhost` / `7687`              | C# (direct/live) + Python   |
-| `CONMAN2_PATH`                                 | `<repo>/../ConMan2/src`                      | Python (bridge only)        |
-| `PLUGIN_PYTHON`                                | `<repo>/../ConMan2/venv/Scripts/python.exe`  | C# (bridge only)            |
-| `PLUGIN_SNIPPET_SCRIPT`                        | `<repo>/tools/python/snippet_to_cypher.py`   | C# (bridge only)            |
+| Variable                                       | Default                                     | Read by                   |
+| ---------------------------------------------- | ------------------------------------------- | ------------------------- |
+| `NEO4J_LOCAL_PASSWORD`                         | — (**required**)                            | C# (direct/live) + Python |
+| `NEO4J_LOCAL_USERNAME` / `_HOSTNAME` / `_PORT` | `neo4j` / `localhost` / `7687`              | C# (direct/live) + Python |
+| `CONMAN2_PATH`                                 | `<repo>/../ConMan2/src`                     | Python (bridge only)      |
+| `PLUGIN_PYTHON`                                | `<repo>/../ConMan2/venv/Scripts/python.exe` | C# (bridge only)          |
+| `PLUGIN_SNIPPET_SCRIPT`                        | `<repo>/tools/python/snippet_to_cypher.py`  | C# (bridge only)          |
 
 `Neo4jConfig.Resolve()` builds the bolt URI + credentials from `NEO4J_LOCAL_*` and forces
 `localhost → 127.0.0.1` to match ConMan2. `tools/Neo4jSmokeTest` reads the same names
@@ -161,7 +162,7 @@ tools/
 tests/RevitGraphPlugin.Tests/    # xUnit: watermark/ownership, rule builder, ApplyRule integration, STEP parsing
 data/samples/                    # IFC + Cypher baseline dataset
 doc/spec/livesync-architecture.md # full per-file live-sync walkthrough
-doc/log/                         # English research logs   ·   doc_process/  working notes (繁中)
+doc/log/                         # English research logs
 ```
 
 ## Verify
@@ -178,13 +179,13 @@ The live diagnostics log at `%TEMP%\RevitGraphPlugin\live.log` records every rou
 
 ## Troubleshooting
 
-| Symptom                                   | Likely cause                                                                                     |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| Build fails finding `RevitAPI.dll`        | Revit not at `D:\Autodesk\Revit 2025\` — set `$env:RevitInstallPath2025` before building.        |
-| Ribbon tab missing after launch           | Debug build not deployed (Release skips it) — check `%AppData%\Autodesk\Revit\Addins\2025\`.     |
-| Live Sync flips itself OFF after a change  | An exception fired in the event path (fail loud) — read `%TEMP%\RevitGraphPlugin\live.log`.       |
-| Neo4j auth error on sync                  | `NEO4J_LOCAL_PASSWORD` wrong/unset — verify with `dotnet run --project tools/Neo4jSmokeTest`.     |
-| "Python interpreter / ConMan2 not found"  | Bridge button only — ConMan2 not a sibling clone; set `PLUGIN_PYTHON` / `CONMAN2_PATH`, restart. |
+| Symptom                                   | Likely cause                                                                                    |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Build fails finding`RevitAPI.dll`         | Revit not at`D:\Autodesk\Revit 2025\` — set `$env:RevitInstallPath2025` before building.        |
+| Ribbon tab missing after launch           | Debug build not deployed (Release skips it) — check`%AppData%\Autodesk\Revit\Addins\2025\`.     |
+| Live Sync flips itself OFF after a change | An exception fired in the event path (fail loud) — read`%TEMP%\RevitGraphPlugin\live.log`.      |
+| Neo4j auth error on sync                  | `NEO4J_LOCAL_PASSWORD` wrong/unset — verify with `dotnet run --project tools/Neo4jSmokeTest`.   |
+| "Python interpreter / ConMan2 not found"  | Bridge button only — ConMan2 not a sibling clone; set`PLUGIN_PYTHON` / `CONMAN2_PATH`, restart. |
 
 ## Branches
 
