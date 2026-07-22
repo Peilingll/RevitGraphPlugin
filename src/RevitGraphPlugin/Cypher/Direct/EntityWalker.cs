@@ -17,9 +17,14 @@ public sealed record EdgeData(int SourceP21, string RelType, int ListIndex, int 
 /// One InlineNode pattern: an inline value (an <see cref="IfcValue"/> with no StepId
 /// of its own) that ConMan2 stores as a separate InlineNode connected to its parent.
 /// Mirrors ConMan2's inline_patterns (IfcGraphInterface.process_ifc_attributes).
+/// <paramref name="OwnerElementId"/> is the parent entity's Revit-element ownership
+/// (null for shared/boilerplate parents) — inline nodes live and die with their
+/// parent's graphlet, so removal by <c>revit_element_id</c> must reach them too or
+/// they leak as orphans. Set by <see cref="CypherEmitter.WalkAll"/>, not by Walk.
 /// </summary>
 public sealed record InlineData(
-    int SourceP21, string RelType, int ListIndex, string EntityType, object WrappedValue);
+    int SourceP21, string RelType, int ListIndex, string EntityType, object WrappedValue,
+    long? OwnerElementId = null);
 
 /// <summary>
 /// Per-entity record produced by <see cref="EntityWalker.Walk"/>.
@@ -71,7 +76,7 @@ public static class EntityWalker
         var edges = new List<EdgeData>();
         var inlines = new List<InlineData>();
 
-        // Node properties: lossless STEP-line source (方案 B). Every primitive attribute
+        // Node properties: lossless STEP-line source (option B). Every primitive attribute
         // value ($/''/*/.ENUM./int/real/list) is taken verbatim from ggifc's Part-21
         // output, which faithfully preserves unset/derived/empty-string distinctions that
         // the property getters collapse. See doc/log/2026-07-12_direct-roundtrip-diagnosis.md.

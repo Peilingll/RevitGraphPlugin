@@ -40,7 +40,9 @@ DEFAULT_CAND = (REPO / "data" / "test" / "query_test"
                 / "Test7_empty_Plugin_00_empty_neo4j_query_table_data_2026-6-2.json")
 
 # Node property keys masked on every node (identity / bookkeeping).
-IGNORE_PROPS = {"p21_id", "timestamp", "GlobalId"}
+# revit_element_id: plugin-only ownership column written by the direct pipeline
+# (absent from the bridge/ConMan2 baseline by design — see IfcModelContext.OwnerByStepId).
+IGNORE_PROPS = {"p21_id", "timestamp", "GlobalId", "revit_element_id"}
 # Per-EntityType extra masks (volatile values that are not content).
 IGNORE_PROPS_BY_TYPE = {
     "IfcOwnerHistory": {"CreationDate", "LastModifiedDate"},

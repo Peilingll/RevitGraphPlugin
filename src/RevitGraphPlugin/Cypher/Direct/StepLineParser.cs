@@ -3,7 +3,7 @@ using System.Text;
 
 // ── Pipeline: DIRECT-WRITE (Revit → ggifc tree → Cypher → Neo4j; no temp IFC) ──
 // Lossless STEP-line source for node properties. See
-// doc_process/2026-07-12-plan-stepline-entitywalker.md (方案 B).
+// doc_process/2026-07-12-plan-stepline-entitywalker.md (option B).
 namespace RevitGraphPlugin.Cypher;
 
 /// <summary>

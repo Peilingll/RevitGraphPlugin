@@ -10,15 +10,23 @@ public class RevitGraphApp : IExternalApplication
 
     public Result OnStartup(UIControlledApplication application)
     {
-        // Two sinks, two buttons (see BuildRibbon): the temp-IFC bridge (SyncCommand)
-        // and the direct C# write (SyncDirectCommand). Drivers/processes are opened on
-        // demand inside each command, not here.
+        // Three buttons (see BuildRibbon): the temp-IFC bridge (SyncCommand), the
+        // direct C# write (SyncDirectCommand), and the live incremental toggle
+        // (LiveSyncToggleCommand). Drivers/processes are opened on demand.
         BuildRibbon(application);
+
+        // Live incremental sync (plan step 4): DocumentChanged fires per committed
+        // transaction; the manager no-ops unless a session is active for that document.
+        application.ControlledApplication.DocumentChanged += LiveSyncManager.OnDocumentChanged;
+        application.ControlledApplication.DocumentClosing += LiveSyncManager.OnDocumentClosing;
         return Result.Succeeded;
     }
 
     public Result OnShutdown(UIControlledApplication application)
     {
+        application.ControlledApplication.DocumentChanged -= LiveSyncManager.OnDocumentChanged;
+        application.ControlledApplication.DocumentClosing -= LiveSyncManager.OnDocumentClosing;
+        LiveSyncManager.Shutdown();
         return Result.Succeeded;
     }
 
@@ -50,7 +58,20 @@ public class RevitGraphApp : IExternalApplication
                     + "CypherEmitter. Timestamp: plugin-direct."
         };
 
+        var liveButton = new PushButtonData(
+            "LiveSyncToggle",
+            "Live Sync\nOFF",
+            assemblyPath,
+            typeof(LiveSyncToggleCommand).FullName)
+        {
+            ToolTip = "Toggle LIVE incremental sync (direct pipeline): ON writes a "
+                    + "baseline snapshot, then every committed change (add / modify / "
+                    + "delete of supported elements) updates the graph immediately. "
+                    + "Timestamp: plugin-live."
+        };
+
         panel.AddItem(bridgeButton);
         panel.AddItem(directButton);
+        LiveSyncManager.ToggleButton = panel.AddItem(liveButton) as PushButton;
     }
 }

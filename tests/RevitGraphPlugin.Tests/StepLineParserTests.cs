@@ -13,7 +13,7 @@ public class StepLineParserTests
 {
     // Map a full STEP line to its ordered primitive properties by zipping the argument
     // tokens with the schema's declaration-ordered attribute names — the same pairing
-    // 子步驟 3 will do inside EntityWalker. Slots the reflection layer owns (references,
+    // step 3 will do inside EntityWalker. Slots the reflection layer owns (references,
     // typed inline values, aggregates thereof) are dropped.
     private static Dictionary<string, object> PrimitiveProps(string entityType, string stepLine)
     {

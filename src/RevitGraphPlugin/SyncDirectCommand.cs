@@ -45,12 +45,13 @@ public class SyncDirectCommand : IExternalCommand
         CypherEmitter.EmitStats stats;
         try
         {
-            var (uri, user, password) = Neo4jConfig();
+            var (uri, user, password) = Neo4jConfig.Resolve();
             using var driver = GraphDatabase.Driver(uri, AuthTokens.Basic(user, password));
             // Run on a thread-pool thread: blocking on the async write directly from
             // Revit's UI thread (which carries a SynchronizationContext) deadlocks the
             // library's awaiting continuations. Task.Run gives them a context-free thread.
-            stats = Task.Run(() => CypherEmitter.WriteAsync(driver, ctx.Db, Timestamp))
+            stats = Task.Run(() => CypherEmitter.WriteAsync(
+                            driver, ctx.Db, Timestamp, ctx.OwnerByStepId))
                         .GetAwaiter().GetResult();
         }
         catch (Exception ex)
@@ -69,17 +70,4 @@ public class SyncDirectCommand : IExternalCommand
         return Result.Succeeded;
     }
 
-    /// <summary>
-    /// Mirror ConMan2's Neo4jConnection env-var convention so both pipelines hit the
-    /// same database with the same credentials (NEO4J_LOCAL_*).
-    /// </summary>
-    private static (string uri, string user, string password) Neo4jConfig()
-    {
-        var user = Environment.GetEnvironmentVariable("NEO4J_LOCAL_USERNAME") ?? "neo4j";
-        var password = Environment.GetEnvironmentVariable("NEO4J_LOCAL_PASSWORD") ?? "password";
-        var host = Environment.GetEnvironmentVariable("NEO4J_LOCAL_HOSTNAME") ?? "127.0.0.1";
-        var port = Environment.GetEnvironmentVariable("NEO4J_LOCAL_PORT") ?? "7687";
-        if (host == "localhost") host = "127.0.0.1";   // force IPv4 (matches ConMan2)
-        return ($"bolt://{host}:{port}", user, password);
-    }
 }
