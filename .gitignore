@@ -11,6 +11,13 @@ obj/
 # Rider / JetBrains
 .idea/
 
+# Language-server / design-time caches
+*.lscache
+
+# Python
+__pycache__/
+*.pyc
+
 # NuGet
 *.nupkg
 packages/
