@@ -52,7 +52,7 @@ public static class GraphletReader
         foreach (var row in nodeRows)
         {
             var props = row["n"].As<INode>().Properties.ToDictionary(kv => kv.Key, kv => kv.Value);
-            if (!TryParseP21(props.GetValueOrDefault("p21_id"), out var p21)) continue;
+            if (!P21Id.TryParse(props.GetValueOrDefault("p21_id"), out var p21)) continue;
 
             byP21[p21] = new EntityData(
                 P21:        p21,
@@ -78,7 +78,7 @@ public static class GraphletReader
 
         foreach (var row in edgeRows)
         {
-            if (!TryParseP21(row["src"].As<string>(), out var src)) continue;
+            if (!P21Id.TryParse(row["src"].As<string>(), out var src)) continue;
             if (!byP21.TryGetValue(src, out var owner)) continue;
 
             var relType   = row["rel_type"].As<string>();
@@ -92,7 +92,7 @@ public static class GraphletReader
                     row["wrapped"]?.As<object>() ?? "$",
                     OwnerElementId: elementId));
             }
-            else if (TryParseP21(row["tgt"], out var tgt))
+            else if (P21Id.TryParse(row["tgt"], out var tgt))
             {
                 owner.Edges.Add(new EdgeData(src, relType, listIndex, tgt));
             }
@@ -109,23 +109,13 @@ public static class GraphletReader
         var glue = new List<EdgeData>();
         foreach (var row in glueRows)
         {
-            if (!TryParseP21(row["src"], out var src)) continue;
-            if (!TryParseP21(row["tgt"], out var tgt)) continue;
+            if (!P21Id.TryParse(row["src"], out var src)) continue;
+            if (!P21Id.TryParse(row["tgt"], out var tgt)) continue;
             glue.Add(new EdgeData(src, row["rel_type"].As<string>(), row["list_index"].As<int>(), tgt));
         }
 
         return new GraphletCapture(
             byP21.Values.OrderBy(d => d.P21).ToList(),
             glue);
-    }
-
-    /// <summary>Parse the graph's <c>p21_id</c> ("#123") back into its STEP id.</summary>
-    private static bool TryParseP21(object? value, out int p21)
-    {
-        p21 = 0;
-        return value is string s
-            && s.Length > 1
-            && s[0] == '#'
-            && int.TryParse(s.AsSpan(1), out p21);
     }
 }

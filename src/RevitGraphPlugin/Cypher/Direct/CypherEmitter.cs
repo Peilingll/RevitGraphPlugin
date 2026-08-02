@@ -81,6 +81,20 @@ public static class CypherEmitter
                     BeforeGraphlet = await GraphletReader.ReadOwnedAsync(
                         tx, rule.Timestamp, rule.RevitElementId),
                 };
+            }
+
+            // Name the rule's context portably while the graph still holds it: SharedDelete
+            // nodes are gone by the end of this transaction, and paths must not route
+            // through the graphlet this rule is about to delete or has yet to create.
+            var (external, own) = applied.PartitionReferences();
+            applied = applied with
+            {
+                ContextRefs = await ContextResolver.ResolveAsync(
+                    tx, rule.Timestamp, external, own),
+            };
+
+            if (rule.Op is RuleOp.Remove or RuleOp.Replace)
+            {
                 await tx.RunAsync(
                     "MATCH (n {timestamp: $ts, revit_element_id: $eid}) DETACH DELETE n",
                     new { ts = rule.Timestamp, eid = rule.RevitElementId });
