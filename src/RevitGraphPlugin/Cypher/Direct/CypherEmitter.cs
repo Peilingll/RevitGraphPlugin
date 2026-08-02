@@ -62,14 +62,25 @@ public static class CypherEmitter
     /// <item>Drop <c>SharedDelete</c> nodes (e.g. a containment rel left memberless —
     ///   absent from a fresh export of the same model state).</item>
     /// </list>
+    /// Returns the rule completed with its <see cref="GraphRule.BeforeGraphlet"/> (the L
+    /// side, read inside the same transaction before step 1 destroys it) — the payload
+    /// rule persistence will store.
     /// </summary>
-    public static async Task ApplyRuleAsync(IDriver driver, GraphRule rule)
+    public static async Task<GraphRule> ApplyRuleAsync(IDriver driver, GraphRule rule)
     {
         await using var session = driver.AsyncSession();
-        await session.ExecuteWriteAsync(async tx =>
+        return await session.ExecuteWriteAsync(async tx =>
         {
+            var applied = rule;
+
             if (rule.Op is RuleOp.Remove or RuleOp.Replace)
             {
+                // Capture L first — after DETACH DELETE it is unrecoverable.
+                applied = rule with
+                {
+                    BeforeGraphlet = await GraphletReader.ReadOwnedAsync(
+                        tx, rule.Timestamp, rule.RevitElementId),
+                };
                 await tx.RunAsync(
                     "MATCH (n {timestamp: $ts, revit_element_id: $eid}) DETACH DELETE n",
                     new { ts = rule.Timestamp, eid = rule.RevitElementId });
@@ -100,6 +111,8 @@ public static class CypherEmitter
                     "UNWIND $p21s AS p21 MATCH (n {p21_id: p21, timestamp: $ts}) DETACH DELETE n",
                     new { p21s = rule.SharedDelete.ToList(), ts = rule.Timestamp });
             }
+
+            return applied;
         });
     }
 

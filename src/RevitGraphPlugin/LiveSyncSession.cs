@@ -159,7 +159,13 @@ public sealed class LiveSyncSession : IDisposable
         return true;
     }
 
-    private void Apply(GraphRule rule)
+    /// <summary>
+    /// Apply one rule and hand back the completed rule — the same rule plus its
+    /// <see cref="GraphRule.BeforeGraphlet"/> (L side, captured inside the transaction).
+    /// Nothing consumes the return value yet; rule persistence (step 3 of
+    /// doc_process/2026-08-02-plan-rule-persistence.md) is what will store it.
+    /// </summary>
+    private GraphRule Apply(GraphRule rule)
         => Task.Run(() => CypherEmitter.ApplyRuleAsync(_driver, rule)).GetAwaiter().GetResult();
 
     public void Dispose() => _driver.Dispose();

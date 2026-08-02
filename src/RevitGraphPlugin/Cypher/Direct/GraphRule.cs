@@ -48,6 +48,22 @@ public sealed record GraphRule(
     IReadOnlyList<string> SharedDelete)
 {
     /// <summary>
+    /// The DPO <b>L</b> side: what this rule destroyed, captured from the current-state
+    /// graph inside the rule's own transaction just before the delete
+    /// (<see cref="CypherEmitter.ApplyRuleAsync"/> fills it in and returns the completed
+    /// rule). <c>null</c> until then, and always <c>null</c> for
+    /// <see cref="RuleOp.Insert"/> — an insert destroys nothing.
+    /// <para>
+    /// Rule building cannot produce this: <see cref="RuleOp.Remove"/> starts from an
+    /// element that no longer exists in Revit, and by rule-build time the ggifc mirror
+    /// has already been detached and un-owned. Without it the rule chain would only be
+    /// replayable forwards — no undo, and no L pattern for a receiver to match against
+    /// (Esser 2022 §3.4). See doc_process/2026-08-02-plan-rule-persistence.md §2.
+    /// </para>
+    /// </summary>
+    public GraphletCapture? BeforeGraphlet { get; init; }
+
+    /// <summary>
     /// IFC entity types that are shared context, never owned by a single element even
     /// when an element's conversion happens to create them: ggifc creates the storey's
     /// containment rel while converting the FIRST element on that storey, but every

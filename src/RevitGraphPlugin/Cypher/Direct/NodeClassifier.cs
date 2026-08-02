@@ -37,4 +37,26 @@ public static class NodeClassifier
         NodeKind.Inline     => "InlineNode:Node",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
     };
+
+    /// <summary>
+    /// Inverse of <see cref="LabelExpression"/>: recover the kind of a node read back
+    /// out of Neo4j from its labels (<see cref="GraphletReader"/> needs this to rebuild
+    /// <see cref="EntityData"/> for a rule's L side; the ggifc entity it came from is
+    /// long gone by then).
+    /// </summary>
+    public static NodeKind KindFromLabels(IEnumerable<string> labels)
+    {
+        foreach (var label in labels)
+        {
+            switch (label)
+            {
+                case "PrimaryNode":    return NodeKind.Primary;
+                case "ConnectionNode": return NodeKind.Connection;
+                case "SecondaryNode":  return NodeKind.Secondary;
+                case "InlineNode":     return NodeKind.Inline;
+            }
+        }
+        throw new ArgumentException(
+            $"No node-kind label among [{string.Join(", ", labels)}].", nameof(labels));
+    }
 }
