@@ -93,7 +93,7 @@ public static class LiveSyncManager
             // Hosts before hosted (walls before their windows/doors): when a moved
             // wall drags its windows along, the wall's graphlet must be rebuilt
             // before the window converter wires the opening back into it.
-            foreach (var element in SupportedByPriority(doc, modified))
+            foreach (var element in SupportedByPriority(doc, ExpandTypesToInstances(doc, modified)))
                 LiveSyncLog.Write(
                     $"  modify {element.Id.Value} ({element.Category?.Name}): applied={_session.ApplyModified(element)}");
         }
@@ -123,11 +123,41 @@ public static class LiveSyncManager
         _session = null;
     }
 
+    /// <summary>
+    /// A modified ElementType means "every instance using it changed": editing a type
+    /// parameter (WallType Function → IsExternal, a type rename, a type thickness)
+    /// reports only the TYPE as modified — the instances whose converted output depends
+    /// on it are never mentioned, so without expansion the graph keeps their stale
+    /// values. Each type in <paramref name="ids"/> is therefore replaced by the
+    /// instances using it (the type itself is filtered out of conversion by
+    /// <see cref="SupportedByPriority"/>). A set, because one transaction can report a
+    /// type and some of its instances together — each instance must re-sync once.
+    /// </summary>
+    private static ICollection<ElementId> ExpandTypesToInstances(Document doc, ICollection<ElementId> ids)
+    {
+        var expanded = new HashSet<ElementId>(ids);
+        foreach (var type in ids.Select(doc.GetElement).OfType<ElementType>())
+        {
+            if (type.Category is null) continue;
+            var instances = new FilteredElementCollector(doc)
+                .OfCategoryId(type.Category.Id)
+                .WhereElementIsNotElementType()
+                .Where(el => el.GetTypeId() == type.Id)
+                .ToList();
+            LiveSyncLog.Write(
+                $"  type {type.Id.Value} ({type.Category.Name} '{type.Name}') -> {instances.Count} instance(s)");
+            foreach (var el in instances) expanded.Add(el.Id);
+        }
+        return expanded;
+    }
+
     private static IEnumerable<Element> SupportedByPriority(Document doc, ICollection<ElementId> ids)
     {
+        // Types never convert: a type reaching a converter would apply an empty rule
+        // (the converter's instance-cast early-returns) and log a bogus success.
         return ids
             .Select(doc.GetElement)
-            .Where(el => el is not null && _session!.Supports(el))
+            .Where(el => el is not null and not ElementType && _session!.Supports(el))
             .OrderBy(el => _session!.Priority(el));
     }
 
