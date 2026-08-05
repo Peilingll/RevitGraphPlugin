@@ -87,3 +87,9 @@ and annotate.
   is a data-correctness bug (graph holds stale `IsExternal`), and its fix — expanding a
   type change into per-instance re-syncs — is also the highest-volume real source of
   property-only modifies, i.e. the test material for the Modify/Replace split.
+  → **Fixed and closed-loop verified 2026-08-05** (commit `3d8d3ce`): `LiveSyncManager`
+  expands a modified `ElementType` into per-instance `ApplyModified` calls; types
+  themselves no longer reach a converter. Verified end to end: WallType Function change →
+  log `type 45419 -> 1 instance(s)` → graph `IsExternal` = false → round-trip IFC
+  `IFCBOOLEAN(.F.)`, validate 0 issues (the 7-20 `wall_modify4_interior.ifc` was valid
+  but stale; the reconstruction now tells the truth).
