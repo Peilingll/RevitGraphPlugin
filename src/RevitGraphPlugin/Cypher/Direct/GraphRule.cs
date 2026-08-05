@@ -80,6 +80,14 @@ public sealed record GraphRule(
         = new Dictionary<int, ContextRef>();
 
     /// <summary>
+    /// What <see cref="RuleStore"/> recorded for this rule, set by
+    /// <see cref="CypherEmitter.ApplyRuleAsync"/> on the returned rule. <c>null</c>
+    /// before persistence ran — or when it deliberately stored nothing (a Replace that
+    /// <see cref="GraphletDiff"/> proved semantically empty).
+    /// </summary>
+    public RuleStore.StoredRule? Stored { get; init; }
+
+    /// <summary>
     /// Split every p21 the rule mentions into <c>Own</c> (nodes the rule itself carries —
     /// its R graphlet and, once captured, its L graphlet) and <c>External</c> (everything
     /// else: context it glues to, shared nodes it refreshes or deletes). Only the external

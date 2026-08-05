@@ -50,8 +50,11 @@ public sealed class ApplyRuleIntegrationTests : IDisposable
     private async Task Cleanup()
     {
         await using var session = _driver!.AsyncSession();
+        // STARTS WITH: ApplyRuleAsync now persists a :Rule chain in "<ts>-rule-<seq>*"
+        // namespaces alongside the graph — test cleanup must reach those too.
         foreach (var ts in new[] { TsLive, TsRef })
-            await session.RunAsync("MATCH (n {timestamp: $ts}) DETACH DELETE n", new { ts });
+            await session.RunAsync(
+                "MATCH (n) WHERE n.timestamp STARTS WITH $ts DETACH DELETE n", new { ts });
     }
 
     // ── graph signature: node types + edge triples, the compare_neo4j invariant in C# ──

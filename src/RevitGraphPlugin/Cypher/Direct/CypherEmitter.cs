@@ -126,7 +126,11 @@ public static class CypherEmitter
                     new { p21s = rule.SharedDelete.ToList(), ts = rule.Timestamp });
             }
 
-            return applied;
+            // Persist the completed rule into the :Rule chain as part of THIS transaction
+            // (plan step 3): apply and persist commit or fail together — a graph that
+            // changed without a record (or a record without the change) would desync the
+            // chain from the current-state graph.
+            return applied with { Stored = await RuleStore.PersistAsync(tx, applied) };
         });
     }
 
@@ -172,7 +176,7 @@ public static class CypherEmitter
         return data;
     }
 
-    private static async Task BulkMergeNodes(IAsyncQueryRunner session, NodeKind kind, List<EntityData> data)
+    internal static async Task BulkMergeNodes(IAsyncQueryRunner session, NodeKind kind, List<EntityData> data)
     {
         if (data.Count == 0) return;
 
@@ -189,7 +193,7 @@ SET n += props";
         await session.RunAsync(cypher, new { batch });
     }
 
-    private static async Task BulkMergeEdges(IAsyncQueryRunner session, List<EdgeData> edges, string timestamp)
+    internal static async Task BulkMergeEdges(IAsyncQueryRunner session, List<EdgeData> edges, string timestamp)
     {
         if (edges.Count == 0) return;
 
@@ -215,7 +219,7 @@ MERGE (a)-[:rel {rel_type: e.rel_type, list_index: e.list_index}]->(b)";
     // CREATEd and linked to their parent — exactly ConMan2's inline_patterns query
     // (IfcGraphInterface.ifc_2_graph). CREATE (not MERGE): inline nodes have no key;
     // the per-timestamp clear in WriteAsync keeps re-runs idempotent.
-    private static async Task BulkCreateInlines(IAsyncQueryRunner session, List<InlineData> inlines, string timestamp)
+    internal static async Task BulkCreateInlines(IAsyncQueryRunner session, List<InlineData> inlines, string timestamp)
     {
         if (inlines.Count == 0) return;
 
