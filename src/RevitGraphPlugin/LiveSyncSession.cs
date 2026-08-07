@@ -166,7 +166,13 @@ public sealed class LiveSyncSession : IDisposable
     /// doc_process/2026-08-02-plan-rule-persistence.md) is what will store it.
     /// </summary>
     private GraphRule Apply(GraphRule rule)
-        => Task.Run(() => CypherEmitter.ApplyRuleAsync(_driver, rule)).GetAwaiter().GetResult();
+    {
+        var applied = Task.Run(() => CypherEmitter.ApplyRuleAsync(_driver, rule)).GetAwaiter().GetResult();
+        LiveSyncLog.Write(applied.Stored is { } s
+            ? $"    rule stored: seq={s.Seq} op={s.Op} ({s.RuleTimestamp})"
+            : $"    rule not stored ({applied.Op} was semantically empty)");
+        return applied;
+    }
 
     public void Dispose() => _driver.Dispose();
 }
