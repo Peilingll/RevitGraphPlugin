@@ -75,11 +75,17 @@ public static class CypherEmitter
 
             if (rule.Op is RuleOp.Remove or RuleOp.Replace)
             {
-                // Capture L first — after DETACH DELETE it is unrecoverable.
+                // Capture L first — after DETACH DELETE it is unrecoverable. The
+                // SharedDelete nodes are L too (the rule destroys them), but they are
+                // not element-owned, so they are read by p21 into their own list.
                 applied = rule with
                 {
-                    BeforeGraphlet = await GraphletReader.ReadOwnedAsync(
-                        tx, rule.Timestamp, rule.RevitElementId),
+                    BeforeGraphlet = (await GraphletReader.ReadOwnedAsync(
+                        tx, rule.Timestamp, rule.RevitElementId)) with
+                    {
+                        SharedDeleted = await GraphletReader.ReadByP21Async(
+                            tx, rule.Timestamp, rule.SharedDelete),
+                    },
                 };
             }
 

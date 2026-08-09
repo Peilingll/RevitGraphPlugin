@@ -49,11 +49,15 @@ public static class RuleStore
 
             case RuleOp.Remove:
                 op = "Remove";
-                deletes = rule.BeforeGraphlet?.Nodes ?? Array.Empty<EntityData>();
+                deletes = LSide(rule);
                 break;
 
             default:
+                // A rule that also drops shared nodes changed structure by definition —
+                // never eligible for the Modify shortcut (and in practice SharedDelete
+                // only fires on removals; this is belt-and-braces).
                 var diff = rule.BeforeGraphlet is { Nodes.Count: > 0 } captured
+                           && rule.SharedDelete.Count == 0
                     ? GraphletDiff.Compare(captured, rule.Graphlet)
                     : GraphletDiffOutcome.Structural;
                 switch (diff.Kind)
@@ -66,12 +70,19 @@ public static class RuleStore
                         break;
                     default:
                         op = "Replace";
-                        deletes = rule.BeforeGraphlet?.Nodes ?? Array.Empty<EntityData>();
+                        deletes = LSide(rule);
                         inserts = rule.Graphlet;
                         break;
                 }
                 break;
         }
+
+        // Portable names of the shared nodes this rule drops — replay needs to drop
+        // them in its own graph, and they cannot be found by element id (unowned).
+        var sharedDelete = rule.SharedDelete
+            .Select(p21Id => P21Id.TryParse(p21Id, out var p21)
+                             && rule.ContextRefs.TryGetValue(p21, out var r) ? r.Path : p21Id)
+            .ToList();
 
         var seq = await NextSeqAsync(tx, rule.Timestamp);
         var ruleTs = $"{rule.Timestamp}-rule-{seq}";
@@ -86,12 +97,12 @@ public static class RuleStore
         await tx.RunAsync(@"
 CREATE (r:Rule:Node {timestamp: $ts, seq: $seq, op: $op, revit_element_id: $eid,
                      target_ts: $target, deletes: $deletes, inserts: $inserts,
-                     changes: $changes, applied_at: $at})",
+                     changes: $changes, shared_delete: $sharedDelete, applied_at: $at})",
             new
             {
                 ts = ruleTs, seq, op, eid = rule.RevitElementId, target = rule.Timestamp,
                 deletes = deletes.Count, inserts = inserts.Count, changes = changes.Count,
-                at = DateTime.UtcNow.ToString("o"),
+                sharedDelete, at = DateTime.UtcNow.ToString("o"),
             });
 
         await Link(tx, ruleTs, ruleTs + "-L", "DELETES");
@@ -205,6 +216,15 @@ WITH m, prev
 WHERE prev IS NOT NULL
 CREATE (prev)-[:NEXT]->(m)",
             new { target, memberTs });
+    }
+
+    /// <summary>The full DPO L side: the element-owned capture plus the shared nodes the rule drops.</summary>
+    private static IReadOnlyList<EntityData> LSide(GraphRule rule)
+    {
+        if (rule.BeforeGraphlet is not { } captured) return Array.Empty<EntityData>();
+        return captured.SharedDeletedOrEmpty.Count == 0
+            ? captured.Nodes
+            : captured.Nodes.Concat(captured.SharedDeletedOrEmpty).ToList();
     }
 
     private static async Task WriteCopies(

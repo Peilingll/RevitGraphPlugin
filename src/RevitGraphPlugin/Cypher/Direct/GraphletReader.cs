@@ -24,9 +24,22 @@ namespace RevitGraphPlugin.Cypher;
 /// recoverable from <paramref name="Nodes"/> alone — without them a restored graphlet
 /// would hang unattached.
 /// </param>
+/// <param name="SharedDeleted">
+/// The <c>SharedDelete</c> nodes (e.g. a containment rel left memberless), captured like
+/// <paramref name="Nodes"/> from the graph before the rule destroys them. DPO-wise they
+/// ARE part of L — the rule deletes them — but they are not element-owned, so
+/// <see cref="GraphletReader.ReadOwnedAsync"/> cannot see them; ApplyRuleAsync reads them
+/// by p21. Without them, undoing a Remove could restore the element but not the shared
+/// rel it emptied.
+/// </param>
 public sealed record GraphletCapture(
     IReadOnlyList<EntityData> Nodes,
-    IReadOnlyList<EdgeData> IncomingGlue);
+    IReadOnlyList<EdgeData> IncomingGlue,
+    IReadOnlyList<EntityData>? SharedDeleted = null)
+{
+    public IReadOnlyList<EntityData> SharedDeletedOrEmpty
+        => SharedDeleted ?? Array.Empty<EntityData>();
+}
 
 public static class GraphletReader
 {
@@ -117,5 +130,83 @@ public static class GraphletReader
         return new GraphletCapture(
             byP21.Values.OrderBy(d => d.P21).ToList(),
             glue);
+    }
+
+    /// <summary>
+    /// Read specific nodes by p21 (with their outgoing edges and inline children) — how
+    /// ApplyRuleAsync captures the <c>SharedDelete</c> nodes into
+    /// <see cref="GraphletCapture.SharedDeleted"/> before dropping them.
+    /// </summary>
+    public static async Task<List<EntityData>> ReadByP21Async(
+        IAsyncQueryRunner tx, string timestamp, IReadOnlyCollection<string> p21Ids)
+    {
+        if (p21Ids.Count == 0) return new List<EntityData>();
+        return await ReadSetAsync(tx,
+            "MATCH (n:GenericNode {timestamp: $ts}) WHERE n.p21_id IN $p21s",
+            new { ts = timestamp, p21s = p21Ids.ToList() });
+    }
+
+    /// <summary>
+    /// Read every node of one timestamp namespace — how the replayer loads a stored
+    /// rule's <c>-L</c>/<c>-R</c> copies back into <see cref="EntityData"/> form so the
+    /// snapshot writers can re-apply them under another timestamp.
+    /// </summary>
+    public static async Task<List<EntityData>> ReadTimestampAsync(
+        IAsyncQueryRunner tx, string timestamp)
+    {
+        return await ReadSetAsync(tx,
+            "MATCH (n:GenericNode {timestamp: $ts})",
+            new { ts = timestamp });
+    }
+
+    private static async Task<List<EntityData>> ReadSetAsync(
+        IAsyncQueryRunner tx, string matchClause, object args)
+    {
+        var byP21 = new Dictionary<int, EntityData>();
+        var nodeRows = await (await tx.RunAsync(
+            $"{matchClause} RETURN n AS n, labels(n) AS labels", args)).ToListAsync();
+        foreach (var row in nodeRows)
+        {
+            var props = row["n"].As<INode>().Properties.ToDictionary(kv => kv.Key, kv => kv.Value);
+            if (!P21Id.TryParse(props.GetValueOrDefault("p21_id"), out var p21)) continue;
+            byP21[p21] = new EntityData(
+                P21:        p21,
+                EntityType: props.GetValueOrDefault("EntityType") as string ?? string.Empty,
+                GlobalId:   props.GetValueOrDefault("GlobalId") as string,
+                Kind:       NodeClassifier.KindFromLabels(row["labels"].As<List<string>>()),
+                Properties: props,
+                Edges:      new List<EdgeData>(),
+                Inlines:    new List<InlineData>());
+        }
+        if (byP21.Count == 0) return new List<EntityData>();
+
+        var edgeRows = await (await tx.RunAsync(
+            $@"{matchClause} MATCH (n)-[e:rel]->(m)
+              RETURN n.p21_id AS src, e.rel_type AS rel_type, e.list_index AS list_index,
+                     m.p21_id AS tgt, m.EntityType AS tgt_type, m.wrappedValue AS wrapped,
+                     m.revit_element_id AS tgt_owner,
+                     'InlineNode' IN labels(m) AS inline", args)).ToListAsync();
+        foreach (var row in edgeRows)
+        {
+            if (!P21Id.TryParse(row["src"].As<string>(), out var src)) continue;
+            if (!byP21.TryGetValue(src, out var owner)) continue;
+
+            var relType   = row["rel_type"].As<string>();
+            var listIndex = row["list_index"].As<int>();
+            if (row["inline"].As<bool>())
+            {
+                owner.Inlines.Add(new InlineData(
+                    src, relType, listIndex,
+                    row["tgt_type"].As<string>() ?? string.Empty,
+                    row["wrapped"]?.As<object>() ?? "$",
+                    OwnerElementId: row["tgt_owner"]?.As<long?>()));
+            }
+            else if (P21Id.TryParse(row["tgt"], out var tgt))
+            {
+                owner.Edges.Add(new EdgeData(src, relType, listIndex, tgt));
+            }
+        }
+
+        return byP21.Values.OrderBy(d => d.P21).ToList();
     }
 }

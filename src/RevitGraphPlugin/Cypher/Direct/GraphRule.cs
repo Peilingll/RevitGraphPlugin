@@ -111,6 +111,16 @@ public sealed record GraphRule(
             foreach (var data in BeforeGraphlet.Nodes)
                 foreach (var edge in data.Edges) Mention(edge);
             foreach (var edge in BeforeGraphlet.IncomingGlue) Mention(edge);
+
+            // Shared nodes the rule drops stay EXTERNAL (they need portable names of
+            // their own — replay must find and drop them in its graph), but their edge
+            // ends are mentioned so the stored glue can name e.g. the storey behind a
+            // dropped containment rel.
+            foreach (var data in BeforeGraphlet.SharedDeletedOrEmpty)
+            {
+                mentioned.Add(data.P21);
+                foreach (var edge in data.Edges) Mention(edge);
+            }
         }
 
         // Shared context the rule rewrites: the rel node itself plus whatever it now points
