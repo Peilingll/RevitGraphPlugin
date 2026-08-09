@@ -54,6 +54,13 @@ public sealed class LiveSyncSession : IDisposable
         {
             var stats = Task.Run(() => CypherEmitter.WriteAsync(driver, ctx.Db, Timestamp, ctx.OwnerByStepId))
                             .GetAwaiter().GetResult();
+
+            // Anchor the re-baseline into the rule chain (plan step 4): the chain
+            // survives the wipe, but replay must know the graph was rebuilt here.
+            var anchor = Task.Run(() => RuleStore.RecordBaselineAsync(driver, Timestamp, stats))
+                             .GetAwaiter().GetResult();
+            LiveSyncLog.Write($"  baseline anchor: seq={anchor.Seq} ({anchor.Timestamp})");
+
             return new LiveSyncSession(doc, driver, ctx, stats);
         }
         catch

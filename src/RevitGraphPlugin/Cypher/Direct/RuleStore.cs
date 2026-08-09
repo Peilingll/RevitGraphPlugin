@@ -73,11 +73,7 @@ public static class RuleStore
                 break;
         }
 
-        // Per-target sequence: rules chain per current-state graph, so two documents
-        // (or the test namespaces) sharing one database never interleave.
-        var seq = (await (await tx.RunAsync(
-            "OPTIONAL MATCH (r:Rule {target_ts: $target}) RETURN coalesce(max(r.seq), 0) + 1 AS seq",
-            new { target = rule.Timestamp })).ToListAsync()).Single()["seq"].As<long>();
+        var seq = await NextSeqAsync(tx, rule.Timestamp);
         var ruleTs = $"{rule.Timestamp}-rule-{seq}";
 
         // Graphlet copies, one sub-namespace per DPO side. Reuses the verified snapshot
@@ -137,7 +133,78 @@ CREATE (r)-[:GLUE]->(x)",
                 new { ts = ruleTs, glue });
         }
 
+        await AppendToChainAsync(tx, rule.Timestamp, "Rule", ruleTs);
+
         return new StoredRule(seq, op, ruleTs);
+    }
+
+    /// <summary>What a re-baseline anchored into the chain.</summary>
+    public sealed record BaselineAnchor(long Seq, string Timestamp);
+
+    /// <summary>
+    /// Record a re-baseline as a <c>(:Baseline)</c> chain member (plan step 4): the
+    /// current-state graph was wiped and rewritten here, so rules BEFORE this anchor
+    /// cannot seamlessly replay past it — replay starts from the newest anchor. History
+    /// accumulates: the wipe is per-timestamp and never reaches the chain, and the chain
+    /// deliberately survives it. Runs in its own transaction — the baseline snapshot
+    /// itself (<see cref="CypherEmitter.WriteAsync"/>) is already committed when this runs.
+    /// </summary>
+    public static async Task<BaselineAnchor> RecordBaselineAsync(
+        IDriver driver, string targetTs, CypherEmitter.EmitStats stats)
+    {
+        await using var session = driver.AsyncSession();
+        return await session.ExecuteWriteAsync(async tx =>
+        {
+            var seq = await NextSeqAsync(tx, targetTs);
+            var ts = $"{targetTs}-baseline-{seq}";
+            await tx.RunAsync(@"
+CREATE (b:Baseline:Node {timestamp: $ts, seq: $seq, target_ts: $target, applied_at: $at,
+                         primary_nodes: $primary, edges: $edges})",
+                new
+                {
+                    ts, seq, target = targetTs, at = DateTime.UtcNow.ToString("o"),
+                    primary = stats.PrimaryNodes, edges = stats.Edges,
+                });
+            await AppendToChainAsync(tx, targetTs, "Baseline", ts);
+            return new BaselineAnchor(seq, ts);
+        });
+    }
+
+    /// <summary>
+    /// Allocate the next chain sequence number from the per-target <c>(:RuleChain)</c>
+    /// node's counter — one property read instead of a <c>max(seq)</c> scan over the
+    /// whole chain. Single Revit API thread ⇒ no allocation races.
+    /// </summary>
+    private static async Task<long> NextSeqAsync(IAsyncQueryRunner tx, string target)
+    {
+        return (await (await tx.RunAsync(@"
+MERGE (c:RuleChain:Node {target_ts: $target})
+ON CREATE SET c.timestamp = $target + '-rules', c.next_seq = 1
+SET c.next_seq = c.next_seq + 1
+RETURN c.next_seq - 1 AS seq",
+            new { target })).ToListAsync()).Single()["seq"].As<long>();
+    }
+
+    /// <summary>
+    /// Append a member (:Rule or :Baseline) to its target's chain: move <c>[:HEAD]</c>
+    /// to it and link the previous head via <c>[:NEXT]</c>. The chain is one linked
+    /// list of rules and baseline anchors in application order — replay walks
+    /// <c>[:NEXT]</c> from the newest <c>(:Baseline)</c>, and "latest rule" is one hop
+    /// from the chain node instead of an ORDER BY over every rule.
+    /// </summary>
+    private static async Task AppendToChainAsync(
+        IAsyncQueryRunner tx, string target, string label, string memberTs)
+    {
+        await tx.RunAsync($@"
+MATCH (c:RuleChain {{target_ts: $target}})
+MATCH (m:{label} {{timestamp: $memberTs}})
+OPTIONAL MATCH (c)-[h:HEAD]->(prev)
+DELETE h
+CREATE (c)-[:HEAD]->(m)
+WITH m, prev
+WHERE prev IS NOT NULL
+CREATE (prev)-[:NEXT]->(m)",
+            new { target, memberTs });
     }
 
     private static async Task WriteCopies(

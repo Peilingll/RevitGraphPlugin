@@ -195,6 +195,70 @@ public sealed class RuleStoreIntegrationTests : IDisposable
         // ── Re-baseline wipes the live graph, never the chain ─────────────────────
         await CypherEmitter.WriteAsync(_driver, db, TsLive, owner);
         Assert.Equal(3, await RuleCount());
+
+        // ── Chain: HEAD one hop from the chain node, NEXT in application order ────
+        Assert.Equal(3, await Count(
+            "MATCH (:RuleChain {target_ts: $ts})-[:HEAD]->(m) RETURN m.seq", new { ts = TsLive }));
+        await using (var session = _driver.AsyncSession())
+        {
+            var links = (await (await session.RunAsync(
+                @"MATCH (a)-[:NEXT]->(b) WHERE a.target_ts = $ts
+                  RETURN a.seq AS a, b.seq AS b ORDER BY a.seq", new { ts = TsLive })).ToListAsync())
+                .Select(r => (r["a"].As<long>(), r["b"].As<long>()));
+            Assert.Equal(new[] { (1L, 2L), (2L, 3L) }, links);
+        }
+    }
+
+    [Fact]
+    public async Task Baseline_anchors_join_the_chain_and_survive_rebaselines()
+    {
+        if (_driver is null) return;
+        await Cleanup();
+
+        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var building = new IfcBuilding(db, "B");
+        var storey = new IfcBuildingStorey(building, "S", 0);
+        var owner = new Dictionary<int, long>();
+
+        // Session start: baseline snapshot + anchor.
+        var stats = await CypherEmitter.WriteAsync(_driver, db, TsLive, owner);
+        var anchor1 = await RuleStore.RecordBaselineAsync(_driver, TsLive, stats);
+        Assert.Equal(1, anchor1.Seq);
+
+        // One rule after the anchor.
+        var w0 = StepIdWatermark.Current(db);
+        _ = new IfcWall(storey, null, null) { GlobalId = WallGid };
+        var w1 = StepIdWatermark.Current(db);
+        TagRange(db, w0, w1, 101, owner);
+        var (refresh, delete) = GraphletExtractor.StoreyContainmentChanges(new[] { storey }, TsLive);
+        var inserted = await CypherEmitter.ApplyRuleAsync(_driver, new GraphRule(
+            RuleOp.Insert, 101, TsLive,
+            GraphletExtractor.WalkNew(db, owner, w0, w1, TsLive), refresh, delete));
+        Assert.Equal(2, inserted.Stored!.Seq);
+
+        // Re-baseline: wipe + rewrite + second anchor. The chain keeps everything.
+        stats = await CypherEmitter.WriteAsync(_driver, db, TsLive, owner);
+        var anchor2 = await RuleStore.RecordBaselineAsync(_driver, TsLive, stats);
+        Assert.Equal(3, anchor2.Seq);
+
+        // HEAD sits on the new anchor; the list reads baseline → rule → baseline.
+        await using var session = _driver.AsyncSession();
+        var head = (await (await session.RunAsync(
+            @"MATCH (:RuleChain {target_ts: $ts})-[:HEAD]->(m)
+              RETURN m.seq AS seq, labels(m) AS labels", new { ts = TsLive })).ToListAsync()).Single();
+        Assert.Equal(3, head["seq"].As<long>());
+        Assert.Contains("Baseline", head["labels"].As<List<string>>());
+
+        var links = (await (await session.RunAsync(
+            @"MATCH (a)-[:NEXT]->(b) WHERE a.target_ts = $ts
+              RETURN a.seq AS a, b.seq AS b ORDER BY a.seq", new { ts = TsLive })).ToListAsync())
+            .Select(r => (r["a"].As<long>(), r["b"].As<long>()));
+        Assert.Equal(new[] { (1L, 2L), (2L, 3L) }, links);
+
+        // The rule between the anchors kept its payload through the wipe.
+        Assert.Equal(inserted.Graphlet.Count, await Count(
+            "MATCH (:Rule {timestamp: $ts})-[:INSERTS]->(n) RETURN count(n)",
+            new { ts = inserted.Stored.RuleTimestamp }));
     }
 
     private sealed record GlueRow(string Context, string RelType, string Direction);
