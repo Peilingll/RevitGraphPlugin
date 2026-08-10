@@ -92,11 +92,19 @@ public static class CypherEmitter
             // Name the rule's context portably while the graph still holds it: SharedDelete
             // nodes are gone by the end of this transaction, and paths must not route
             // through the graphlet this rule is about to delete or has yet to create.
+            // The SharedDelete nodes themselves are also barred from OTHER targets' paths —
+            // a name anchored on a node this rule drops (e.g. OwnerHistory reached via the
+            // emptied containment rel) could never resolve at undo time. They still name
+            // themselves: direct IfcRoot anchoring does not walk a path.
             var (external, own) = applied.PartitionReferences();
+            var exclude = new HashSet<int>(own);
+            foreach (var p21Id in rule.SharedDelete)
+                if (P21Id.TryParse(p21Id, out var sharedP21))
+                    exclude.Add(sharedP21);
             applied = applied with
             {
                 ContextRefs = await ContextResolver.ResolveAsync(
-                    tx, rule.Timestamp, external, own),
+                    tx, rule.Timestamp, external, exclude),
             };
 
             if (rule.Op is RuleOp.Remove or RuleOp.Replace)
