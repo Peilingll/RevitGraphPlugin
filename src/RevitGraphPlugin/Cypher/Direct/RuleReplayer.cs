@@ -219,13 +219,20 @@ DETACH DELETE i, n",
     {
         var rows = await (await tx.RunAsync(@"
 MATCH (:Rule {timestamp: $ts})-[:SETS]->(c:Change)
-RETURN c.path AS path, c.key AS key, c.list_index AS list_index,
+RETURN c.path AS path, c.path_after AS path_after, c.key AS key, c.list_index AS list_index,
        c.before AS before, c.after AS after, c.inline AS inline",
             new { ts = ruleTs })).ToListAsync();
 
         foreach (var row in rows)
         {
-            var p21 = await ResolveContextAsync(tx, ontoTs, row["path"].As<string>());
+            // The same node wears different ggifc-generated GlobalIds in different
+            // graphs: the L name matches pre-modify / replayed graphs, the R name
+            // matches the live graph the shallow apply rebuilt. Forward prefers the
+            // before-name, undo the after-name; either falls back to the other.
+            var (primary, secondary) = reverse
+                ? (row["path_after"]?.As<string>(), row["path"].As<string>())
+                : (row["path"].As<string>(), row["path_after"]?.As<string>());
+            var p21 = await ResolveEitherAsync(tx, ontoTs, primary, secondary);
             var key = row["key"].As<string>();
             var value = reverse ? row["before"].As<object>() : row["after"].As<object>();
 
@@ -284,13 +291,26 @@ MERGE (a)-[:rel {rel_type: $relType, list_index: $listIndex}]->(b)",
     /// </summary>
     private static async Task<int> ResolveContextAsync(
         IAsyncQueryRunner tx, string ontoTs, string contextString)
+        => await TryResolveContextAsync(tx, ontoTs, contextString)
+           ?? throw new InvalidOperationException(
+               $"context not found in '{ontoTs}': {contextString}");
+
+    private static async Task<int> ResolveEitherAsync(
+        IAsyncQueryRunner tx, string ontoTs, string? primary, string? secondary)
+    {
+        if (primary is not null && await TryResolveContextAsync(tx, ontoTs, primary) is { } p21)
+            return p21;
+        if (secondary is not null && await TryResolveContextAsync(tx, ontoTs, secondary) is { } fallback)
+            return fallback;
+        throw new InvalidOperationException(
+            $"context not found in '{ontoTs}': {primary} (nor {secondary})");
+    }
+
+    private static async Task<int?> TryResolveContextAsync(
+        IAsyncQueryRunner tx, string ontoTs, string contextString)
     {
         if (ContextRef.TryParse(contextString, out var contextRef))
-        {
-            return await ContextResolver.FindAsync(tx, ontoTs, contextRef!)
-                ?? throw new InvalidOperationException(
-                    $"context not found in '{ontoTs}': {contextString}");
-        }
+            return await ContextResolver.FindAsync(tx, ontoTs, contextRef!);
         if (P21Id.TryParse(contextString, out var p21)) return p21;
         throw new InvalidOperationException($"unreadable context reference: {contextString}");
     }

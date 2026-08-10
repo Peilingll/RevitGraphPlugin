@@ -28,15 +28,20 @@ public enum GraphletDiffKind
 }
 
 /// <summary>
-/// One value difference on a matched node. <paramref name="Node"/> is the node's portable
-/// name INSIDE the graphlet — anchored on the nearest GlobalId-bearing node of the L side
-/// (the DPO precondition: replay resolves it against the graph state the preceding rules
-/// produced). <paramref name="Inline"/> distinguishes an inline child's wrappedValue
-/// (key = the inline's rel_type, e.g. NominalValue, at <paramref name="ListIndex"/>)
-/// from a plain node property (<paramref name="ListIndex"/> null).
+/// One value difference on a matched node, named TWICE — the same node wears different
+/// GlobalIds in different graphs. <paramref name="Node"/> anchors on the L side: it
+/// resolves against a graph holding the pre-modify state (forward replay) or one built
+/// from the stored copies (undo of a replayed graph). <paramref name="NodeAfter"/>
+/// anchors on the R side: the live graph after the shallow delete+rebuild apply carries
+/// the R walk's fresh ggifc GlobalIds, so undoing against IT needs the after-name (a
+/// change anchored on a churned pset GlobalId resolves no other way — found live).
+/// <paramref name="Inline"/> distinguishes an inline child's wrappedValue (key = the
+/// inline's rel_type at <paramref name="ListIndex"/>) from a plain node property
+/// (<paramref name="ListIndex"/> null).
 /// </summary>
 public sealed record PropertyChange(
-    ContextRef Node, string Key, int? ListIndex, object? Before, object? After, bool Inline);
+    ContextRef Node, ContextRef NodeAfter, string Key, int? ListIndex,
+    object? Before, object? After, bool Inline);
 
 public sealed record GraphletDiffOutcome(GraphletDiffKind Kind, IReadOnlyList<PropertyChange> Changes)
 {
@@ -89,7 +94,7 @@ public static class GraphletDiff
                 var lv = l.Properties.GetValueOrDefault(key);
                 var rv = r.Properties.GetValueOrDefault(key);
                 if (!ValuesEqual(lv, rv))
-                    changes.Add((lp21, new PropertyChange(null!, key, null, lv, rv, Inline: false)));
+                    changes.Add((lp21, new PropertyChange(null!, null!, key, null, lv, rv, Inline: false)));
             }
 
             var lInl = l.Inlines.ToDictionary(i => (i.RelType, i.ListIndex));
@@ -101,21 +106,27 @@ public static class GraphletDiff
                 if (li.EntityType != ri.EntityType) return GraphletDiffOutcome.Structural;
                 if (!ValuesEqual(li.WrappedValue, ri.WrappedValue))
                     changes.Add((lp21, new PropertyChange(
-                        null!, key.RelType, key.ListIndex, li.WrappedValue, ri.WrappedValue, Inline: true)));
+                        null!, null!, key.RelType, key.ListIndex,
+                        li.WrappedValue, ri.WrappedValue, Inline: true)));
             }
         }
 
         if (changes.Count == 0)
             return new GraphletDiffOutcome(GraphletDiffKind.NoChange, Array.Empty<PropertyChange>());
 
-        // ── 4. Name every changed node portably (within-graphlet unique path, L side) ──
-        var names = NameNodes(left, changes.Select(c => c.LeftP21).Distinct());
+        // ── 4. Name every changed node portably, on BOTH sides (within-graphlet
+        // unique paths): the L name for pre-modify graphs, the R name for the live
+        // graph the shallow apply rebuilt. ──
+        var changedL = changes.Select(c => c.LeftP21).Distinct().ToList();
+        var namesL = NameNodes(left, changedL);
+        var namesR = NameNodes(right, changedL.Select(lp21 => match[lp21]));
         var completed = new List<PropertyChange>();
         foreach (var (lp21, change) in changes)
         {
-            if (!names.TryGetValue(lp21, out var contextRef))
+            if (!namesL.TryGetValue(lp21, out var refL)
+                || !namesR.TryGetValue(match[lp21], out var refR))
                 return GraphletDiffOutcome.Structural;   // unnameable → keep the full Replace
-            completed.Add(change with { Node = contextRef });
+            completed.Add(change with { Node = refL, NodeAfter = refR });
         }
 
         return new GraphletDiffOutcome(

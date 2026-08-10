@@ -113,7 +113,8 @@ CREATE (r:Rule:Node {timestamp: $ts, seq: $seq, op: $op, revit_element_id: $eid,
             await tx.RunAsync(@"
 MATCH (r:Rule {timestamp: $ts})
 UNWIND $changes AS c
-CREATE (ch:Change:Node {timestamp: $ts, path: c.path, key: c.key, list_index: c.list_index,
+CREATE (ch:Change:Node {timestamp: $ts, path: c.path, path_after: c.path_after,
+                        key: c.key, list_index: c.list_index,
                         before: c.before, after: c.after, inline: c.inline})
 CREATE (r)-[:SETS]->(ch)",
                 new
@@ -122,6 +123,7 @@ CREATE (r)-[:SETS]->(ch)",
                     changes = changes.Select(c => (object)new Dictionary<string, object?>
                     {
                         ["path"] = c.Node.Path,
+                        ["path_after"] = c.NodeAfter.Path,
                         ["key"] = c.Key,
                         ["list_index"] = c.ListIndex,
                         ["before"] = c.Before,
