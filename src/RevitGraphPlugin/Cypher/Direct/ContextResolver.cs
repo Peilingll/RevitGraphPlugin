@@ -118,19 +118,37 @@ public static class ContextResolver
         // element-wise) makes the choice reproducible without restating the serialization
         // format here. MaxPathDepth is inlined — Cypher rejects a parameter as a
         // var-length bound.
+        //
+        // Anchors are ranked by STABILITY first, depth second — a durable name three hops
+        // out beats a fragile one next door. Only ggifc products carry a GlobalId derived
+        // from something permanent (the Revit UniqueId); for every other IfcRoot — property
+        // sets, IfcRelVoids/Fills/DefinesByProperties — ggifc mints a FRESH RANDOM GlobalId
+        // on each conversion. So an anchor on an element-owned node dies the moment that
+        // element is edited again: the node is deleted and re-created wearing a new id, and
+        // the stored reference resolves to nothing.
+        //
+        // `revit_element_id IS NULL` is exactly the durable set: spatial boilerplate
+        // (project/site/building/storey), the shared containment rel, contexts — all built
+        // once per session and never re-converted. Preferring them makes a stored reference
+        // survive arbitrary later edits to other elements.
+        //
+        // Found the hard way (2026-08-13): a 19-rule live chain with hosted elements broke
+        // replay because references had been anchored on another element's property set.
+        // The four-rule single-wall demo never exercised it.
         var cypher = $@"
 MATCH path = allShortestPaths(
         (a:GenericNode {{timestamp: $ts}})-[:rel*1..{MaxPathDepth}]->(x:GenericNode {{timestamp: $ts, p21_id: $p21}}))
 WHERE (a:PrimaryNode OR a:ConnectionNode) AND a.GlobalId IS NOT NULL
   AND NONE(n IN nodes(path) WHERE n.p21_id IN $excluded)
 WITH a.GlobalId AS gid,
-     CASE WHEN a:ConnectionNode THEN 0 ELSE 1 END AS kind_rank,
+     CASE WHEN a.revit_element_id IS NULL THEN 0 ELSE 1 END AS stability_rank,
+     CASE WHEN a:PrimaryNode THEN 0 ELSE 1 END AS kind_rank,
      labels(a) AS anchor_labels,
      [r IN relationships(path) | r.rel_type]   AS rel_types,
      [r IN relationships(path) | r.list_index] AS list_indexes,
      [n IN tail(nodes(path)) | n.EntityType]   AS entity_types,
      length(path) AS depth
-ORDER BY depth, kind_rank, gid, rel_types, list_indexes, entity_types
+ORDER BY stability_rank, depth, kind_rank, gid, rel_types, list_indexes, entity_types
 LIMIT 1
 RETURN gid, anchor_labels, rel_types, list_indexes, entity_types";
 
