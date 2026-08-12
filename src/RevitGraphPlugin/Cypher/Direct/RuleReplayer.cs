@@ -63,6 +63,81 @@ public static class RuleReplayer
         });
     }
 
+    /// <summary>
+    /// Move <paramref name="ontoTs"/> to the state right after chain member
+    /// <paramref name="targetSeq"/>, going whichever way is needed from where it
+    /// currently stands (tracked on the chain node as <c>checked_out_seq</c>; a chain
+    /// that has never been checked out sits at HEAD, where a live session leaves it).
+    /// <para>
+    /// Direction matters: a rule may only be applied to — or inverted from — the state
+    /// it was recorded against. Its stored context refs are anchored on GlobalIds that
+    /// ggifc regenerates whenever an element is re-converted, so replaying an old rule
+    /// onto a much later state can find no anchor at all. Walking one step at a time in
+    /// the right direction keeps every rule on the state it knows.
+    /// </para>
+    /// </summary>
+    public static async Task<(long From, long To, int Steps)> CheckoutAsync(
+        IDriver driver, string chainTarget, string ontoTs, long targetSeq)
+    {
+        await using var session = driver.AsyncSession();
+        return await session.ExecuteWriteAsync(async tx =>
+        {
+            var members = await MembersAsync(tx, chainTarget);
+            if (members.Count == 0)
+                throw new InvalidOperationException($"no chain for target '{chainTarget}'");
+            if (members.All(m => m.Seq != targetSeq))
+                throw new InvalidOperationException($"seq {targetSeq} is not on the chain");
+
+            var newestBaseline = members.Where(m => m.IsBaseline).Select(m => m.Seq)
+                                        .DefaultIfEmpty(0).Max();
+            if (targetSeq < newestBaseline)
+                throw new InvalidOperationException(
+                    $"cannot check out below the newest baseline anchor (seq {newestBaseline}) — the graph was rebuilt there");
+
+            var head = members.Max(m => m.Seq);
+            var current = await CurrentSeqAsync(tx, chainTarget) ?? head;
+            var steps = 0;
+
+            if (targetSeq > current)
+            {
+                foreach (var m in members
+                             .Where(m => !m.IsBaseline && m.Seq > current && m.Seq <= targetSeq)
+                             .OrderBy(m => m.Seq))
+                {
+                    await ApplyStoredAsync(tx, m, ontoTs);
+                    steps++;
+                }
+            }
+            else if (targetSeq < current)
+            {
+                foreach (var m in members
+                             .Where(m => !m.IsBaseline && m.Seq > targetSeq && m.Seq <= current)
+                             .OrderByDescending(m => m.Seq))
+                {
+                    await UndoStoredAsync(tx, m, ontoTs);
+                    steps++;
+                }
+            }
+
+            await SetCurrentSeqAsync(tx, chainTarget, targetSeq);
+            return (current, targetSeq, steps);
+        });
+    }
+
+    /// <summary>Where the tracked graph currently stands, or null if never checked out.</summary>
+    public static async Task<long?> CurrentSeqAsync(IAsyncQueryRunner tx, string target)
+    {
+        var rows = await (await tx.RunAsync(
+            "MATCH (c:RuleChain {target_ts: $t}) RETURN c.checked_out_seq AS seq",
+            new { t = target })).ToListAsync();
+        return rows.Count == 0 ? null : rows[0]["seq"]?.As<long?>();
+    }
+
+    internal static Task SetCurrentSeqAsync(IAsyncQueryRunner tx, string target, long seq)
+        => tx.RunAsync(
+            "MATCH (c:RuleChain {target_ts: $t}) SET c.checked_out_seq = $seq",
+            new { t = target, seq });
+
     private static async Task<List<Member>> MembersAsync(IAsyncQueryRunner tx, string target)
     {
         var rows = await (await tx.RunAsync(@"
@@ -219,7 +294,9 @@ DETACH DELETE i, n",
     {
         var rows = await (await tx.RunAsync(@"
 MATCH (:Rule {timestamp: $ts})-[:SETS]->(c:Change)
-RETURN c.path AS path, c.path_after AS path_after, c.key AS key, c.list_index AS list_index,
+RETURN c.path AS path, c.path_after AS path_after,
+       c.p21_before AS p21_before, c.p21_after AS p21_after,
+       c.key AS key, c.list_index AS list_index,
        c.before AS before, c.after AS after, c.inline AS inline",
             new { ts = ruleTs })).ToListAsync();
 
@@ -232,7 +309,11 @@ RETURN c.path AS path, c.path_after AS path_after, c.key AS key, c.list_index AS
             var (primary, secondary) = reverse
                 ? (row["path_after"]?.As<string>(), row["path"].As<string>())
                 : (row["path"].As<string>(), row["path_after"]?.As<string>());
-            var p21 = await ResolveEitherAsync(tx, ontoTs, primary, secondary);
+            // Same-database fallback: the local id on the side we are moving from. A rule
+            // is only ever applied to the state it was recorded against, so that id is
+            // exact here even when no portable name survives (see PropertyChange).
+            var localP21 = (reverse ? row["p21_after"] : row["p21_before"])?.As<string>();
+            var p21 = await ResolveEitherAsync(tx, ontoTs, primary, secondary, localP21);
             var key = row["key"].As<string>();
             var value = reverse ? row["before"].As<object>() : row["after"].As<object>();
 
@@ -296,14 +377,25 @@ MERGE (a)-[:rel {rel_type: $relType, list_index: $listIndex}]->(b)",
                $"context not found in '{ontoTs}': {contextString}");
 
     private static async Task<int> ResolveEitherAsync(
-        IAsyncQueryRunner tx, string ontoTs, string? primary, string? secondary)
+        IAsyncQueryRunner tx, string ontoTs, string? primary, string? secondary,
+        string? localP21 = null)
     {
         if (primary is not null && await TryResolveContextAsync(tx, ontoTs, primary) is { } p21)
             return p21;
         if (secondary is not null && await TryResolveContextAsync(tx, ontoTs, secondary) is { } fallback)
             return fallback;
+
+        // Last resort, same database only: the node's local id on the side we came from.
+        if (localP21 is not null && P21Id.TryParse(localP21, out var local))
+        {
+            var exists = await (await tx.RunAsync(
+                "MATCH (n:GenericNode {timestamp: $ts, p21_id: $p21}) RETURN count(n) AS c",
+                new { ts = ontoTs, p21 = localP21 })).ToListAsync();
+            if (exists.Single()["c"].As<int>() > 0) return local;
+        }
+
         throw new InvalidOperationException(
-            $"context not found in '{ontoTs}': {primary} (nor {secondary})");
+            $"context not found in '{ontoTs}': {primary} (nor {secondary}, nor {localP21})");
     }
 
     private static async Task<int?> TryResolveContextAsync(

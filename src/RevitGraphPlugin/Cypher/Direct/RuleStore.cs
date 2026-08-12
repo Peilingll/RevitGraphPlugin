@@ -114,6 +114,7 @@ CREATE (r:Rule:Node {timestamp: $ts, seq: $seq, op: $op, revit_element_id: $eid,
 MATCH (r:Rule {timestamp: $ts})
 UNWIND $changes AS c
 CREATE (ch:Change:Node {timestamp: $ts, path: c.path, path_after: c.path_after,
+                        p21_before: c.p21_before, p21_after: c.p21_after,
                         key: c.key, list_index: c.list_index,
                         before: c.before, after: c.after, inline: c.inline})
 CREATE (r)-[:SETS]->(ch)",
@@ -124,6 +125,8 @@ CREATE (r)-[:SETS]->(ch)",
                     {
                         ["path"] = c.Node.Path,
                         ["path_after"] = c.NodeAfter.Path,
+                        ["p21_before"] = P21Id.Of(c.P21Before),
+                        ["p21_after"] = P21Id.Of(c.P21After),
                         ["key"] = c.Key,
                         ["list_index"] = c.ListIndex,
                         ["before"] = c.Before,
@@ -211,6 +214,7 @@ RETURN c.next_seq - 1 AS seq",
         await tx.RunAsync($@"
 MATCH (c:RuleChain {{target_ts: $target}})
 MATCH (m:{label} {{timestamp: $memberTs}})
+SET c.checked_out_seq = m.seq
 OPTIONAL MATCH (c)-[h:HEAD]->(prev)
 DELETE h
 CREATE (c)-[:HEAD]->(m)
@@ -218,6 +222,10 @@ WITH m, prev
 WHERE prev IS NOT NULL
 CREATE (prev)-[:NEXT]->(m)",
             new { target, memberTs });
+        // checked_out_seq tracks where the graph stands: a newly applied rule leaves it
+        // at the new HEAD. RuleReplayer.CheckoutAsync reads it to decide which way — and
+        // how far — to walk, so no rule is ever applied to a state it was not recorded
+        // against (its context anchors would not exist there).
     }
 
     /// <summary>The full DPO L side: the element-owned capture plus the shared nodes the rule drops.</summary>

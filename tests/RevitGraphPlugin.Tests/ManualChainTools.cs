@@ -61,6 +61,14 @@ public sealed class ManualChainTools
                 _output.WriteLine($"replayed {replayed} rule(s) of '{target}' chain onto '{onto}'");
                 break;
             }
+            case "checkout":
+            {
+                var seq = long.Parse(Environment.GetEnvironmentVariable("CHAIN_SEQ")
+                                     ?? throw new InvalidOperationException("CHAIN_SEQ not set"));
+                var (from, to, steps) = await RuleReplayer.CheckoutAsync(driver, target, onto, seq);
+                _output.WriteLine($"checkout {from} -> {to} ({steps} step(s)) on '{onto}'");
+                break;
+            }
             default:
                 Assert.Fail($"unknown CHAIN_TOOL '{tool}' (use undo | replay)");
                 break;
