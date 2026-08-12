@@ -39,9 +39,19 @@ public enum GraphletDiffKind
 /// inline's rel_type at <paramref name="ListIndex"/>) from a plain node property
 /// (<paramref name="ListIndex"/> null).
 /// </summary>
+/// <param name="P21Before">
+/// The changed node's local id on each side — a same-database fallback for when neither
+/// portable name resolves. Inside a graphlet the only Revit-derived identity is the
+/// PRODUCT's GlobalId, and a property node is not reachable from it by outgoing edges
+/// (the IfcRelDefinesByProperties points AT the product, not away from it), so every
+/// forward-only anchor for it sits on a ggifc-random GlobalId that dies on the next
+/// re-conversion. Until paths can step backwards, replay within the same database uses
+/// these: a rule is always applied to the state it was recorded against, where its p21s
+/// are exact. Cross-host portability of property changes stays a known gap.
+/// </param>
 public sealed record PropertyChange(
     ContextRef Node, ContextRef NodeAfter, string Key, int? ListIndex,
-    object? Before, object? After, bool Inline);
+    object? Before, object? After, bool Inline, int P21Before = 0, int P21After = 0);
 
 public sealed record GraphletDiffOutcome(GraphletDiffKind Kind, IReadOnlyList<PropertyChange> Changes)
 {
@@ -126,7 +136,11 @@ public static class GraphletDiff
             if (!namesL.TryGetValue(lp21, out var refL)
                 || !namesR.TryGetValue(match[lp21], out var refR))
                 return GraphletDiffOutcome.Structural;   // unnameable → keep the full Replace
-            completed.Add(change with { Node = refL, NodeAfter = refR });
+            completed.Add(change with
+            {
+                Node = refL, NodeAfter = refR,
+                P21Before = lp21, P21After = match[lp21],
+            });
         }
 
         return new GraphletDiffOutcome(
