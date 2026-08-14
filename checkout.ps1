@@ -106,6 +106,12 @@ if ($Ifc) {
         New-Item -ItemType Directory -Force $outDir | Out-Null
         $Ifc = Join-Path $outDir $Ifc
     }
-    & 'D:\Hiwi\ConMan2\venv\Scripts\python.exe' `
-        (Join-Path $repo 'tools\python\graph2ifc.py') $Target $Ifc
+    # PLUGIN_PYTHON override, else sibling-clone default (ConMan2 next to this repo) —
+    # same convention as the C# bridge (IfcSnippetSink).
+    $py = if ($env:PLUGIN_PYTHON) { $env:PLUGIN_PYTHON }
+          else { Join-Path (Split-Path -Parent $repo) 'ConMan2\venv\Scripts\python.exe' }
+    if (-not (Test-Path $py)) {
+        throw "python not found at '$py' — clone ConMan2 beside this repo or set PLUGIN_PYTHON"
+    }
+    & $py (Join-Path $repo 'tools\python\graph2ifc.py') $Target $Ifc
 }
