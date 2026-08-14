@@ -128,15 +128,18 @@ running the add-in requires the real Revit.
 
 ## Packaging for distribution
 
-`package.ps1` produces a self-contained zip (pre-built DLLs + `.addin` +
-`install.ps1` + `INSTALL.md`) so the target machine needs neither the SDK nor this repo:
+`package.ps1` produces a self-contained zip so the target machine needs neither the
+.NET SDK nor this repo:
 
 ```powershell
 .\package.ps1 -RevitVersion 2026     # → dist\RevitGraphPlugin-2026.zip
 ```
 
-On the target machine: unzip, run `install.ps1` (per-user, no admin), start a local
-Neo4j, launch Revit. Full steps in [deploy/INSTALL.md](deploy/INSTALL.md).
+The zip contains the pre-built DLLs + `.addin`, `install.ps1`, `INSTALL.md`, and the
+version-checkout tooling (`checkout.ps1` + `graph2ifc.py`). On the target machine:
+unzip, run `install.ps1` (per-user, no admin), start a local Neo4j, launch Revit —
+full steps in [deploy/INSTALL.md](deploy/INSTALL.md). Checkout/undo/replay works with
+just Neo4j; only the optional `-Ifc` round-trip needs a ConMan2 clone.
 
 ## Environment variables
 

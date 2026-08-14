@@ -111,7 +111,13 @@ if ($Ifc) {
     $py = if ($env:PLUGIN_PYTHON) { $env:PLUGIN_PYTHON }
           else { Join-Path (Split-Path -Parent $repo) 'ConMan2\venv\Scripts\python.exe' }
     if (-not (Test-Path $py)) {
-        throw "python not found at '$py' — clone ConMan2 beside this repo or set PLUGIN_PYTHON"
+        throw "python not found at '$py' — set PLUGIN_PYTHON to a ConMan2 venv python " +
+              "(and CONMAN2_PATH to ConMan2's src/), or clone ConMan2 beside this repo"
     }
-    & $py (Join-Path $repo 'tools\python\graph2ifc.py') $Target $Ifc
+    # graph2ifc.py lives in tools\python\ in the repo, or next to this script in the
+    # distributed zip.
+    $g2i = Join-Path $repo 'tools\python\graph2ifc.py'
+    if (-not (Test-Path $g2i)) { $g2i = Join-Path $repo 'graph2ifc.py' }
+    if (-not (Test-Path $g2i)) { throw "graph2ifc.py not found next to checkout.ps1" }
+    & $py $g2i $Target $Ifc
 }

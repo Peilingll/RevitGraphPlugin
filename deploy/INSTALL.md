@@ -49,6 +49,31 @@ Inspect the result in Neo4j Browser (`http://localhost:7474`), e.g.:
 MATCH (n {timestamp: 'plugin-live'}) RETURN n LIMIT 100
 ```
 
+## Version checkout (optional)
+
+Every change made while Live Sync is ON is stored as a transformation rule in a
+versioned chain. `checkout.ps1` (included) moves the graph to any recorded version —
+undo backwards, replay forwards. Turn Live Sync OFF first, then from this folder:
+
+```powershell
+.\checkout.ps1            # list the chain + where the graph currently stands
+.\checkout.ps1 3          # move the graph to the state after chain member seq 3
+.\checkout.ps1 head       # back to the newest version
+```
+
+This needs only the running Neo4j — no Python.
+
+### IFC round-trip (optional, needs ConMan2)
+
+`.\checkout.ps1 3 -Ifc v3.ifc` additionally exports the checked-out graph as an IFC
+file via [ConMan2](https://github.com/seb-esser/ConMan2). Requires a ConMan2 clone
+with its Python venv set up (`pip install -r src/requirements.txt`), then:
+
+```powershell
+$env:CONMAN2_PATH  = "<ConMan2>\src"
+$env:PLUGIN_PYTHON = "<ConMan2>\venv\Scripts\python.exe"
+```
+
 ## Troubleshooting
 
 | Symptom                              | Fix                                                                   |

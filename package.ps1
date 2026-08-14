@@ -30,6 +30,10 @@ Copy-Item "$out\*.dll" $dist
 Copy-Item "$out\RevitGraphPlugin.addin" $dist
 Copy-Item (Join-Path $repo 'deploy\install.ps1') $dist
 Copy-Item (Join-Path $repo 'deploy\INSTALL.md') $dist
+# Version-checkout tooling: checkout/undo/replay needs only Neo4j; the optional
+# -Ifc round-trip additionally needs a ConMan2 clone (see INSTALL.md).
+Copy-Item (Join-Path $repo 'checkout.ps1') $dist
+Copy-Item (Join-Path $repo 'tools\python\graph2ifc.py') $dist
 Set-Content (Join-Path $dist 'revit-version.txt') $RevitVersion
 
 # Safety net: the Revit API is provided by Revit at runtime and must never ship.
