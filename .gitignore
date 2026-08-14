@@ -4,6 +4,7 @@ doc_process/
 # Visual Studio / .NET build output
 bin/
 obj/
+dist/
 *.user
 *.suo
 .vs/
