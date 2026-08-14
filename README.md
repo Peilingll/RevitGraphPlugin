@@ -1,6 +1,6 @@
 # RevitGraphPlugin
 
-A Revit 2025 add-in that mirrors a Revit document into a Neo4j property graph — in real
+A Revit add-in (2025/2026, .NET 8) that mirrors a Revit document into a Neo4j property graph — in real
 time — as IFC entities following the [ConMan2](https://github.com/seb-esser/ConMan2/)
 schema, for change-tracking and version-diff workflows.
 
@@ -78,9 +78,9 @@ direct/live pipeline now emits the same node/edge shapes without the Python roun
 
 ## Quick start
 
-Prerequisites: Revit 2025 (at `D:\Autodesk\Revit 2025\`, override via
-`RevitInstallPath2025`), .NET 8 SDK (8.0.403, pinned by `global.json`), a running Neo4j
-instance. The Python environment is only needed for the **Sync (bridge)** button.
+Prerequisites: Revit (2025 by default — see *Building for another Revit version*),
+.NET 8 SDK (8.0.403, pinned by `global.json`), a running Neo4j instance. The Python
+environment is only needed for the **Sync (bridge)** button.
 
 **Clone ConMan2 as a sibling of this repo** — paths are then resolved relatively, no
 configuration needed (required only for the bridge button, but the schema reference is
@@ -101,7 +101,7 @@ py -m venv ..\ConMan2\venv
 # 2. Neo4j password (User scope, so Revit inherits it).
 [Environment]::SetEnvironmentVariable("NEO4J_LOCAL_PASSWORD", "<your-password>", "User")
 
-# 3. Build (Debug auto-deploys DLL + .addin to %AppData%\Autodesk\Revit\Addins\2025\).
+# 3. Build (Debug auto-deploys DLL + .addin to %AppData%\Autodesk\Revit\Addins\<version>\).
 dotnet build RevitGraphPlugin.sln -c Debug
 ```
 
@@ -109,6 +109,37 @@ Then start a Neo4j instance, launch Revit, open/create an Architectural project,
 **Live Sync** on the `RevitGraphPlugin` ribbon. The button flips to **ON**, the baseline is
 written, and every subsequent change flows through automatically. Click again to turn it
 OFF (disposes the session; the graph is left as-is).
+
+## Building for another Revit version
+
+The target version is an MSBuild property (`RevitVersion`, default `2025`) that drives
+both the `RevitAPI.dll` lookup and the Addins deploy folder:
+
+```powershell
+dotnet build RevitGraphPlugin.sln -c Debug -p:RevitVersion=2026
+```
+
+The API assemblies are resolved in order: `RevitInstallPath` (explicit override) →
+`RevitInstallPath2025` (legacy name) → `D:\Autodesk\Revit <version>\` →
+`%ProgramFiles%\Autodesk\Revit <version>\` → the
+[Nice3point.Revit.Api](https://github.com/Nice3point/RevitApi) NuGet packages. The NuGet
+fallback means any machine can compile for any version without Revit installed — only
+running the add-in requires the real Revit.
+
+## Packaging for distribution
+
+`package.ps1` produces a self-contained zip so the target machine needs neither the
+.NET SDK nor this repo:
+
+```powershell
+.\package.ps1 -RevitVersion 2026     # → dist\RevitGraphPlugin-2026.zip
+```
+
+The zip contains the pre-built DLLs + `.addin`, `install.ps1`, `INSTALL.md`, and the
+version-checkout tooling (`checkout.ps1` + `graph2ifc.py`). On the target machine:
+unzip, run `install.ps1` (per-user, no admin), start a local Neo4j, launch Revit —
+full steps in [deploy/INSTALL.md](deploy/INSTALL.md). Checkout/undo/replay works with
+just Neo4j; only the optional `-Ifc` round-trip needs a ConMan2 clone.
 
 ## Environment variables
 
@@ -123,6 +154,7 @@ sync.
 | `CONMAN2_PATH`                                 | `<repo>/../ConMan2/src`                     | Python (bridge only)      |
 | `PLUGIN_PYTHON`                                | `<repo>/../ConMan2/venv/Scripts/python.exe` | C# (bridge only)          |
 | `PLUGIN_SNIPPET_SCRIPT`                        | `<repo>/tools/python/snippet_to_cypher.py`  | C# (bridge only)          |
+| `RevitVersion` / `RevitInstallPath`            | `2025` / auto-resolved (see above)          | MSBuild (build time only) |
 
 `Neo4jConfig.Resolve()` builds the bolt URI + credentials from `NEO4J_LOCAL_*` and forces
 `localhost → 127.0.0.1` to match ConMan2. `tools/Neo4jSmokeTest` reads the same names
@@ -181,8 +213,8 @@ The live diagnostics log at `%TEMP%\RevitGraphPlugin\live.log` records every rou
 
 | Symptom                                   | Likely cause                                                                                    |
 | ----------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Build fails finding`RevitAPI.dll`         | Revit not at`D:\Autodesk\Revit 2025\` — set `$env:RevitInstallPath2025` before building.        |
-| Ribbon tab missing after launch           | Debug build not deployed (Release skips it) — check`%AppData%\Autodesk\Revit\Addins\2025\`.     |
+| Build fails finding`RevitAPI.dll`         | No local Revit and no NuGet access — set `RevitInstallPath`, or restore NuGet online once.      |
+| Ribbon tab missing after launch           | Debug build not deployed (Release skips it) — check`%AppData%\Autodesk\Revit\Addins\<version>\`. |
 | Live Sync flips itself OFF after a change | An exception fired in the event path (fail loud) — read`%TEMP%\RevitGraphPlugin\live.log`.      |
 | Neo4j auth error on sync                  | `NEO4J_LOCAL_PASSWORD` wrong/unset — verify with `dotnet run --project tools/Neo4jSmokeTest`.   |
 | "Python interpreter / ConMan2 not found"  | Bridge button only — ConMan2 not a sibling clone; set`PLUGIN_PYTHON` / `CONMAN2_PATH`, restart. |

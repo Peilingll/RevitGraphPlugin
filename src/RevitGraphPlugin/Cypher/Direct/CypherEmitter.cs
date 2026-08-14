@@ -62,12 +62,51 @@ public static class CypherEmitter
     /// <item>Drop <c>SharedDelete</c> nodes (e.g. a containment rel left memberless —
     ///   absent from a fresh export of the same model state).</item>
     /// </list>
+    /// Returns the rule completed with its <see cref="GraphRule.BeforeGraphlet"/> (the L
+    /// side, read inside the same transaction before step 1 destroys it) — the payload
+    /// rule persistence will store.
     /// </summary>
-    public static async Task ApplyRuleAsync(IDriver driver, GraphRule rule)
+    public static async Task<GraphRule> ApplyRuleAsync(IDriver driver, GraphRule rule)
     {
         await using var session = driver.AsyncSession();
-        await session.ExecuteWriteAsync(async tx =>
+        return await session.ExecuteWriteAsync(async tx =>
         {
+            var applied = rule;
+
+            if (rule.Op is RuleOp.Remove or RuleOp.Replace)
+            {
+                // Capture L first — after DETACH DELETE it is unrecoverable. The
+                // SharedDelete nodes are L too (the rule destroys them), but they are
+                // not element-owned, so they are read by p21 into their own list.
+                applied = rule with
+                {
+                    BeforeGraphlet = (await GraphletReader.ReadOwnedAsync(
+                        tx, rule.Timestamp, rule.RevitElementId)) with
+                    {
+                        SharedDeleted = await GraphletReader.ReadByP21Async(
+                            tx, rule.Timestamp, rule.SharedDelete),
+                    },
+                };
+            }
+
+            // Name the rule's context portably while the graph still holds it: SharedDelete
+            // nodes are gone by the end of this transaction, and paths must not route
+            // through the graphlet this rule is about to delete or has yet to create.
+            // The SharedDelete nodes themselves are also barred from OTHER targets' paths —
+            // a name anchored on a node this rule drops (e.g. OwnerHistory reached via the
+            // emptied containment rel) could never resolve at undo time. They still name
+            // themselves: direct IfcRoot anchoring does not walk a path.
+            var (external, own) = applied.PartitionReferences();
+            var exclude = new HashSet<int>(own);
+            foreach (var p21Id in rule.SharedDelete)
+                if (P21Id.TryParse(p21Id, out var sharedP21))
+                    exclude.Add(sharedP21);
+            applied = applied with
+            {
+                ContextRefs = await ContextResolver.ResolveAsync(
+                    tx, rule.Timestamp, external, exclude),
+            };
+
             if (rule.Op is RuleOp.Remove or RuleOp.Replace)
             {
                 await tx.RunAsync(
@@ -100,6 +139,12 @@ public static class CypherEmitter
                     "UNWIND $p21s AS p21 MATCH (n {p21_id: p21, timestamp: $ts}) DETACH DELETE n",
                     new { p21s = rule.SharedDelete.ToList(), ts = rule.Timestamp });
             }
+
+            // Persist the completed rule into the :Rule chain as part of THIS transaction
+            // (plan step 3): apply and persist commit or fail together — a graph that
+            // changed without a record (or a record without the change) would desync the
+            // chain from the current-state graph.
+            return applied with { Stored = await RuleStore.PersistAsync(tx, applied) };
         });
     }
 
@@ -145,7 +190,7 @@ public static class CypherEmitter
         return data;
     }
 
-    private static async Task BulkMergeNodes(IAsyncQueryRunner session, NodeKind kind, List<EntityData> data)
+    internal static async Task BulkMergeNodes(IAsyncQueryRunner session, NodeKind kind, List<EntityData> data)
     {
         if (data.Count == 0) return;
 
@@ -162,7 +207,7 @@ SET n += props";
         await session.RunAsync(cypher, new { batch });
     }
 
-    private static async Task BulkMergeEdges(IAsyncQueryRunner session, List<EdgeData> edges, string timestamp)
+    internal static async Task BulkMergeEdges(IAsyncQueryRunner session, List<EdgeData> edges, string timestamp)
     {
         if (edges.Count == 0) return;
 
@@ -188,7 +233,7 @@ MERGE (a)-[:rel {rel_type: e.rel_type, list_index: e.list_index}]->(b)";
     // CREATEd and linked to their parent — exactly ConMan2's inline_patterns query
     // (IfcGraphInterface.ifc_2_graph). CREATE (not MERGE): inline nodes have no key;
     // the per-timestamp clear in WriteAsync keeps re-runs idempotent.
-    private static async Task BulkCreateInlines(IAsyncQueryRunner session, List<InlineData> inlines, string timestamp)
+    internal static async Task BulkCreateInlines(IAsyncQueryRunner session, List<InlineData> inlines, string timestamp)
     {
         if (inlines.Count == 0) return;
 

@@ -48,6 +48,97 @@ public sealed record GraphRule(
     IReadOnlyList<string> SharedDelete)
 {
     /// <summary>
+    /// The DPO <b>L</b> side: what this rule destroyed, captured from the current-state
+    /// graph inside the rule's own transaction just before the delete
+    /// (<see cref="CypherEmitter.ApplyRuleAsync"/> fills it in and returns the completed
+    /// rule). <c>null</c> until then, and always <c>null</c> for
+    /// <see cref="RuleOp.Insert"/> — an insert destroys nothing.
+    /// <para>
+    /// Rule building cannot produce this: <see cref="RuleOp.Remove"/> starts from an
+    /// element that no longer exists in Revit, and by rule-build time the ggifc mirror
+    /// has already been detached and un-owned. Without it the rule chain would only be
+    /// replayable forwards — no undo, and no L pattern for a receiver to match against
+    /// (Esser 2022 §3.4). See doc_process/2026-08-02-plan-rule-persistence.md §2.
+    /// </para>
+    /// </summary>
+    public GraphletCapture? BeforeGraphlet { get; init; }
+
+    /// <summary>
+    /// Portable names for every p21 the rule references but does not own, keyed by that
+    /// p21 (see <see cref="PartitionReferences"/>). Filled in by
+    /// <see cref="CypherEmitter.ApplyRuleAsync"/> from the host graph, before the rule
+    /// mutates anything.
+    /// <para>
+    /// The apply path deliberately keeps using p21 — it runs against the very graph the
+    /// rule was built from, where p21 is exact and free. Portability is a property of the
+    /// <em>stored</em> rule: a p21 means nothing in another version or another host graph,
+    /// so persistence writes these refs instead. A reference that could not be resolved is
+    /// simply absent.
+    /// </para>
+    /// </summary>
+    public IReadOnlyDictionary<int, ContextRef> ContextRefs { get; init; }
+        = new Dictionary<int, ContextRef>();
+
+    /// <summary>
+    /// What <see cref="RuleStore"/> recorded for this rule, set by
+    /// <see cref="CypherEmitter.ApplyRuleAsync"/> on the returned rule. <c>null</c>
+    /// before persistence ran — or when it deliberately stored nothing (a Replace that
+    /// <see cref="GraphletDiff"/> proved semantically empty).
+    /// </summary>
+    public RuleStore.StoredRule? Stored { get; init; }
+
+    /// <summary>
+    /// Split every p21 the rule mentions into <c>Own</c> (nodes the rule itself carries —
+    /// its R graphlet and, once captured, its L graphlet) and <c>External</c> (everything
+    /// else: context it glues to, shared nodes it refreshes or deletes). Only the external
+    /// set needs portable naming; inside the rule p21 is a local name.
+    /// </summary>
+    public (IReadOnlyCollection<int> External, IReadOnlySet<int> Own) PartitionReferences()
+    {
+        var own = new HashSet<int>();
+        foreach (var data in Graphlet) own.Add(data.P21);
+        if (BeforeGraphlet is not null)
+            foreach (var data in BeforeGraphlet.Nodes) own.Add(data.P21);
+
+        var mentioned = new HashSet<int>();
+        void Mention(EdgeData edge) { mentioned.Add(edge.SourceP21); mentioned.Add(edge.TargetP21); }
+
+        foreach (var data in Graphlet)
+            foreach (var edge in data.Edges) Mention(edge);
+
+        if (BeforeGraphlet is not null)
+        {
+            foreach (var data in BeforeGraphlet.Nodes)
+                foreach (var edge in data.Edges) Mention(edge);
+            foreach (var edge in BeforeGraphlet.IncomingGlue) Mention(edge);
+
+            // Shared nodes the rule drops stay EXTERNAL (they need portable names of
+            // their own — replay must find and drop them in its graph), but their edge
+            // ends are mentioned so the stored glue can name e.g. the storey behind a
+            // dropped containment rel.
+            foreach (var data in BeforeGraphlet.SharedDeletedOrEmpty)
+            {
+                mentioned.Add(data.P21);
+                foreach (var edge in data.Edges) Mention(edge);
+            }
+        }
+
+        // Shared context the rule rewrites: the rel node itself plus whatever it now points
+        // at (members of OTHER elements — external from this rule's point of view).
+        foreach (var data in SharedRefresh)
+        {
+            mentioned.Add(data.P21);
+            foreach (var edge in data.Edges) Mention(edge);
+        }
+
+        foreach (var p21Id in SharedDelete)
+            if (P21Id.TryParse(p21Id, out var p21)) mentioned.Add(p21);
+
+        mentioned.ExceptWith(own);
+        return (mentioned, own);
+    }
+
+    /// <summary>
     /// IFC entity types that are shared context, never owned by a single element even
     /// when an element's conversion happens to create them: ggifc creates the storey's
     /// containment rel while converting the FIRST element on that storey, but every

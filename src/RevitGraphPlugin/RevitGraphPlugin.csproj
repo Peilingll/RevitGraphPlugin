@@ -21,21 +21,40 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <!-- Override via environment variable or Directory.Build.props if Revit is installed elsewhere. -->
-    <RevitInstallPath2025 Condition="'$(RevitInstallPath2025)' == ''">D:\Autodesk\Revit 2025\</RevitInstallPath2025>
+    <!-- Target Revit version. Override per-machine: dotnet build -p:RevitVersion=2026
+         (or the RevitVersion environment variable). Drives both the RevitAPI lookup
+         and the Addins deploy folder below. -->
+    <RevitVersion Condition="'$(RevitVersion)' == ''">2025</RevitVersion>
+    <!-- Install path resolution, first match wins:
+           1. RevitInstallPath (env var or -p:), for non-standard locations
+           2. RevitInstallPath2025 (legacy name, kept so existing setups don't break)
+           3. D:\Autodesk\Revit <version>\ if it exists (this repo's dev machine)
+           4. %ProgramFiles%\Autodesk\Revit <version>\ (Autodesk's default) -->
+    <RevitInstallPath Condition="'$(RevitInstallPath)' == '' And '$(RevitInstallPath2025)' != ''">$(RevitInstallPath2025)</RevitInstallPath>
+    <RevitInstallPath Condition="'$(RevitInstallPath)' == '' And Exists('D:\Autodesk\Revit $(RevitVersion)\')">D:\Autodesk\Revit $(RevitVersion)\</RevitInstallPath>
+    <RevitInstallPath Condition="'$(RevitInstallPath)' == ''">$(ProgramFiles)\Autodesk\Revit $(RevitVersion)\</RevitInstallPath>
+    <!-- No matching local install (e.g. building a 2026 package on a 2025-only machine):
+         fall back to the Nice3point NuGet packages, which are verbatim copies of the
+         Revit API assemblies. Compile-time only — Revit supplies the real DLLs at runtime. -->
+    <RevitApiFromNuGet Condition="'$(RevitApiFromNuGet)' == '' And !Exists('$(RevitInstallPath)RevitAPI.dll')">true</RevitApiFromNuGet>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(RevitApiFromNuGet)' != 'true'">
     <Reference Include="RevitAPI">
-      <HintPath>$(RevitInstallPath2025)RevitAPI.dll</HintPath>
+      <HintPath>$(RevitInstallPath)RevitAPI.dll</HintPath>
       <Private>false</Private>
       <ExcludeAssets>runtime</ExcludeAssets>
     </Reference>
     <Reference Include="RevitAPIUI">
-      <HintPath>$(RevitInstallPath2025)RevitAPIUI.dll</HintPath>
+      <HintPath>$(RevitInstallPath)RevitAPIUI.dll</HintPath>
       <Private>false</Private>
       <ExcludeAssets>runtime</ExcludeAssets>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(RevitApiFromNuGet)' == 'true'">
+    <PackageReference Include="Nice3point.Revit.Api.RevitAPI" Version="$(RevitVersion).*" ExcludeAssets="runtime" />
+    <PackageReference Include="Nice3point.Revit.Api.RevitAPIUI" Version="$(RevitVersion).*" ExcludeAssets="runtime" />
   </ItemGroup>
 
   <ItemGroup>
@@ -59,7 +78,7 @@
 
   <Target Name="DeployToRevitAddins" AfterTargets="Build" Condition="'$(Configuration)' == 'Debug'">
     <PropertyGroup>
-      <RevitAddinsDir>$(APPDATA)\Autodesk\Revit\Addins\2025\</RevitAddinsDir>
+      <RevitAddinsDir>$(APPDATA)\Autodesk\Revit\Addins\$(RevitVersion)\</RevitAddinsDir>
     </PropertyGroup>
     <ItemGroup>
       <DeployFiles Include="$(TargetDir)*.dll;$(TargetDir)*.pdb;$(TargetDir)*.addin" />

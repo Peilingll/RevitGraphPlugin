@@ -33,15 +33,24 @@
        ExcludeAssets=runtime stance as the main csproj — the DLL is never deployed
        next to the test assembly. -->
   <PropertyGroup>
-    <RevitInstallPath2025 Condition="'$(RevitInstallPath2025)' == ''">D:\Autodesk\Revit 2025\</RevitInstallPath2025>
+    <!-- Same resolution chain as the main csproj (see comments there). -->
+    <RevitVersion Condition="'$(RevitVersion)' == ''">2025</RevitVersion>
+    <RevitInstallPath Condition="'$(RevitInstallPath)' == '' And '$(RevitInstallPath2025)' != ''">$(RevitInstallPath2025)</RevitInstallPath>
+    <RevitInstallPath Condition="'$(RevitInstallPath)' == '' And Exists('D:\Autodesk\Revit $(RevitVersion)\')">D:\Autodesk\Revit $(RevitVersion)\</RevitInstallPath>
+    <RevitInstallPath Condition="'$(RevitInstallPath)' == ''">$(ProgramFiles)\Autodesk\Revit $(RevitVersion)\</RevitInstallPath>
+    <RevitApiFromNuGet Condition="'$(RevitApiFromNuGet)' == '' And !Exists('$(RevitInstallPath)RevitAPI.dll')">true</RevitApiFromNuGet>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(RevitApiFromNuGet)' != 'true'">
     <Reference Include="RevitAPI">
-      <HintPath>$(RevitInstallPath2025)RevitAPI.dll</HintPath>
+      <HintPath>$(RevitInstallPath)RevitAPI.dll</HintPath>
       <Private>false</Private>
       <ExcludeAssets>runtime</ExcludeAssets>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(RevitApiFromNuGet)' == 'true'">
+    <PackageReference Include="Nice3point.Revit.Api.RevitAPI" Version="$(RevitVersion).*" ExcludeAssets="runtime" />
   </ItemGroup>
 
 </Project>

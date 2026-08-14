@@ -14,14 +14,21 @@ Defaults: TIMESTAMP=plugin-live, OUTPUT=roundtrip_<timestamp>.ifc (current dir).
 Connection uses the NEO4J_LOCAL_* env vars (same convention as the plugin):
     NEO4J_LOCAL_USERNAME (neo4j) / NEO4J_LOCAL_PASSWORD (password) /
     NEO4J_LOCAL_HOSTNAME (localhost) / NEO4J_LOCAL_PORT (7687)
-Point CONMAN2_PATH at ConMan2/src if it is not at D:/Hiwi/ConMan2/src.
+Point CONMAN2_PATH at ConMan2/src if it is not cloned as a sibling of this repo
+(same convention as snippet_to_cypher.py).
 """
 import argparse
 import os
 import sys
 from pathlib import Path
 
-CONMAN2 = Path(os.environ.get("CONMAN2_PATH", r"D:/Hiwi/ConMan2/src"))
+# Sibling-clone default: <parent>/RevitGraphPlugin/tools/python/graph2ifc.py
+#                        <parent>/ConMan2/src
+_SIBLING = Path(__file__).resolve().parents[3] / "ConMan2" / "src"
+CONMAN2 = Path(os.environ.get("CONMAN2_PATH", _SIBLING))
+if not CONMAN2.is_dir():
+    sys.exit(f"[graph2ifc] ConMan2 source not found at: {CONMAN2}\n"
+             f"  Clone ConMan2 as a sibling of this repo, or set CONMAN2_PATH to its src/.")
 sys.path.insert(0, str(CONMAN2))
 
 from neo4j_core.neo4j_connection import Neo4jConnection

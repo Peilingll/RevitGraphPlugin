@@ -54,6 +54,13 @@ public sealed class LiveSyncSession : IDisposable
         {
             var stats = Task.Run(() => CypherEmitter.WriteAsync(driver, ctx.Db, Timestamp, ctx.OwnerByStepId))
                             .GetAwaiter().GetResult();
+
+            // Anchor the re-baseline into the rule chain (plan step 4): the chain
+            // survives the wipe, but replay must know the graph was rebuilt here.
+            var anchor = Task.Run(() => RuleStore.RecordBaselineAsync(driver, Timestamp, stats))
+                             .GetAwaiter().GetResult();
+            LiveSyncLog.Write($"  baseline anchor: seq={anchor.Seq} ({anchor.Timestamp})");
+
             return new LiveSyncSession(doc, driver, ctx, stats);
         }
         catch
@@ -159,8 +166,20 @@ public sealed class LiveSyncSession : IDisposable
         return true;
     }
 
-    private void Apply(GraphRule rule)
-        => Task.Run(() => CypherEmitter.ApplyRuleAsync(_driver, rule)).GetAwaiter().GetResult();
+    /// <summary>
+    /// Apply one rule and hand back the completed rule — the same rule plus its
+    /// <see cref="GraphRule.BeforeGraphlet"/> (L side, captured inside the transaction).
+    /// Nothing consumes the return value yet; rule persistence (step 3 of
+    /// doc_process/2026-08-02-plan-rule-persistence.md) is what will store it.
+    /// </summary>
+    private GraphRule Apply(GraphRule rule)
+    {
+        var applied = Task.Run(() => CypherEmitter.ApplyRuleAsync(_driver, rule)).GetAwaiter().GetResult();
+        LiveSyncLog.Write(applied.Stored is { } s
+            ? $"    rule stored: seq={s.Seq} op={s.Op} ({s.RuleTimestamp})"
+            : $"    rule not stored ({applied.Op} was semantically empty)");
+        return applied;
+    }
 
     public void Dispose() => _driver.Dispose();
 }
