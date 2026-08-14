@@ -38,14 +38,19 @@
     <RevitInstallPath Condition="'$(RevitInstallPath)' == '' And '$(RevitInstallPath2025)' != ''">$(RevitInstallPath2025)</RevitInstallPath>
     <RevitInstallPath Condition="'$(RevitInstallPath)' == '' And Exists('D:\Autodesk\Revit $(RevitVersion)\')">D:\Autodesk\Revit $(RevitVersion)\</RevitInstallPath>
     <RevitInstallPath Condition="'$(RevitInstallPath)' == ''">$(ProgramFiles)\Autodesk\Revit $(RevitVersion)\</RevitInstallPath>
+    <RevitApiFromNuGet Condition="'$(RevitApiFromNuGet)' == '' And !Exists('$(RevitInstallPath)RevitAPI.dll')">true</RevitApiFromNuGet>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(RevitApiFromNuGet)' != 'true'">
     <Reference Include="RevitAPI">
       <HintPath>$(RevitInstallPath)RevitAPI.dll</HintPath>
       <Private>false</Private>
       <ExcludeAssets>runtime</ExcludeAssets>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(RevitApiFromNuGet)' == 'true'">
+    <PackageReference Include="Nice3point.Revit.Api.RevitAPI" Version="$(RevitVersion).*" ExcludeAssets="runtime" />
   </ItemGroup>
 
 </Project>
