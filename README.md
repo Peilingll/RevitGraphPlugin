@@ -59,7 +59,9 @@ C# (in the Revit process) — no Python, no temp .ifc
   transaction.
 - **Fail loud** — any exception in the event path disposes the session and flips the
   button OFF rather than desyncing silently. Diagnostics go to
-  `%TEMP%\RevitGraphPlugin\live.log` (`TaskDialog` is forbidden inside `DocumentChanged`).
+  `<Revit's TEMP>\RevitGraphPlugin\live.log` (`TaskDialog` is forbidden inside `DocumentChanged`).
+  Revit gives each session its own temp folder, so on disk that is
+  `%LOCALAPPDATA%\Temp\<session GUID>\RevitGraphPlugin\live.log` — take the newest one.
 
 ### The bridge mode (reference)
 
@@ -208,7 +210,8 @@ Neo4j Browser — the counts should track the model live:
 MATCH (n {timestamp: 'plugin-live'}) RETURN n.EntityType AS entity, count(*) AS n ORDER BY n DESC;
 ```
 
-The live diagnostics log at `%TEMP%\RevitGraphPlugin\live.log` records every routed change
+The live diagnostics log at `%LOCALAPPDATA%\Temp\<session GUID>\RevitGraphPlugin\live.log`
+(newest folder; Revit runs with a per-session TEMP) records every routed change
 (deletes → adds → modifies) and any swallowed error.
 
 ## Troubleshooting
@@ -217,7 +220,7 @@ The live diagnostics log at `%TEMP%\RevitGraphPlugin\live.log` records every rou
 | ----------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | Build fails finding`RevitAPI.dll`         | No local Revit and no NuGet access — set `RevitInstallPath`, or restore NuGet online once.      |
 | Ribbon tab missing after launch           | Debug build not deployed (Release skips it) — check`%AppData%\Autodesk\Revit\Addins\<version>\`. |
-| Live Sync flips itself OFF after a change | An exception fired in the event path (fail loud) — read`%TEMP%\RevitGraphPlugin\live.log`.      |
+| Live Sync flips itself OFF after a change | An exception fired in the event path (fail loud) — read the newest `%LOCALAPPDATA%\Temp\<session GUID>\RevitGraphPlugin\live.log`.      |
 | Neo4j auth error on sync                  | `NEO4J_LOCAL_PASSWORD` wrong/unset — verify with `dotnet run --project tools/Neo4jSmokeTest`.   |
 | "Python interpreter / ConMan2 not found"  | Bridge button only — ConMan2 not a sibling clone; set`PLUGIN_PYTHON` / `CONMAN2_PATH`, restart. |
 
