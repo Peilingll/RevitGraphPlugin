@@ -58,6 +58,7 @@ public sealed class BeamConverter : IElementConverter
         // host = storey → ggifc creates the IfcRelContainedInSpatialStructure.
         var ifcBeam = new IfcBeam(storey, placement, null);
         ifcBeam.GlobalId = IfcGuidConverter.FromRevitUniqueId(beam.UniqueId);
+        StableIds.StampContainment(ifcBeam);   // storey containment rel: stable GlobalId
         ifcBeam.PredefinedType = IfcBeamTypeEnum.BEAM;
 
         var symbol = beam.Symbol;                   // the beam's FamilySymbol (type)
@@ -83,8 +84,6 @@ public sealed class BeamConverter : IElementConverter
             new IfcBoolean(false));
         var loadBearing = new IfcPropertySingleValue(db, "LoadBearing",
             new IfcBoolean(true));
-        var pset = new IfcPropertySet("Pset_BeamCommon",
-            new IfcProperty[] { isExternal, loadBearing });
-        _ = new IfcRelDefinesByProperties(ifcBeam, pset);
+        StableIds.AttachPset(ifcBeam, "Pset_BeamCommon", isExternal, loadBearing);
     }
 }

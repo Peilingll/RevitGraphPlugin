@@ -68,6 +68,7 @@ public sealed class WindowConverter : IElementConverter
         // native: windows are contained in the storey, not the wall).
         var ifcWindow = new IfcWindow(storey, placement, null);
         ifcWindow.GlobalId = IfcGuidConverter.FromRevitUniqueId(window.UniqueId);
+        StableIds.StampContainment(ifcWindow);   // storey containment rel: stable GlobalId
         ifcWindow.PredefinedType = IfcWindowTypeEnum.WINDOW;
 
         var symbol = window.Symbol;
@@ -109,8 +110,6 @@ public sealed class WindowConverter : IElementConverter
         // TODO(verify): windows are external by default; refine from instance params.
         var isExternal = new IfcPropertySingleValue(db, "IsExternal",
             new IfcBoolean(true));
-        var pset = new IfcPropertySet("Pset_WindowCommon",
-            new IfcProperty[] { isExternal });
-        _ = new IfcRelDefinesByProperties(ifcWindow, pset);
+        StableIds.AttachPset(ifcWindow, "Pset_WindowCommon", isExternal);
     }
 }

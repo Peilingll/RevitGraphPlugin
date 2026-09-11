@@ -35,8 +35,10 @@ public static class OpeningBuilder
         opening.GlobalId = IfcGuidConverter.FromSeed(globalIdSeed);
         opening.Name = "Opening";
 
-        // opening ──fills──> filler (window / door). Not auto-created by ggifc.
-        _ = new IfcRelFillsElement(opening, filler);
+        // opening ──fills──> filler (window / door). Not auto-created by ggifc. Both
+        // rels get stable GlobalIds seeded from the opening (see StableIds).
+        _ = new IfcRelFillsElement(opening, filler) { GlobalId = StableIds.Seed(opening, "RelFills") };
+        StableIds.StampVoids(opening);
         return opening;
     }
 }

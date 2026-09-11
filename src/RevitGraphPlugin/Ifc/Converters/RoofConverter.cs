@@ -56,6 +56,7 @@ public sealed class RoofConverter : IElementConverter
         // host = storey → ggifc creates the IfcRelContainedInSpatialStructure.
         var ifcRoof = new IfcRoof(storey, placement, null);
         ifcRoof.GlobalId = IfcGuidConverter.FromRevitUniqueId(roof.UniqueId);
+        StableIds.StampContainment(ifcRoof);   // storey containment rel: stable GlobalId
         // IfcRoof.PredefinedType is read-only in ggifc 0.1.22 (internal mPredefinedType,
         // defaults to NOTDEFINED). We carry the actual geometry as a BRep body rather
         // than classifying the roof form, so NOTDEFINED matches native generic-roof
@@ -81,8 +82,6 @@ public sealed class RoofConverter : IElementConverter
         // TODO(verify): roofs are external by default; refine from instance params.
         var isExternal = new IfcPropertySingleValue(db, "IsExternal",
             new IfcBoolean(true));
-        var pset = new IfcPropertySet("Pset_RoofCommon",
-            new IfcProperty[] { isExternal });
-        _ = new IfcRelDefinesByProperties(ifcRoof, pset);
+        StableIds.AttachPset(ifcRoof, "Pset_RoofCommon", isExternal);
     }
 }

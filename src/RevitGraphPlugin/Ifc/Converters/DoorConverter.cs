@@ -68,6 +68,7 @@ public sealed class DoorConverter : IElementConverter
         // native: doors are contained in the storey, not the wall).
         var ifcDoor = new IfcDoor(storey, placement, null);
         ifcDoor.GlobalId = IfcGuidConverter.FromRevitUniqueId(door.UniqueId);
+        StableIds.StampContainment(ifcDoor);   // storey containment rel: stable GlobalId
         ifcDoor.PredefinedType = IfcDoorTypeEnum.DOOR;
 
         var symbol = door.Symbol;
@@ -110,8 +111,6 @@ public sealed class DoorConverter : IElementConverter
         // (e.g. the "IsExternal" / function parameter) against a real export.
         var isExternal = new IfcPropertySingleValue(db, "IsExternal",
             new IfcBoolean(false));
-        var pset = new IfcPropertySet("Pset_DoorCommon",
-            new IfcProperty[] { isExternal });
-        _ = new IfcRelDefinesByProperties(ifcDoor, pset);
+        StableIds.AttachPset(ifcDoor, "Pset_DoorCommon", isExternal);
     }
 }

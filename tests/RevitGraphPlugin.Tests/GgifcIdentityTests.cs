@@ -15,6 +15,11 @@ namespace RevitGraphPlugin.Tests;
 /// exist because of exactly these two facts. If either test ever fails, that diagnosis
 /// (and the deep-apply design choice built on it) must be revisited.
 /// No Neo4j, no Revit — pure ggifc.
+/// Since 2026-09-11 the converters no longer leave (1) to ggifc: every pset / rel /
+/// containment / aggregation / void / fill entity is seeded through <c>StableIds</c>
+/// (see StableIdsTests). This test keeps documenting what ggifc does on its own, which
+/// is why the seeding is needed at all. (2) still holds and is the reason p21 stays a
+/// masked column.
 /// </summary>
 public sealed class GgifcIdentityTests
 {
@@ -32,9 +37,9 @@ public sealed class GgifcIdentityTests
 
     /// <summary>
     /// Same code, two builds: the identity we control survives, every identity ggifc
-    /// invents does not. In the live pipeline the products get their GlobalId from the
-    /// Revit UniqueId (stable), while rel/pset/spatial nodes are ggifc-generated — so a
-    /// re-conversion churns exactly the anchors ContextRef paths route through.
+    /// invents does not. Before StableIds the live pipeline only controlled the products'
+    /// GlobalId (from the Revit UniqueId) while rel/pset/spatial nodes were ggifc-generated
+    /// — so a re-conversion churned exactly the anchors ContextRef paths route through.
     /// </summary>
     [Fact]
     public void Generated_globalids_differ_between_identical_builds()
