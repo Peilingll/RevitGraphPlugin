@@ -38,6 +38,7 @@ public sealed class WallConverter : IElementConverter
         // Step A: no representation yet (added in Step B).
         var ifcWall = new IfcWall(storey, placement, null);
         ifcWall.GlobalId = IfcGuidConverter.FromRevitUniqueId(wall.UniqueId);
+        StableIds.StampContainment(ifcWall);   // storey containment rel: stable GlobalId
 
         var family = wall.WallType?.FamilyName ?? "Basic Wall";
         var typeName = wall.WallType?.Name ?? "Wall";
@@ -62,9 +63,7 @@ public sealed class WallConverter : IElementConverter
             new IfcBoolean(IsExternal(wall)));
         var loadBearing = new IfcPropertySingleValue(db, "LoadBearing",
             new IfcBoolean(IsLoadBearing(wall)));
-        var pset = new IfcPropertySet("Pset_WallCommon",
-            new IfcProperty[] { isExternal, loadBearing });
-        _ = new IfcRelDefinesByProperties(ifcWall, pset);
+        StableIds.AttachPset(ifcWall, "Pset_WallCommon", isExternal, loadBearing);
     }
 
     /// <summary>Exterior walls (WallType Function = Exterior) map to IsExternal = true.</summary>

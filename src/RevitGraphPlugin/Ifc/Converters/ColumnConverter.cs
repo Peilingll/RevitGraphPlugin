@@ -62,6 +62,7 @@ public sealed class ColumnConverter : IElementConverter
         // edge back to the preserved spatial context).
         var ifcColumn = new IfcColumn(storey, placement, null);
         ifcColumn.GlobalId = IfcGuidConverter.FromRevitUniqueId(column.UniqueId);
+        StableIds.StampContainment(ifcColumn);   // storey containment rel: stable GlobalId
         ifcColumn.PredefinedType = IfcColumnTypeEnum.COLUMN;
 
         var symbol = column.Symbol;                 // the column's FamilySymbol (type)
@@ -87,8 +88,6 @@ public sealed class ColumnConverter : IElementConverter
             new IfcBoolean(false));
         var loadBearing = new IfcPropertySingleValue(db, "LoadBearing",
             new IfcBoolean(true));
-        var pset = new IfcPropertySet("Pset_ColumnCommon",
-            new IfcProperty[] { isExternal, loadBearing });
-        _ = new IfcRelDefinesByProperties(ifcColumn, pset);
+        StableIds.AttachPset(ifcColumn, "Pset_ColumnCommon", isExternal, loadBearing);
     }
 }

@@ -75,6 +75,8 @@ ggifc tree → db.WriteFile() → temp .ifc (STEP) → python snippet_to_cypher.
 
 Reusing ConMan2's importer is what originally validated the direct-write output. The
 direct/live pipeline now emits the same node/edge shapes without the Python round-trip.
+The bridge supports **CREATE only**: `snippet_to_cypher.py` raises `NotImplementedError`
+for `DELETE` / `UPDATE`, so incremental changes go through the live pipeline.
 
 ## Quick start
 

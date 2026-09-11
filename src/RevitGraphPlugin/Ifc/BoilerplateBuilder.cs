@@ -70,11 +70,12 @@ public static class BoilerplateBuilder
             site.RefLatitude  = ToCompoundPlaneAngle(siteLocation.Latitude);
             site.RefLongitude = ToCompoundPlaneAngle(siteLocation.Longitude);
         }
-        _ = new IfcRelAggregates(project, site);
+        _ = new IfcRelAggregates(project, site) { GlobalId = StableIds.Seed(project, "Aggregates") };
 
         var building = new IfcBuilding(site, "Default Building");
         building.GlobalId = IfcGuidConverter.FromSeed(projInfo.UniqueId + ":Building");
         building.CompositionType = IfcElementCompositionEnum.ELEMENT;
+        StableIds.StampAggregates(building);   // site → building rel: stable GlobalId
 
         // -- Building postal address. Values hard-coded to match the sample model's
         //    Revit address. NOTE: native writes an empty PostalCode (''), but ggifc
@@ -104,6 +105,7 @@ public static class BoilerplateBuilder
             var storey = new IfcBuildingStorey(building, level.Name, elevationMm);
             storey.GlobalId = IfcGuidConverter.FromRevitUniqueId(level.UniqueId);
             storey.CompositionType = IfcElementCompositionEnum.ELEMENT;
+            StableIds.StampAggregates(storey);   // building → storeys rel: stable GlobalId
             storey.LongName = level.Name;   // native mirrors Name into LongName
 
             // ObjectType = "Level:" + the Level's type name (native exporter writes
@@ -163,33 +165,21 @@ public static class BoilerplateBuilder
 
         // ggifc's IfcPropertySet(name, props[]) constructor populates HasProperties for us
         // (the dictionary is keyed by property name, so we can't just .Add(prop)).
-        var psetSite = new IfcPropertySet("Pset_SiteCommon",
-            new IfcProperty[] { refProjInfo });
-        _ = new IfcRelDefinesByProperties(site, psetSite);
+        StableIds.AttachPset(site, "Pset_SiteCommon", refProjInfo);
 
         foreach (var storey in storeys)
         {
-            var psetStorey = new IfcPropertySet("Pset_BuildingStoreyCommon",
-                new IfcProperty[] { refLevelDatum, aboveGround });
-            _ = new IfcRelDefinesByProperties(storey, psetStorey);
+            StableIds.AttachPset(storey, "Pset_BuildingStoreyCommon", refLevelDatum, aboveGround);
         }
 
         // Four Psets on the Building (Revit's default export decoration).
-        var psetBuildingCommon = new IfcPropertySet("Pset_BuildingCommon",
-            new IfcProperty[] { refProjInfo, numberOfStoreys, isLandmarked });
-        _ = new IfcRelDefinesByProperties(building, psetBuildingCommon);
+        StableIds.AttachPset(building, "Pset_BuildingCommon", refProjInfo, numberOfStoreys, isLandmarked);
 
-        var psetBuildingElementProxy = new IfcPropertySet("Pset_BuildingElementProxyCommon",
-            new IfcProperty[] { refProjInfo, isExternal });
-        _ = new IfcRelDefinesByProperties(building, psetBuildingElementProxy);
+        StableIds.AttachPset(building, "Pset_BuildingElementProxyCommon", refProjInfo, isExternal);
 
-        var psetBuildingStoreyTemplate = new IfcPropertySet("Pset_BuildingStoreyCommon",
-            new IfcProperty[] { refProjInfo, aboveGround });
-        _ = new IfcRelDefinesByProperties(building, psetBuildingStoreyTemplate);
+        StableIds.AttachPset(building, "Pset_BuildingStoreyCommon", refProjInfo, aboveGround);
 
-        var psetBuildingSystem = new IfcPropertySet("Pset_BuildingSystemCommon",
-            new IfcProperty[] { refProjInfo });
-        _ = new IfcRelDefinesByProperties(building, psetBuildingSystem);
+        StableIds.AttachPset(building, "Pset_BuildingSystemCommon", refProjInfo);
     }
 
     /// <summary>

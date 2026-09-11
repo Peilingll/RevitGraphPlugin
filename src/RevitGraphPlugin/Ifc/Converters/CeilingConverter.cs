@@ -55,6 +55,7 @@ public sealed class CeilingConverter : IElementConverter
         // host = storey → ggifc creates the IfcRelContainedInSpatialStructure.
         var ifcCovering = new IfcCovering(storey, placement, null);
         ifcCovering.GlobalId = IfcGuidConverter.FromRevitUniqueId(ceiling.UniqueId);
+        StableIds.StampContainment(ifcCovering);   // storey containment rel: stable GlobalId
         ifcCovering.PredefinedType = IfcCoveringTypeEnum.CEILING;
 
         var ceilingType = ceiling.Document.GetElement(ceiling.GetTypeId()) as ElementType;
@@ -77,8 +78,6 @@ public sealed class CeilingConverter : IElementConverter
         // TODO(verify): ceilings are internal by default; refine from instance params.
         var isExternal = new IfcPropertySingleValue(db, "IsExternal",
             new IfcBoolean(false));
-        var pset = new IfcPropertySet("Pset_CoveringCommon",
-            new IfcProperty[] { isExternal });
-        _ = new IfcRelDefinesByProperties(ifcCovering, pset);
+        StableIds.AttachPset(ifcCovering, "Pset_CoveringCommon", isExternal);
     }
 }

@@ -60,6 +60,7 @@ public sealed class FloorConverter : IElementConverter
         // "gluing" edge back to the preserved spatial context).
         var ifcSlab = new IfcSlab(storey, placement, null);
         ifcSlab.GlobalId = IfcGuidConverter.FromRevitUniqueId(floor.UniqueId);
+        StableIds.StampContainment(ifcSlab);   // storey containment rel: stable GlobalId
         ifcSlab.PredefinedType = IfcSlabTypeEnum.FLOOR;
 
         var floorType = floor.FloorType;
@@ -85,9 +86,7 @@ public sealed class FloorConverter : IElementConverter
             new IfcBoolean(false));
         var loadBearing = new IfcPropertySingleValue(db, "LoadBearing",
             new IfcBoolean(IsLoadBearing(floor)));
-        var pset = new IfcPropertySet("Pset_SlabCommon",
-            new IfcProperty[] { isExternal, loadBearing });
-        _ = new IfcRelDefinesByProperties(ifcSlab, pset);
+        StableIds.AttachPset(ifcSlab, "Pset_SlabCommon", isExternal, loadBearing);
     }
 
     private static bool IsLoadBearing(Floor floor)
