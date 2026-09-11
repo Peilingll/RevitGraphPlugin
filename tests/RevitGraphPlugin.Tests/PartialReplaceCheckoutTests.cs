@@ -53,10 +53,10 @@ public sealed class PartialReplaceCheckoutTests : IDisposable
         await session.RunAsync("MATCH (n) WHERE n.timestamp STARTS WITH $ts DETACH DELETE n", new { ts = Ts });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Structural_change_stores_only_the_pushout_and_round_trips()
     {
-        if (_driver is null) return;
+        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
         await Cleanup();
 
         var db = new DatabaseIfc(false, ReleaseVersion.IFC4);

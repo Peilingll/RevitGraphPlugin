@@ -27,15 +27,11 @@ public sealed class ManualChainTools
 
     public ManualChainTools(ITestOutputHelper output) => _output = output;
 
-    [Fact]
+    [SkippableFact]
     public async Task Run()
     {
         var tool = Environment.GetEnvironmentVariable("CHAIN_TOOL");
-        if (string.IsNullOrEmpty(tool))
-        {
-            _output.WriteLine("CHAIN_TOOL not set — tool run skipped.");
-            return;
-        }
+        Skip.If(string.IsNullOrEmpty(tool), "CHAIN_TOOL not set (undo | replay | checkout | pingpong) — opt-in harness");
 
         var target = Environment.GetEnvironmentVariable("CHAIN_TARGET") ?? "plugin-live";
         var onto = Environment.GetEnvironmentVariable("CHAIN_ONTO") ?? target;

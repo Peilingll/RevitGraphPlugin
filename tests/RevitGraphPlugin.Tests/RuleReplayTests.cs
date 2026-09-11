@@ -96,10 +96,10 @@ public sealed class RuleReplayTests : IDisposable
     /// membership changes, so no containment renumbering ambiguity; the final state is
     /// NOT the baseline (w1 remains), so a do-nothing replay cannot pass by accident.
     /// </summary>
-    [Fact]
+    [SkippableFact]
     public async Task Replay_reproduces_the_live_graph_and_undo_returns_it_to_baseline()
     {
-        if (_driver is null) return;
+        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
         await Cleanup();
 
         var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
@@ -159,10 +159,10 @@ public sealed class RuleReplayTests : IDisposable
     /// Replay must drop the rel too (via the stored portable refs) or the loop ends one
     /// node heavy; undo must restore rel AND wall from the L copies, then take both away.
     /// </summary>
-    [Fact]
+    [SkippableFact]
     public async Task Shared_delete_survives_the_loop_in_both_directions()
     {
-        if (_driver is null) return;
+        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
         await Cleanup();
 
         var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
@@ -231,10 +231,10 @@ public sealed class RuleReplayTests : IDisposable
     }
 
     /// <summary>Undo of a Remove must stop at nothing it cannot see — guard: chain must not cross a baseline.</summary>
-    [Fact]
+    [SkippableFact]
     public async Task Undo_stops_at_a_baseline_anchor()
     {
-        if (_driver is null) return;
+        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
         await Cleanup();
 
         var db = new DatabaseIfc(false, ReleaseVersion.IFC4);

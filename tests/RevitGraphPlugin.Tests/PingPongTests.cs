@@ -74,10 +74,10 @@ public sealed class PingPongTests : IDisposable
     /// remove, so every stored op shape is on it), bounced Rounds times between head
     /// and baseline. Structure AND non-identity values must match round 0 every time.
     /// </summary>
-    [Fact]
+    [SkippableFact]
     public async Task Checkout_bounces_between_head_and_baseline_without_drift()
     {
-        if (_driver is null) return;
+        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
         await Cleanup();
 
         var db = new DatabaseIfc(false, ReleaseVersion.IFC4);

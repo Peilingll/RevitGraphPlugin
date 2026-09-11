@@ -68,10 +68,10 @@ public sealed class RuleStoreIntegrationTests : IDisposable
         => Count("MATCH (r:Rule {target_ts: $ts}) RETURN count(*)", new { ts = TsLive });
 
     /// <summary>The full lifecycle: Insert → property-only Replace → no-op Replace → Remove.</summary>
-    [Fact]
+    [SkippableFact]
     public async Task Chain_stores_the_op_dependent_payload_and_never_touches_the_live_graph()
     {
-        if (_driver is null) return;
+        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
         await Cleanup();
 
         var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
@@ -209,10 +209,10 @@ public sealed class RuleStoreIntegrationTests : IDisposable
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Baseline_anchors_join_the_chain_and_survive_rebaselines()
     {
-        if (_driver is null) return;
+        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
         await Cleanup();
 
         var db = new DatabaseIfc(false, ReleaseVersion.IFC4);

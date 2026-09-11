@@ -91,10 +91,10 @@ public sealed class ApplyRuleIntegrationTests : IDisposable
 
     // ── the lifecycle ─────────────────────────────────────────────────────────────
 
-    [Fact]
+    [SkippableFact]
     public async Task Insert_then_remove_keeps_live_graph_equal_to_fresh_snapshot()
     {
-        if (_driver is null) return;   // Neo4j unavailable — logged in ctor
+        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
         await Cleanup();
 
         // Baseline model: storey + wall1 (id 101), full snapshot to TsLive.
@@ -164,10 +164,10 @@ public sealed class ApplyRuleIntegrationTests : IDisposable
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Removing_last_member_deletes_the_containment_rel_via_SharedDelete()
     {
-        if (_driver is null) return;
+        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
         await Cleanup();
 
         var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
@@ -205,10 +205,10 @@ public sealed class ApplyRuleIntegrationTests : IDisposable
 
     // ── L-side capture (rule persistence step 1) ──────────────────────────────────
 
-    [Fact]
+    [SkippableFact]
     public async Task Remove_rule_captures_the_L_side_before_deleting_it()
     {
-        if (_driver is null) return;
+        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
         await Cleanup();
 
         var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
@@ -254,10 +254,10 @@ public sealed class ApplyRuleIntegrationTests : IDisposable
         Assert.Equal(0, await OwnedNodeCount(101));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Insert_captures_nothing_and_a_capture_can_be_re_applied()
     {
-        if (_driver is null) return;
+        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
         await Cleanup();
 
         var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
@@ -321,10 +321,10 @@ public sealed class ApplyRuleIntegrationTests : IDisposable
 
     // ── portable context refs (rule persistence step 2) ───────────────────────────
 
-    [Fact]
+    [SkippableFact]
     public async Task Rule_names_every_external_reference_portably_and_they_resolve_back()
     {
-        if (_driver is null) return;
+        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
         await Cleanup();
 
         var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
@@ -378,10 +378,10 @@ public sealed class ApplyRuleIntegrationTests : IDisposable
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Remove_rule_names_its_incoming_glue_source_portably()
     {
-        if (_driver is null) return;
+        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
         await Cleanup();
 
         var db = new DatabaseIfc(false, ReleaseVersion.IFC4);

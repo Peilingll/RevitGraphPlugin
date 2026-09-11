@@ -203,6 +203,12 @@ doc/log/                         # English research logs
 
 ## Verify
 
+**Tests**: `dotnet test tests\RevitGraphPlugin.Tests`. The suite is split in two: pure tests
+(ggifc, parsers, the graphlet diff) always run; the graph tests (rule apply, store, replay,
+undo, checkout round trips) need Neo4j at `bolt://127.0.0.1:7687` and are reported as
+**Skipped** when it is not reachable — a green run with 15 skips has not exercised the graph.
+`ManualChainTools` is an opt-in harness driven by `CHAIN_TOOL` and always skips otherwise.
+
 With **Live Sync** ON, make a change in Revit (draw a wall, delete a window) and re-run in
 Neo4j Browser — the counts should track the model live:
 

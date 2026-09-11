@@ -55,10 +55,10 @@ public sealed class ConsecutiveModifyCheckoutTests : IDisposable
         await session.RunAsync("MATCH (n) WHERE n.timestamp STARTS WITH $ts DETACH DELETE n", new { ts = Ts });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Two_consecutive_modifies_then_checkout_to_baseline_and_back()
     {
-        if (_driver is null) return;
+        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
         await Cleanup();
 
         var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
