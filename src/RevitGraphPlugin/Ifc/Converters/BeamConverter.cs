@@ -57,7 +57,7 @@ public sealed class BeamConverter : IElementConverter
 
         // host = storey → ggifc creates the IfcRelContainedInSpatialStructure.
         var ifcBeam = new IfcBeam(storey, placement, null);
-        ifcBeam.GlobalId = IfcGuidConverter.FromRevitUniqueId(beam.UniqueId);
+        ifcBeam.GlobalId = IfcGuidConverter.ForElement(beam);
         StableIds.StampContainment(ifcBeam);   // storey containment rel: stable GlobalId
         ifcBeam.PredefinedType = IfcBeamTypeEnum.BEAM;
 

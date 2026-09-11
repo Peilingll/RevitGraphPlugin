@@ -59,7 +59,7 @@ public sealed class FloorConverter : IElementConverter
         // host = storey → ggifc creates the IfcRelContainedInSpatialStructure (the
         // "gluing" edge back to the preserved spatial context).
         var ifcSlab = new IfcSlab(storey, placement, null);
-        ifcSlab.GlobalId = IfcGuidConverter.FromRevitUniqueId(floor.UniqueId);
+        ifcSlab.GlobalId = IfcGuidConverter.ForElement(floor);
         StableIds.StampContainment(ifcSlab);   // storey containment rel: stable GlobalId
         ifcSlab.PredefinedType = IfcSlabTypeEnum.FLOOR;
 

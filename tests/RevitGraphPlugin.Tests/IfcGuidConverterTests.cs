@@ -31,6 +31,43 @@ public class IfcGuidConverterTests
             IfcGuidConverter.FromRevitUniqueId(uid));
     }
 
+    /// <summary>
+    /// Revit's exporter XORs the element id into the GUID's last 8 hex characters as ONE
+    /// big-endian integer: the id's most significant byte lands in GUID byte 12, the
+    /// least in byte 15. Found 2026-09-11 when a real wall's IfcGUID parameter agreed
+    /// with ours on the first 16 characters and disagreed on the last 6 — the XOR
+    /// difference between the two was byte-symmetric (EA C8 C8 EA), the signature of the
+    /// same id folded in with the byte order reversed. Production converters now take the
+    /// GUID from ExportUtils.GetExportId; this pins the string re-implementation.
+    /// </summary>
+    /// <summary>
+    /// Pinned against Revit 2025 itself: wall 314334 of Project1, UniqueId read from
+    /// live.log, IfcGUID read off the element's IFC Parameters — the same value
+    /// ExportUtils.GetExportId produced in the graph. Keeps the string re-implementation
+    /// honest for callers that have no Document.
+    /// </summary>
+    [Fact]
+    public void Matches_the_IfcGUID_revit_shows_for_a_real_element()
+    {
+        var uid = "37aa155a-26ad-4e1d-9d57-d9ca5d731856-0004cbde";
+        Assert.Equal("0tgXLQ9grE7PrNsSfTTzE8", IfcGuidConverter.FromRevitUniqueId(uid));
+    }
+
+    [Fact]
+    public void Element_id_is_folded_into_the_guid_tail_big_endian()
+    {
+        static byte[] Bytes(string suffix) =>
+            GeometryGym.Ifc.ParserIfc.DecodeGlobalID(
+                IfcGuidConverter.FromRevitUniqueId($"{Episode}-{suffix}")).ToByteArray();
+
+        var zero = Bytes("00000000");
+        Assert.Equal(zero[15] ^ 0x01, Bytes("00000001")[15]);   // least significant → byte 15
+        Assert.Equal(zero[14] ^ 0x01, Bytes("00000100")[14]);
+        Assert.Equal(zero[13] ^ 0x01, Bytes("00010000")[13]);
+        Assert.Equal(zero[12] ^ 0x01, Bytes("01000000")[12]);   // most significant → byte 12
+        Assert.Equal(zero[..12], Bytes("ffffffff")[..12]);       // the first 12 bytes never move
+    }
+
     [Fact]
     public void Produces_a_valid_22_char_ifc_globalid()
     {

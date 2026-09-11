@@ -27,7 +27,7 @@ public static class BoilerplateBuilder
 
         // -- Project (ggifc auto-creates OwnerHistory + Person/Org/App chain alongside it).
         var project = new IfcProject(db, projNumber);
-        project.GlobalId = IfcGuidConverter.FromRevitUniqueId(projInfo.UniqueId);
+        project.GlobalId = IfcGuidConverter.ForElement(projInfo);
         if (!string.IsNullOrWhiteSpace(projInfo.Name))   project.LongName = projInfo.Name;
         if (!string.IsNullOrWhiteSpace(projInfo.Status)) project.Phase    = projInfo.Status;
 
@@ -103,7 +103,7 @@ public static class BoilerplateBuilder
                 UnitTypeId.Millimeters);
 
             var storey = new IfcBuildingStorey(building, level.Name, elevationMm);
-            storey.GlobalId = IfcGuidConverter.FromRevitUniqueId(level.UniqueId);
+            storey.GlobalId = IfcGuidConverter.ForElement(level);
             storey.CompositionType = IfcElementCompositionEnum.ELEMENT;
             StableIds.StampAggregates(storey);   // building → storeys rel: stable GlobalId
             storey.LongName = level.Name;   // native mirrors Name into LongName

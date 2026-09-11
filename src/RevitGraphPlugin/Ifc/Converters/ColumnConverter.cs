@@ -61,7 +61,7 @@ public sealed class ColumnConverter : IElementConverter
         // host = storey → ggifc creates the IfcRelContainedInSpatialStructure (gluing
         // edge back to the preserved spatial context).
         var ifcColumn = new IfcColumn(storey, placement, null);
-        ifcColumn.GlobalId = IfcGuidConverter.FromRevitUniqueId(column.UniqueId);
+        ifcColumn.GlobalId = IfcGuidConverter.ForElement(column);
         StableIds.StampContainment(ifcColumn);   // storey containment rel: stable GlobalId
         ifcColumn.PredefinedType = IfcColumnTypeEnum.COLUMN;
 

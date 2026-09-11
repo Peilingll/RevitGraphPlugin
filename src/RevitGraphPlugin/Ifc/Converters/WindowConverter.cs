@@ -67,7 +67,7 @@ public sealed class WindowConverter : IElementConverter
         // host = storey → ggifc creates IfcRelContainedInSpatialStructure (matches
         // native: windows are contained in the storey, not the wall).
         var ifcWindow = new IfcWindow(storey, placement, null);
-        ifcWindow.GlobalId = IfcGuidConverter.FromRevitUniqueId(window.UniqueId);
+        ifcWindow.GlobalId = IfcGuidConverter.ForElement(window);
         StableIds.StampContainment(ifcWindow);   // storey containment rel: stable GlobalId
         ifcWindow.PredefinedType = IfcWindowTypeEnum.WINDOW;
 

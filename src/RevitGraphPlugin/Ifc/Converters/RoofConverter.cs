@@ -55,7 +55,7 @@ public sealed class RoofConverter : IElementConverter
 
         // host = storey → ggifc creates the IfcRelContainedInSpatialStructure.
         var ifcRoof = new IfcRoof(storey, placement, null);
-        ifcRoof.GlobalId = IfcGuidConverter.FromRevitUniqueId(roof.UniqueId);
+        ifcRoof.GlobalId = IfcGuidConverter.ForElement(roof);
         StableIds.StampContainment(ifcRoof);   // storey containment rel: stable GlobalId
         // IfcRoof.PredefinedType is read-only in ggifc 0.1.22 (internal mPredefinedType,
         // defaults to NOTDEFINED). We carry the actual geometry as a BRep body rather

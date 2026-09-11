@@ -101,14 +101,19 @@ public sealed class ElementConverterRegistry
 
         // Register the element's principal IFC product so the live path can find it for
         // modify (Replace vs Insert), remove (ggifc-side detach), and hosted-element
-        // host lookup. Every converter sets product.GlobalId = FromRevitUniqueId(UniqueId),
+        // host lookup. Every converter sets product.GlobalId = IfcGuidConverter.ForElement(element),
         // so match on that — one place, so a new converter cannot forget to register
         // (the missing registration made every non-wall modify duplicate instead of replace).
         string? guid = null;
-        try { guid = IfcGuidConverter.FromRevitUniqueId(element.UniqueId); }
+        try { guid = IfcGuidConverter.ForElement(element); }
         catch { /* no derivable GUID → leave unregistered */ }
         if (guid is not null && FindProduct(ctx.Db, before, after, guid) is { } product)
+        {
             ctx.ConvertedElements[element.Id] = product;
+            // One line per converted element: lets anyone check the graph's GlobalId
+            // against the IfcGUID parameter Revit shows (and against a native export).
+            LiveSyncLog.Write($"    guid {element.Id.Value}: uid={element.UniqueId} -> {guid}");
+        }
     }
 
     /// <summary>

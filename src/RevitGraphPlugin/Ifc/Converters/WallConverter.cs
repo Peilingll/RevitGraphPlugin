@@ -37,7 +37,7 @@ public sealed class WallConverter : IElementConverter
         // host = storey → ggifc creates the IfcRelContainedInSpatialStructure.
         // Step A: no representation yet (added in Step B).
         var ifcWall = new IfcWall(storey, placement, null);
-        ifcWall.GlobalId = IfcGuidConverter.FromRevitUniqueId(wall.UniqueId);
+        ifcWall.GlobalId = IfcGuidConverter.ForElement(wall);
         StableIds.StampContainment(ifcWall);   // storey containment rel: stable GlobalId
 
         var family = wall.WallType?.FamilyName ?? "Basic Wall";

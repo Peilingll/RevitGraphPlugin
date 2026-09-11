@@ -67,7 +67,7 @@ public sealed class DoorConverter : IElementConverter
         // host = storey → ggifc creates IfcRelContainedInSpatialStructure (matches
         // native: doors are contained in the storey, not the wall).
         var ifcDoor = new IfcDoor(storey, placement, null);
-        ifcDoor.GlobalId = IfcGuidConverter.FromRevitUniqueId(door.UniqueId);
+        ifcDoor.GlobalId = IfcGuidConverter.ForElement(door);
         StableIds.StampContainment(ifcDoor);   // storey containment rel: stable GlobalId
         ifcDoor.PredefinedType = IfcDoorTypeEnum.DOOR;
 
