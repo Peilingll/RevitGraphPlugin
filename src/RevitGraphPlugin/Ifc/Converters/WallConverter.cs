@@ -67,15 +67,7 @@ public sealed class WallConverter : IElementConverter
     }
 
     /// <summary>Exterior walls (WallType Function = Exterior) map to IsExternal = true.</summary>
-    private static bool IsExternal(Wall wall)
-    {
-        var p = wall.WallType?.get_Parameter(BuiltInParameter.FUNCTION_PARAM);
-        return p is not null && p.AsInteger() == (int)WallFunction.Exterior;
-    }
+    private static bool IsExternal(Wall wall) => PsetSources.IsExternal(wall);
 
-    private static bool IsLoadBearing(Wall wall)
-    {
-        var p = wall.get_Parameter(BuiltInParameter.WALL_STRUCTURAL_SIGNIFICANT);
-        return p is not null && p.AsInteger() == 1;
-    }
+    private static bool IsLoadBearing(Wall wall) => PsetSources.IsLoadBearing(wall);
 }

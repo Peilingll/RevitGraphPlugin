@@ -80,14 +80,19 @@ public sealed class ColumnConverter : IElementConverter
         AttachColumnCommonPset(db, ifcColumn, column);
     }
 
+    /// <summary>
+    /// Verified 2026-09-11 against a native export: columns are internal (no Function
+    /// parameter on column types); LoadBearing is written for structural columns only —
+    /// an architectural column's Pset_ColumnCommon has no LoadBearing at all.
+    /// </summary>
     private static void AttachColumnCommonPset(DatabaseIfc db, IfcColumn ifcColumn, FamilyInstance column)
     {
-        // TODO(verify): IsExternal / LoadBearing sources. Columns are usually internal;
-        // structural columns are load-bearing by definition.
-        var isExternal = new IfcPropertySingleValue(db, "IsExternal",
-            new IfcBoolean(false));
-        var loadBearing = new IfcPropertySingleValue(db, "LoadBearing",
-            new IfcBoolean(true));
-        StableIds.AttachPset(ifcColumn, "Pset_ColumnCommon", isExternal, loadBearing);
+        var props = new List<IfcProperty>
+        {
+            new IfcPropertySingleValue(db, "IsExternal", new IfcBoolean(false)),
+        };
+        if (PsetSources.ColumnLoadBearing(column) is { } loadBearing)
+            props.Add(new IfcPropertySingleValue(db, "LoadBearing", new IfcBoolean(loadBearing)));
+        StableIds.AttachPset(ifcColumn, "Pset_ColumnCommon", props.ToArray());
     }
 }

@@ -83,7 +83,7 @@ public sealed class DoorConverter : IElementConverter
         if (shape is not null)
             ifcDoor.Representation = shape;
 
-        AttachDoorCommonPset(db, ifcDoor);
+        AttachDoorCommonPset(db, ifcDoor, door);
 
         // Tier 1b: synthesise the opening and wire void/fill back to the host IfcWall.
         // Relies on WallConverter having run first (registry order) so the host wall is
@@ -105,12 +105,14 @@ public sealed class DoorConverter : IElementConverter
         }
     }
 
-    private static void AttachDoorCommonPset(DatabaseIfc db, IfcDoor ifcDoor)
+    /// <summary>
+    /// Verified 2026-09-11 against a native export: the door type's Function parameter
+    /// when the family defines it, else the host wall's IsExternal (PsetSources).
+    /// </summary>
+    private static void AttachDoorCommonPset(DatabaseIfc db, IfcDoor ifcDoor, FamilyInstance door)
     {
-        // TODO(verify): doors default to internal; refine from instance params
-        // (e.g. the "IsExternal" / function parameter) against a real export.
         var isExternal = new IfcPropertySingleValue(db, "IsExternal",
-            new IfcBoolean(false));
+            new IfcBoolean(PsetSources.IsExternal(door)));
         StableIds.AttachPset(ifcDoor, "Pset_DoorCommon", isExternal);
     }
 }

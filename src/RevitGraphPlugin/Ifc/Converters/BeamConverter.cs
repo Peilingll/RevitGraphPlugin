@@ -78,8 +78,8 @@ public sealed class BeamConverter : IElementConverter
 
     private static void AttachBeamCommonPset(DatabaseIfc db, IfcBeam ifcBeam)
     {
-        // TODO(verify): IsExternal / LoadBearing sources. Beams are usually internal
-        // and load-bearing by definition (structural framing).
+        // Verified 2026-09-11 against a native export (two UB beams): structural framing
+        // is internal and load-bearing; Revit writes exactly these two values.
         var isExternal = new IfcPropertySingleValue(db, "IsExternal",
             new IfcBoolean(false));
         var loadBearing = new IfcPropertySingleValue(db, "LoadBearing",

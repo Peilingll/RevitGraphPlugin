@@ -79,7 +79,9 @@ public sealed class RoofConverter : IElementConverter
 
     private static void AttachRoofCommonPset(DatabaseIfc db, IfcRoof ifcRoof)
     {
-        // TODO(verify): roofs are external by default; refine from instance params.
+        // Verified 2026-09-11 against a native export: Pset_RoofCommon.IsExternal = true,
+        // no LoadBearing. (The native export decomposes the roof into IfcSlab parts —
+        // a structural difference logged separately, not a Pset one.)
         var isExternal = new IfcPropertySingleValue(db, "IsExternal",
             new IfcBoolean(true));
         StableIds.AttachPset(ifcRoof, "Pset_RoofCommon", isExternal);

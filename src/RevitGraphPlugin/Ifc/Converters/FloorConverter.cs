@@ -78,22 +78,16 @@ public sealed class FloorConverter : IElementConverter
         AttachSlabCommonPset(db, ifcSlab, floor);
     }
 
+    /// <summary>
+    /// Verified 2026-09-11 against a native export: IsExternal follows the floor type's
+    /// Function (Interior / Exterior), LoadBearing the instance's "Structural" checkbox.
+    /// </summary>
     private static void AttachSlabCommonPset(DatabaseIfc db, IfcSlab ifcSlab, Floor floor)
     {
-        // TODO(verify): map IsExternal / LoadBearing from the right Revit params.
-        // Floors are usually internal; LoadBearing follows the structural flag.
         var isExternal = new IfcPropertySingleValue(db, "IsExternal",
-            new IfcBoolean(false));
+            new IfcBoolean(PsetSources.IsExternal(floor)));
         var loadBearing = new IfcPropertySingleValue(db, "LoadBearing",
-            new IfcBoolean(IsLoadBearing(floor)));
+            new IfcBoolean(PsetSources.IsLoadBearing(floor)));
         StableIds.AttachPset(ifcSlab, "Pset_SlabCommon", isExternal, loadBearing);
-    }
-
-    private static bool IsLoadBearing(Floor floor)
-    {
-        // TODO(verify): the structural flag param id for floors.
-        var p = floor.get_Parameter(BuiltInParameter.STRUCTURAL_FLOOR_ANALYZES_AS)
-                ?? floor.get_Parameter(BuiltInParameter.INSTANCE_STRUCT_USAGE_PARAM);
-        return p is not null && p.HasValue && p.AsInteger() != 0;
     }
 }

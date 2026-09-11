@@ -75,7 +75,8 @@ public sealed class CeilingConverter : IElementConverter
 
     private static void AttachCoveringCommonPset(DatabaseIfc db, IfcCovering ifcCovering)
     {
-        // TODO(verify): ceilings are internal by default; refine from instance params.
+        // Verified 2026-09-11 against a native export: Pset_CoveringCommon carries
+        // IsExternal = false and no LoadBearing for ceilings.
         var isExternal = new IfcPropertySingleValue(db, "IsExternal",
             new IfcBoolean(false));
         StableIds.AttachPset(ifcCovering, "Pset_CoveringCommon", isExternal);

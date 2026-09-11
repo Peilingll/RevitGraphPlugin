@@ -83,7 +83,7 @@ public sealed class WindowConverter : IElementConverter
         if (shape is not null)
             ifcWindow.Representation = shape;
 
-        AttachWindowCommonPset(db, ifcWindow);
+        AttachWindowCommonPset(db, ifcWindow, window);
 
         // Tier 1b: synthesise the opening and wire void/fill back to the host IfcWall.
         // Relies on WallConverter having run first (registry order) so the host wall is
@@ -105,11 +105,15 @@ public sealed class WindowConverter : IElementConverter
         }
     }
 
-    private static void AttachWindowCommonPset(DatabaseIfc db, IfcWindow ifcWindow)
+    /// <summary>
+    /// Verified 2026-09-11 against a native export: the window type's Function parameter
+    /// when the family defines it (most window families do not), else the host wall's
+    /// IsExternal — a window in a partition wall is internal (PsetSources).
+    /// </summary>
+    private static void AttachWindowCommonPset(DatabaseIfc db, IfcWindow ifcWindow, FamilyInstance window)
     {
-        // TODO(verify): windows are external by default; refine from instance params.
         var isExternal = new IfcPropertySingleValue(db, "IsExternal",
-            new IfcBoolean(true));
+            new IfcBoolean(PsetSources.IsExternal(window)));
         StableIds.AttachPset(ifcWindow, "Pset_WindowCommon", isExternal);
     }
 }
