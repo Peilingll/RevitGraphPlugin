@@ -15,12 +15,17 @@ public sealed class IfcModelContext
     public IfcModelContext(
         DatabaseIfc db,
         IfcGeometricRepresentationSubContext bodyContext,
-        IReadOnlyDictionary<ElementId, IfcBuildingStorey> storeyByLevel)
+        IfcBuilding building,
+        Dictionary<ElementId, IfcBuildingStorey> storeyByLevel)
     {
         Db = db;
         BodyContext = bodyContext;
+        Building = building;
         StoreyByLevel = storeyByLevel;
     }
+
+    /// <summary>The single IfcBuilding; new storeys (levels added live) aggregate under it.</summary>
+    public IfcBuilding Building { get; }
 
     /// <summary>The in-memory IFC tree; converters add their sub-graphs here.</summary>
     public DatabaseIfc Db { get; }
@@ -28,8 +33,11 @@ public sealed class IfcModelContext
     /// <summary>The 'Body' sub-context, used as the context of shape representations.</summary>
     public IfcGeometricRepresentationSubContext BodyContext { get; }
 
-    /// <summary>Revit <see cref="Level"/> id → the IfcBuildingStorey built from it.</summary>
-    public IReadOnlyDictionary<ElementId, IfcBuildingStorey> StoreyByLevel { get; }
+    /// <summary>
+    /// Revit <see cref="Level"/> id → the IfcBuildingStorey built from it. Mutable: live
+    /// sync adds a storey when a level is added and drops it when the level is deleted.
+    /// </summary>
+    public Dictionary<ElementId, IfcBuildingStorey> StoreyByLevel { get; }
 
     /// <summary>
     /// Revit element id → the IfcElement a converter produced for it. Lets
@@ -45,10 +53,13 @@ public sealed class IfcModelContext
     /// conversion created that entity. Ownership is captured by the registry as a
     /// StepId watermark around each converter call, so every entity a converter adds
     /// (element, placement, geometry, psets, openings…) is tagged with its element.
-    /// Boilerplate entities (storeys, units, contexts, owner history) are created
+    /// Boilerplate entities (units, contexts, owner history, site, building) are created
     /// before any converter runs and stay untagged — they are shared resources that
-    /// incremental removal must never touch. Consumed by the direct pipeline, which
-    /// writes it as the <c>revit_element_id</c> node property.
+    /// incremental removal must never touch. Storeys are the exception: each storey, its
+    /// Pset_BuildingStoreyCommon and the rel between them are tagged with the LEVEL's id
+    /// (the deduplicated Pset values stay shared and untagged), so a level modified or
+    /// deleted live can be located in the graph like any element. Consumed by the direct
+    /// pipeline, which writes it as the <c>revit_element_id</c> node property.
     /// </summary>
     public Dictionary<int, long> OwnerByStepId { get; } = new();
 }

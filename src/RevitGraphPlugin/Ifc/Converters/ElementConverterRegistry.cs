@@ -13,6 +13,7 @@ public sealed class ElementConverterRegistry
 {
     private readonly IReadOnlyList<IElementConverter> _converters = new IElementConverter[]
     {
+        new LevelConverter(),        // storeys before anything that is contained in one
         new WallConverter(),
         new FloorConverter(),
         new ColumnConverter(BuiltInCategory.OST_StructuralColumns),

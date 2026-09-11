@@ -159,6 +159,7 @@ public sealed record GraphRule(
     public static readonly HashSet<string> SharedResourceTypes = new(StringComparer.Ordinal)
     {
         nameof(IfcRelContainedInSpatialStructure),
+        nameof(IfcRelAggregates),   // building → storeys, created by ggifc with the first storey
     };
 }
 
@@ -231,6 +232,28 @@ public static class GraphletExtractor
                     refresh.Add(EntityWalker.Walk(rel, timestamp));
             }
         }
+        return (refresh, delete);
+    }
+
+    /// <summary>
+    /// The shared spatial rels a rule may have touched: every storey's containment rel
+    /// (<see cref="StoreyContainmentChanges"/>) plus the building's aggregation rel —
+    /// the one a level insert joins and a level remove leaves. Same refresh / delete
+    /// semantics: walked fresh while it has members, dropped by p21 once it has none.
+    /// </summary>
+    public static (List<EntityData> Refresh, List<string> Delete) SpatialChanges(
+        IEnumerable<IfcBuildingStorey> storeys, IfcBuilding? building, string timestamp)
+    {
+        var (refresh, delete) = StoreyContainmentChanges(storeys, timestamp);
+        if (building is not null)
+            foreach (var rel in building.IsDecomposedBy)
+            {
+                if (rel.StepId <= 0) continue;
+                if (rel.RelatedObjects.Count == 0)
+                    delete.Add($"#{rel.StepId}");
+                else
+                    refresh.Add(EntityWalker.Walk(rel, timestamp));
+            }
         return (refresh, delete);
     }
 }

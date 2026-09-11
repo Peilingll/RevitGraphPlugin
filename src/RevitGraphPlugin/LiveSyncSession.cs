@@ -92,6 +92,7 @@ public sealed class LiveSyncSession : IDisposable
     public bool ApplyModified(Element element)
     {
         if (!Supports(element)) return false;
+        if (element is Level level) return ModifyLevel(level);
 
         var known = _ctx.ConvertedElements.TryGetValue(element.Id, out var old);
         if (known)
@@ -143,6 +144,7 @@ public sealed class LiveSyncSession : IDisposable
     /// </summary>
     public bool ApplyRemoved(ElementId id)
     {
+        if (_ctx.StoreyByLevel.ContainsKey(id)) return RemoveLevel(id);
         if (!_ctx.ConvertedElements.TryGetValue(id, out var old)) return false;
 
         LiveRuleBuilder.DetachFromContainment(old);
@@ -150,7 +152,50 @@ public sealed class LiveSyncSession : IDisposable
         _ctx.ConvertedElements.Remove(id);
 
         var rule = LiveRuleBuilder.BuildRemove(
-            _ctx.StoreyByLevel.Values, id.Value, Timestamp);
+            _ctx.StoreyByLevel.Values, id.Value, Timestamp, _ctx.Building);
+        Apply(rule);
+        return true;
+    }
+
+    /// <summary>True if this id is a level the session mirrors as a storey.</summary>
+    public bool IsLevel(ElementId id) => _ctx.StoreyByLevel.ContainsKey(id);
+
+    /// <summary>
+    /// Level modified (renamed, moved) → update the storey IN PLACE and store the value
+    /// changes. A storey is never rebuilt: its containment rel and every element on it
+    /// point at the object, and the graph node keeps its p21. Elements Revit moves along
+    /// with the level arrive as their own modifies. A level never seen (added before live
+    /// sync covered levels) is inserted instead.
+    /// </summary>
+    private bool ModifyLevel(Level level)
+    {
+        if (!_ctx.StoreyByLevel.TryGetValue(level.Id, out var storey))
+            return Upsert(level, RuleOp.Insert);
+
+        LevelConverter.UpdateStorey(storey, level, Document);
+        var rule = LiveRuleBuilder.BuildLevelModify(
+            _ctx.Db, _ctx.OwnerByStepId, _ctx.StoreyByLevel.Values, _ctx.Building,
+            level.Id.Value, Timestamp);
+        Apply(rule);
+        return true;
+    }
+
+    /// <summary>
+    /// Level deleted → detach the storey from the building, forget its ownership, and
+    /// store a Remove: the storey's owned nodes go, the building's aggregation rel is
+    /// refreshed (or dropped if it was the last storey), the storey's containment rels
+    /// are dropped (Revit deletes a level's elements with it; their own removes are
+    /// routed before this one — see LiveSyncManager).
+    /// </summary>
+    private bool RemoveLevel(ElementId id)
+    {
+        var storey = _ctx.StoreyByLevel[id];
+        var containment = LiveRuleBuilder.DetachStorey(storey);
+        _ctx.StoreyByLevel.Remove(id);
+        LiveRuleBuilder.ForgetOwnership(_ctx.OwnerByStepId, id.Value);
+
+        var rule = LiveRuleBuilder.BuildRemove(
+            _ctx.StoreyByLevel.Values, id.Value, Timestamp, _ctx.Building, containment);
         Apply(rule);
         return true;
     }
@@ -163,7 +208,14 @@ public sealed class LiveSyncSession : IDisposable
 
         var rule = LiveRuleBuilder.BuildUpsert(
             op, _ctx.Db, _ctx.OwnerByStepId, _ctx.StoreyByLevel.Values,
-            element.Id.Value, before, after, Timestamp);
+            element.Id.Value, before, after, Timestamp, _ctx.Building);
+        if (rule.Graphlet.Count == 0)
+        {
+            // The converter produced nothing (e.g. an element on a level with no storey):
+            // storing an empty rule would only hide it. Fail loud in the log instead.
+            LiveSyncLog.Write($"    !! {op} {element.Id.Value} ({element.Category?.Name}) produced no entities — not applied");
+            return false;
+        }
         Apply(rule);
         return true;
     }

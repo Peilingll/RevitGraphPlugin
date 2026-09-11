@@ -98,23 +98,11 @@ public static class BoilerplateBuilder
         var storeyByLevel = new Dictionary<ElementId, IfcBuildingStorey>();
         foreach (var level in levels)
         {
-            var elevationMm = UnitUtils.ConvertFromInternalUnits(
-                level.Elevation,
-                UnitTypeId.Millimeters);
-
-            var storey = new IfcBuildingStorey(building, level.Name, elevationMm);
-            storey.GlobalId = IfcGuidConverter.ForElement(level);
-            storey.CompositionType = IfcElementCompositionEnum.ELEMENT;
-            StableIds.StampAggregates(storey);   // building → storeys rel: stable GlobalId
-            storey.LongName = level.Name;   // native mirrors Name into LongName
-
+            // Same entity the live path builds for a level added later (LevelConverter);
             // ObjectType = "Level:" + the Level's type name (native exporter writes
             // e.g. 'Level:Circle Head - Project Datum'; the type name also surfaces
             // as the Pset_BuildingStoreyCommon Reference value).
-            var levelType = doc.GetElement(level.GetTypeId());
-            if (levelType != null)
-                storey.ObjectType = "Level:" + levelType.Name;
-
+            var storey = Converters.LevelConverter.CreateStorey(level, building, doc);
             storeys.Add(storey);
             storeyByLevel[level.Id] = storey;
         }
@@ -125,7 +113,22 @@ public static class BoilerplateBuilder
         //    the exact layout from data/samples/ifc/00_empty.ifc (#45–#67).
         AttachDefaultPropertySets(db, site, building, storeys);
 
-        return new IfcModelContext(db, bodyContext, storeyByLevel);
+        var ctx = new IfcModelContext(db, bodyContext, building, storeyByLevel);
+
+        // Tag each storey, its Pset and the rel between them with the level's id so live
+        // sync can modify / remove the level like an element. The deduplicated Pset
+        // VALUES are shared with other storeys and the building — they stay untagged.
+        foreach (var (levelId, storey) in storeyByLevel)
+        {
+            ctx.OwnerByStepId[storey.StepId] = levelId.Value;
+            foreach (var rel in storey.IsDefinedBy)
+            {
+                ctx.OwnerByStepId[rel.StepId] = levelId.Value;
+                foreach (var pset in rel.RelatingPropertyDefinition)
+                    ctx.OwnerByStepId[pset.StepId] = levelId.Value;
+            }
+        }
+        return ctx;
     }
 
     /// <summary>

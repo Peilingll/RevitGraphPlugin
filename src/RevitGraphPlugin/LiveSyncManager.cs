@@ -76,7 +76,10 @@ public static class LiveSyncManager
             // Deletions first: a delete+re-add of the same element id within one
             // transaction must not remove the fresh graphlet. Bodies are gone, so
             // ids are all we get — and all the session needs.
-            foreach (var id in deleted)
+            // Levels last: Revit deletes a level together with the elements on it, and
+            // their removes must empty the storey's containment rel before the storey
+            // itself (and that rel) go.
+            foreach (var id in deleted.OrderBy(id => _session.IsLevel(id) ? 1 : 0))
                 LiveSyncLog.Write($"  remove {id.Value}: applied={_session.ApplyRemoved(id)}");
 
             // Log every added element (category + supported) so an unsupported filter is
