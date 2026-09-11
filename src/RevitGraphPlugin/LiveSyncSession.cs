@@ -102,10 +102,12 @@ public sealed class LiveSyncSession : IDisposable
         var applied = Upsert(element, known ? RuleOp.Replace : RuleOp.Insert);
 
         // A re-converted host (wall) is a brand-new ggifc object; any hosted insert's
-        // opening/void/fill still references the old, now-deleted object, so its
-        // IfcRelVoidsElement.RelatingBuildingElement goes null. Re-sync each insert so
-        // its opening re-attaches to the new host. (Placing OR moving a window/door
-        // modifies its host wall, so without this every hosted element breaks.)
+        // opening/void/fill still references the old, detached object in the MIRROR, so
+        // its IfcRelVoidsElement.RelatingBuildingElement would go null on the next walk.
+        // Re-sync each insert so its opening re-attaches to the new host object. In the
+        // GRAPH the host node survives an aligned (partial) apply, so this re-sync
+        // normally diffs to NoChange and stores nothing — it only keeps the mirror
+        // consistent. (Placing OR moving a window/door modifies its host wall.)
         if (applied) ResyncHostedInserts(element);
         return applied;
     }

@@ -14,26 +14,25 @@ namespace RevitGraphPlugin.Cypher;
 
 public static class RuleReplayer
 {
-    private sealed record Member(long Seq, bool IsBaseline, string Op, long ElementId, string Ts);
+    private sealed record Member(long Seq, bool IsBaseline, string Op, long ElementId, string Ts, bool Aligned);
 
     /// <summary>
     /// Re-apply every rule after the newest <c>(:Baseline)</c> anchor of
     /// <paramref name="chainTarget"/>'s chain onto the <paramref name="ontoTs"/> graph
-    /// (which is expected to hold that baseline's content). One transaction — a partial
-    /// replay would be a graph that matches no version. Returns the rules replayed.
+    /// (which is expected to hold that baseline's content). Returns the rules replayed.
+    /// <para>
+    /// One transaction PER RULE (see <see cref="CheckoutAsync"/> for why).
+    /// </para>
     /// </summary>
     public static async Task<int> ReplayAsync(IDriver driver, string chainTarget, string ontoTs)
     {
         await using var session = driver.AsyncSession();
-        return await session.ExecuteWriteAsync(async tx =>
-        {
-            var members = await MembersAsync(tx, chainTarget);
-            var afterSeq = members.Where(m => m.IsBaseline).Select(m => m.Seq).DefaultIfEmpty(0).Max();
-            var rules = members.Where(m => !m.IsBaseline && m.Seq > afterSeq).ToList();
-            foreach (var rule in rules)
-                await ApplyStoredAsync(tx, rule, ontoTs);
-            return rules.Count;
-        });
+        var members = await session.ExecuteReadAsync(tx => MembersAsync(tx, chainTarget));
+        var afterSeq = members.Where(m => m.IsBaseline).Select(m => m.Seq).DefaultIfEmpty(0).Max();
+        var rules = members.Where(m => !m.IsBaseline && m.Seq > afterSeq).ToList();
+        foreach (var rule in rules)
+            await session.ExecuteWriteAsync(tx => ApplyStoredAsync(tx, rule, ontoTs));
+        return rules.Count;
     }
 
     /// <summary>
@@ -43,24 +42,22 @@ public static class RuleReplayer
     /// The walk is stateless: the chain records history and undoing does not pop it, so
     /// a caller continuing a partial undo must say where it stopped via
     /// <paramref name="belowSeq"/> (only rules with a smaller seq are considered).
+    /// One transaction per rule.
     /// </summary>
     public static async Task<int> UndoAsync(
         IDriver driver, string chainTarget, string ontoTs,
         int count = int.MaxValue, long belowSeq = long.MaxValue)
     {
         await using var session = driver.AsyncSession();
-        return await session.ExecuteWriteAsync(async tx =>
+        var members = await session.ExecuteReadAsync(tx => MembersAsync(tx, chainTarget));
+        var undone = 0;
+        foreach (var member in members.Where(m => m.Seq < belowSeq).OrderByDescending(m => m.Seq))
         {
-            var members = await MembersAsync(tx, chainTarget);
-            var undone = 0;
-            foreach (var member in members.Where(m => m.Seq < belowSeq).OrderByDescending(m => m.Seq))
-            {
-                if (member.IsBaseline || undone >= count) break;
-                await UndoStoredAsync(tx, member, ontoTs);
-                undone++;
-            }
-            return undone;
-        });
+            if (member.IsBaseline || undone >= count) break;
+            await session.ExecuteWriteAsync(tx => UndoStoredAsync(tx, member, ontoTs));
+            undone++;
+        }
+        return undone;
     }
 
     /// <summary>
@@ -75,53 +72,76 @@ public static class RuleReplayer
     /// onto a much later state can find no anchor at all. Walking one step at a time in
     /// the right direction keeps every rule on the state it knows.
     /// </para>
+    /// <para>
+    /// <b>One transaction per step</b>, each committing the step together with the new
+    /// <c>checked_out_seq</c>. Within a single step every delete precedes every
+    /// <c>SET p21_id</c> (the interface renumbering of an aligned rule), which keeps
+    /// Neo4j's transaction-state index consistent. Several steps in one transaction
+    /// violate that order — a node renumbered by step k and deleted by step k+1 is still
+    /// returned by an index seek in step k+2 ("Node with id N has been deleted in this
+    /// transaction", seen 2026-09-11 on undo 5→2 of a window chain). Per-step commits
+    /// are also what a user sees: a failure leaves the graph at a real version, and the
+    /// bookmark says which.
+    /// </para>
     /// </summary>
     public static async Task<(long From, long To, int Steps)> CheckoutAsync(
         IDriver driver, string chainTarget, string ontoTs, long targetSeq)
     {
         await using var session = driver.AsyncSession();
-        return await session.ExecuteWriteAsync(async tx =>
+        var (members, current) = await session.ExecuteReadAsync(async tx =>
         {
-            var members = await MembersAsync(tx, chainTarget);
-            if (members.Count == 0)
+            var ms = await MembersAsync(tx, chainTarget);
+            if (ms.Count == 0)
                 throw new InvalidOperationException($"no chain for target '{chainTarget}'");
-            if (members.All(m => m.Seq != targetSeq))
+            if (ms.All(m => m.Seq != targetSeq))
                 throw new InvalidOperationException($"seq {targetSeq} is not on the chain");
 
-            var newestBaseline = members.Where(m => m.IsBaseline).Select(m => m.Seq)
-                                        .DefaultIfEmpty(0).Max();
+            var newestBaseline = ms.Where(m => m.IsBaseline).Select(m => m.Seq)
+                                   .DefaultIfEmpty(0).Max();
             if (targetSeq < newestBaseline)
                 throw new InvalidOperationException(
                     $"cannot check out below the newest baseline anchor (seq {newestBaseline}) — the graph was rebuilt there");
 
-            var head = members.Max(m => m.Seq);
-            var current = await CurrentSeqAsync(tx, chainTarget) ?? head;
-            var steps = 0;
+            var head = ms.Max(m => m.Seq);
+            return (ms, await CurrentSeqAsync(tx, chainTarget) ?? head);
+        });
 
-            if (targetSeq > current)
+        var steps = 0;
+        if (targetSeq > current)
+        {
+            foreach (var m in members
+                         .Where(m => !m.IsBaseline && m.Seq > current && m.Seq <= targetSeq)
+                         .OrderBy(m => m.Seq))
             {
-                foreach (var m in members
-                             .Where(m => !m.IsBaseline && m.Seq > current && m.Seq <= targetSeq)
-                             .OrderBy(m => m.Seq))
+                await session.ExecuteWriteAsync(async tx =>
                 {
                     await ApplyStoredAsync(tx, m, ontoTs);
-                    steps++;
-                }
+                    await SetCurrentSeqAsync(tx, chainTarget, m.Seq);
+                });
+                steps++;
             }
-            else if (targetSeq < current)
+        }
+        else if (targetSeq < current)
+        {
+            foreach (var m in members
+                         .Where(m => !m.IsBaseline && m.Seq > targetSeq && m.Seq <= current)
+                         .OrderByDescending(m => m.Seq))
             {
-                foreach (var m in members
-                             .Where(m => !m.IsBaseline && m.Seq > targetSeq && m.Seq <= current)
-                             .OrderByDescending(m => m.Seq))
+                // After undoing m the graph stands at the member just below it.
+                var below = members.Where(x => x.Seq < m.Seq).Max(x => x.Seq);
+                await session.ExecuteWriteAsync(async tx =>
                 {
                     await UndoStoredAsync(tx, m, ontoTs);
-                    steps++;
-                }
+                    await SetCurrentSeqAsync(tx, chainTarget, below);
+                });
+                steps++;
             }
+        }
 
-            await SetCurrentSeqAsync(tx, chainTarget, targetSeq);
-            return (current, targetSeq, steps);
-        });
+        // Reaching a target with no rule between (e.g. head == target, or a baseline
+        // right below) still records the position.
+        await session.ExecuteWriteAsync(tx => SetCurrentSeqAsync(tx, chainTarget, targetSeq));
+        return (current, targetSeq, steps);
     }
 
     /// <summary>Where the tracked graph currently stands, or null if never checked out.</summary>
@@ -143,7 +163,8 @@ public static class RuleReplayer
         var rows = await (await tx.RunAsync(@"
 MATCH (m) WHERE m.target_ts = $target AND (m:Rule OR m:Baseline)
 RETURN m.seq AS seq, m:Baseline AS baseline, m.op AS op,
-       m.revit_element_id AS eid, m.timestamp AS ts
+       m.revit_element_id AS eid, m.timestamp AS ts,
+       coalesce(m.aligned, false) AS aligned
 ORDER BY m.seq", new { target })).ToListAsync();
 
         return rows.Select(r => new Member(
@@ -151,7 +172,8 @@ ORDER BY m.seq", new { target })).ToListAsync();
             r["baseline"].As<bool>(),
             r["op"]?.As<string>() ?? string.Empty,
             r["eid"]?.As<long?>() ?? 0,
-            r["ts"].As<string>())).ToList();
+            r["ts"].As<string>(),
+            r["aligned"].As<bool>())).ToList();
     }
 
     // ── forward ──────────────────────────────────────────────────────────────────
@@ -165,6 +187,17 @@ ORDER BY m.seq", new { target })).ToListAsync();
                 await ApplyGlueAsync(tx, rule.Ts, "R", ontoTs);
                 break;
 
+            // Aligned Replace (partial): the copies are the pushout only, the interface
+            // stayed — drop the L pushout by its copy p21s, merge the R pushout, glue it,
+            // SET the values, then renumber the interface forward.
+            case "Replace" when rule.Aligned:
+                await DeleteByCopyP21sAsync(tx, rule.Ts + "-L", ontoTs);
+                await MergeCopiesAsync(tx, rule.Ts + "-R", ontoTs);
+                await ApplyGlueAsync(tx, rule.Ts, "R", ontoTs);
+                await ApplyChangesAsync(tx, rule.Ts, ontoTs, reverse: false);
+                await RenumberAsync(tx, rule.Ts, ontoTs, reverse: false);
+                break;
+
             case "Replace":
                 await DeleteOwnedAsync(tx, ontoTs, rule.ElementId);
                 await MergeCopiesAsync(tx, rule.Ts + "-R", ontoTs);
@@ -173,6 +206,7 @@ ORDER BY m.seq", new { target })).ToListAsync();
 
             case "Modify":
                 await ApplyChangesAsync(tx, rule.Ts, ontoTs, reverse: false);
+                await RenumberAsync(tx, rule.Ts, ontoTs, reverse: false);
                 break;
 
             case "Remove":
@@ -191,25 +225,38 @@ ORDER BY m.seq", new { target })).ToListAsync();
     {
         switch (rule.Op)
         {
-            // Undoing an insertion deletes BOTH by element id and by the copies' p21s:
-            // a later Modify-stored rule was still APPLIED as delete+rebuild, so the
-            // live graph may hold renumbered p21s (id deletion catches those), while an
-            // untagged rider — a first-element containment rel — has no element id and
-            // is caught by its (stable, never-reused) p21.
+            // Undoing an insertion deletes BOTH by the copies' p21s and by element id:
+            // an untagged rider — a first-element containment rel — has no element id
+            // and is caught by its (stable, never-reused) p21, while nodes a legacy
+            // (pre-partial) Modify rebuilt under new p21s are caught by the id. p21
+            // FIRST: an earlier undo in the same transaction may just have renumbered
+            // these nodes (SET p21_id), and Neo4j's index lookup by a property changed
+            // in-transaction still returns a node deleted later in that transaction
+            // ("Node with id N has been deleted in this transaction") — so the p21 match
+            // must run while the nodes are still alive.
             case "Insert":
-                await DeleteOwnedAsync(tx, ontoTs, rule.ElementId);
                 await DeleteByCopyP21sAsync(tx, rule.Ts + "-R", ontoTs);
+                await DeleteOwnedAsync(tx, ontoTs, rule.ElementId);
+                break;
+
+            case "Replace" when rule.Aligned:
+                await DeleteByCopyP21sAsync(tx, rule.Ts + "-R", ontoTs);
+                await MergeCopiesAsync(tx, rule.Ts + "-L", ontoTs);
+                await ApplyGlueAsync(tx, rule.Ts, "L", ontoTs);
+                await ApplyChangesAsync(tx, rule.Ts, ontoTs, reverse: true);
+                await RenumberAsync(tx, rule.Ts, ontoTs, reverse: true);
                 break;
 
             case "Replace":
+                await DeleteByCopyP21sAsync(tx, rule.Ts + "-R", ontoTs);   // p21 first, see Insert
                 await DeleteOwnedAsync(tx, ontoTs, rule.ElementId);
-                await DeleteByCopyP21sAsync(tx, rule.Ts + "-R", ontoTs);
                 await MergeCopiesAsync(tx, rule.Ts + "-L", ontoTs);
                 await ApplyGlueAsync(tx, rule.Ts, "L", ontoTs);
                 break;
 
             case "Modify":
                 await ApplyChangesAsync(tx, rule.Ts, ontoTs, reverse: true);
+                await RenumberAsync(tx, rule.Ts, ontoTs, reverse: true);
                 break;
 
             case "Remove":
@@ -243,7 +290,7 @@ ORDER BY m.seq", new { target })).ToListAsync();
 
         // Inline children are CREATEd (no merge key), so restoring over an existing node
         // must clear its old inline children first or they would double up.
-        await tx.RunAsync(@"
+        await Run(tx, @"
 UNWIND $p21s AS p
 MATCH (n:GenericNode {timestamp: $ts, p21_id: p})-[:rel]->(i:InlineNode {timestamp: $ts})
 DETACH DELETE i",
@@ -264,7 +311,7 @@ DETACH DELETE i",
     /// </summary>
     private static async Task DeleteByCopyP21sAsync(IAsyncQueryRunner tx, string copyTs, string ontoTs)
     {
-        await tx.RunAsync(@"
+        await Run(tx, @"
 MATCH (c:GenericNode {timestamp: $copyTs})
 MATCH (n:GenericNode {timestamp: $ontoTs, p21_id: c.p21_id})
 OPTIONAL MATCH (n)-[:rel]->(i:InlineNode {timestamp: $ontoTs})
@@ -283,7 +330,7 @@ DETACH DELETE i, n",
         foreach (var contextString in refs)
         {
             var p21 = await ResolveContextAsync(tx, ontoTs, contextString);
-            await tx.RunAsync(
+            await Run(tx, 
                 "MATCH (n:GenericNode {timestamp: $ts, p21_id: $p21}) DETACH DELETE n",
                 new { ts = ontoTs, p21 = $"#{p21}" });
         }
@@ -302,10 +349,11 @@ RETURN c.path AS path, c.path_after AS path_after,
 
         foreach (var row in rows)
         {
-            // The same node wears different ggifc-generated GlobalIds in different
-            // graphs: the L name matches pre-modify / replayed graphs, the R name
-            // matches the live graph the shallow apply rebuilt. Forward prefers the
-            // before-name, undo the after-name; either falls back to the other.
+            // Chains recorded before StableIds: the same node wore different ggifc-
+            // generated GlobalIds in different graphs — the L name matched pre-modify /
+            // replayed graphs, the R name the live graph the old delete+rebuild apply
+            // produced. Forward prefers the before-name, undo the after-name; either
+            // falls back to the other. Since StableIds both names are the same.
             var (primary, secondary) = reverse
                 ? (row["path_after"]?.As<string>(), row["path"].As<string>())
                 : (row["path"].As<string>(), row["path_after"]?.As<string>());
@@ -319,7 +367,7 @@ RETURN c.path AS path, c.path_after AS path_after,
 
             if (row["inline"].As<bool>())
             {
-                await tx.RunAsync(@"
+                await Run(tx, @"
 MATCH (n:GenericNode {timestamp: $ts, p21_id: $p21})
       -[e:rel {rel_type: $key, list_index: $li}]->(v:InlineNode {timestamp: $ts})
 SET v.wrappedValue = $value",
@@ -327,11 +375,32 @@ SET v.wrappedValue = $value",
             }
             else
             {
-                await tx.RunAsync(
+                await Run(tx, 
                     "MATCH (n:GenericNode {timestamp: $ts, p21_id: $p21}) SET n += $props",
                     new { ts = ontoTs, p21 = $"#{p21}", props = new Dictionary<string, object> { [key] = value } });
             }
         }
+    }
+
+    /// <summary>
+    /// Replay the interface renumbering an aligned rule recorded (from→to forward,
+    /// to→from on undo). Legacy rules carry no arrays → no-op. A pair whose "from" id is
+    /// not in the graph is skipped silently: that node was renumbered by a later
+    /// NoChange modify that was deliberately not stored, and already holds the id the
+    /// ggifc mirror expects — see doc_process/2026-09-11-plan-partial-replace.md.
+    /// </summary>
+    private static async Task RenumberAsync(
+        IAsyncQueryRunner tx, string ruleTs, string ontoTs, bool reverse)
+    {
+        await Run(tx, @"
+MATCH (r:Rule {timestamp: $ruleTs})
+WITH coalesce(r.renumber_from, []) AS f, coalesce(r.renumber_to, []) AS t
+UNWIND range(0, size(f) - 1) AS i
+WITH CASE WHEN $reverse THEN t[i] ELSE f[i] END AS from,
+     CASE WHEN $reverse THEN f[i] ELSE t[i] END AS to
+MATCH (n:GenericNode {timestamp: $ts, p21_id: from})
+SET n.p21_id = to",
+            new { ruleTs, ts = ontoTs, reverse });
     }
 
     /// <summary>Recreate one side's boundary edges from the stored :Glue rows.</summary>
@@ -351,7 +420,7 @@ RETURN g.context AS context, g.rel_type AS rel_type, g.list_index AS list_index,
                 ? ($"#{contextP21}", row["local"].As<string>())
                 : (row["local"].As<string>(), $"#{contextP21}");
 
-            await tx.RunAsync(@"
+            await Run(tx, @"
 MATCH (a:GenericNode {timestamp: $ts, p21_id: $from})
 MATCH (b:GenericNode {timestamp: $ts, p21_id: $to})
 MERGE (a)-[:rel {rel_type: $relType, list_index: $listIndex}]->(b)",
@@ -406,4 +475,12 @@ MERGE (a)-[:rel {rel_type: $relType, list_index: $listIndex}]->(b)",
         if (P21Id.TryParse(contextString, out var p21)) return p21;
         throw new InvalidOperationException($"unreadable context reference: {contextString}");
     }
+
+    /// <summary>
+    /// Run a write statement and consume its result NOW, so a server-side error (e.g. a
+    /// node touched after being deleted in this transaction) surfaces at the statement
+    /// that caused it, not at commit.
+    /// </summary>
+    private static async Task Run(IAsyncQueryRunner tx, string query, object parameters)
+        => await (await tx.RunAsync(query, parameters)).ConsumeAsync();
 }

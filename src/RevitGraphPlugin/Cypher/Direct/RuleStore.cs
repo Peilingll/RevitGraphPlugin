@@ -38,6 +38,7 @@ public static class RuleStore
         IReadOnlyList<EntityData> deletes = Array.Empty<EntityData>();
         IReadOnlyList<EntityData> inserts = Array.Empty<EntityData>();
         IReadOnlyList<PropertyChange> changes = Array.Empty<PropertyChange>();
+        GraphletDiffOutcome? aligned = null;
         string op;
 
         switch (rule.Op)
@@ -53,13 +54,11 @@ public static class RuleStore
                 break;
 
             default:
-                // A rule that also drops shared nodes changed structure by definition —
-                // never eligible for the Modify shortcut (and in practice SharedDelete
-                // only fires on removals; this is belt-and-braces).
-                var diff = rule.BeforeGraphlet is { Nodes.Count: > 0 } captured
-                           && rule.SharedDelete.Count == 0
-                    ? GraphletDiff.Compare(captured, rule.Graphlet)
-                    : GraphletDiffOutcome.Structural;
+                // The apply already aligned L and R (GraphRule.Diff). Aligned rules store
+                // only what moved: the pushout copies, the value changes, and the
+                // interface renumbering. A rule without a diff (could not align, or drops
+                // shared nodes) is the legacy full Replace with both graphlets copied.
+                var diff = rule.Diff ?? GraphletDiffOutcome.Structural;
                 switch (diff.Kind)
                 {
                     case GraphletDiffKind.NoChange:
@@ -67,6 +66,16 @@ public static class RuleStore
                     case GraphletDiffKind.PropertyOnly:
                         op = "Modify";
                         changes = diff.Changes;
+                        aligned = diff;
+                        break;
+                    case GraphletDiffKind.Partial:
+                        op = "Replace";
+                        var pl = diff.PushoutL.ToHashSet();
+                        var pr = diff.PushoutR.ToHashSet();
+                        deletes = LSide(rule).Where(d => pl.Contains(d.P21)).ToList();
+                        inserts = rule.Graphlet.Where(d => pr.Contains(d.P21)).ToList();
+                        changes = diff.Changes;
+                        aligned = diff;
                         break;
                     default:
                         op = "Replace";
@@ -94,15 +103,23 @@ public static class RuleStore
         await WriteCopies(tx, deletes, ruleTs + "-L");
         await WriteCopies(tx, inserts, ruleTs + "-R");
 
+        // Interface renumbering (aligned rules only): the graph's ids for the kept nodes
+        // before → after. Two parallel arrays (Neo4j properties cannot nest); replay
+        // applies from→to, undo to→from. Absent on legacy rules and on Insert / Remove.
+        var renumberFrom = aligned?.Match.Select(kv => P21Id.Of(kv.Key)).ToList() ?? new List<string>();
+        var renumberTo   = aligned?.Match.Select(kv => P21Id.Of(kv.Value)).ToList() ?? new List<string>();
+
         await tx.RunAsync(@"
 CREATE (r:Rule:Node {timestamp: $ts, seq: $seq, op: $op, revit_element_id: $eid,
                      target_ts: $target, deletes: $deletes, inserts: $inserts,
-                     changes: $changes, shared_delete: $sharedDelete, applied_at: $at})",
+                     changes: $changes, shared_delete: $sharedDelete, applied_at: $at,
+                     aligned: $isAligned, renumber_from: $renumberFrom, renumber_to: $renumberTo})",
             new
             {
                 ts = ruleTs, seq, op, eid = rule.RevitElementId, target = rule.Timestamp,
                 deletes = deletes.Count, inserts = inserts.Count, changes = changes.Count,
                 sharedDelete, at = DateTime.UtcNow.ToString("o"),
+                isAligned = aligned is not null, renumberFrom, renumberTo,
             });
 
         await Link(tx, ruleTs, ruleTs + "-L", "DELETES");
@@ -136,7 +153,9 @@ CREATE (r)-[:SETS]->(ch)",
                 });
         }
 
-        var glue = CollectGlue(rule, deletes, inserts);
+        var glue = aligned is not null
+            ? CollectAlignedGlue(rule, aligned, deletes, inserts)
+            : CollectGlue(rule, deletes, inserts);
         if (glue.Count > 0)
         {
             await tx.RunAsync(@"
@@ -272,6 +291,73 @@ MERGE (r)-[:{relType}]->(n)",
     /// tests assert that never happens); <c>local_p21</c> is the inside end within the
     /// <c>side</c> copy namespace. A Modify stores none — structure did not change.
     /// </summary>
+    /// <summary>
+    /// Glue of an aligned rule: every edge crossing the PUSHOUT boundary, on each side.
+    /// Context is whatever is not pushout — interface nodes included — named by the
+    /// portable refs the apply resolved against the graph's pre-renumber (L) p21s; an R
+    /// side edge end that is an interface node is therefore translated R→L before lookup.
+    /// </summary>
+    private static List<object> CollectAlignedGlue(
+        GraphRule rule, GraphletDiffOutcome diff,
+        IReadOnlyList<EntityData> deletes, IReadOnlyList<EntityData> inserts)
+    {
+        var rows = new List<object>();
+        var toL = diff.Match.ToDictionary(kv => kv.Value, kv => kv.Key);
+        var pushoutL = diff.PushoutL.ToHashSet();
+        var pushoutR = diff.PushoutR.ToHashSet();
+        int GraphP21(int rp21) => toL.TryGetValue(rp21, out var lp21) ? lp21 : rp21;
+
+        string Context(int graphP21)
+            => rule.ContextRefs.TryGetValue(graphP21, out var r) ? r.Path : $"#{graphP21}";
+
+        void Row(int contextGraphP21, string relType, int listIndex, int localP21, string side, string direction)
+            => rows.Add(new Dictionary<string, object>
+            {
+                ["context"] = Context(contextGraphP21),
+                ["rel_type"] = relType,
+                ["list_index"] = listIndex,
+                ["local_p21"] = $"#{localP21}",
+                ["side"] = side,
+                ["direction"] = direction,
+            });
+
+        // L side: pushout → outside (out); outside → pushout (in), where "outside" is an
+        // interface node (an internal L edge whose source is kept) or true context
+        // (captured IncomingGlue).
+        foreach (var d in deletes)
+            foreach (var e in d.Edges)
+                if (!pushoutL.Contains(e.TargetP21))
+                    Row(e.TargetP21, e.RelType, e.ListIndex, e.SourceP21, "L", "out");
+        if (rule.BeforeGraphlet is { } captured)
+        {
+            foreach (var d in captured.Nodes)
+                if (!pushoutL.Contains(d.P21))
+                    foreach (var e in d.Edges)
+                        if (pushoutL.Contains(e.TargetP21))
+                            Row(d.P21, e.RelType, e.ListIndex, e.TargetP21, "L", "in");
+            foreach (var e in captured.IncomingGlue)
+                if (pushoutL.Contains(e.TargetP21))
+                    Row(e.SourceP21, e.RelType, e.ListIndex, e.TargetP21, "L", "in");
+        }
+
+        // R side: same, with interface ends translated to the graph's p21.
+        foreach (var d in inserts)
+            foreach (var e in d.Edges)
+                if (!pushoutR.Contains(e.TargetP21))
+                    Row(GraphP21(e.TargetP21), e.RelType, e.ListIndex, e.SourceP21, "R", "out");
+        foreach (var d in rule.Graphlet)
+            if (!pushoutR.Contains(d.P21))
+                foreach (var e in d.Edges)
+                    if (pushoutR.Contains(e.TargetP21))
+                        Row(GraphP21(d.P21), e.RelType, e.ListIndex, e.TargetP21, "R", "in");
+        foreach (var shared in rule.SharedRefresh)
+            foreach (var e in shared.Edges)
+                if (pushoutR.Contains(e.TargetP21))
+                    Row(e.SourceP21, e.RelType, e.ListIndex, e.TargetP21, "R", "in");
+
+        return rows;
+    }
+
     private static List<object> CollectGlue(
         GraphRule rule, IReadOnlyList<EntityData> deletes, IReadOnlyList<EntityData> inserts)
     {

@@ -88,6 +88,16 @@ public sealed record GraphRule(
     public RuleStore.StoredRule? Stored { get; init; }
 
     /// <summary>
+    /// How <see cref="GraphletDiff"/> aligned this Replace's L and R sides (interface +
+    /// pushout), set by <see cref="CypherEmitter.ApplyRuleAsync"/> before it mutates
+    /// anything. <c>null</c> for Insert / Remove, and for a Replace that could not be
+    /// aligned (then the whole graphlet is the pushout — the legacy full replace).
+    /// Persistence stores exactly what the diff says: pushout copies, value changes,
+    /// and the interface renumbering.
+    /// </summary>
+    public GraphletDiffOutcome? Diff { get; init; }
+
+    /// <summary>
     /// Split every p21 the rule mentions into <c>Own</c> (nodes the rule itself carries —
     /// its R graphlet and, once captured, its L graphlet) and <c>External</c> (everything
     /// else: context it glues to, shared nodes it refreshes or deletes). Only the external

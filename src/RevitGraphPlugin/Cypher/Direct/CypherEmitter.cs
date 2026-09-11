@@ -89,6 +89,21 @@ public static class CypherEmitter
                 };
             }
 
+            // Partial replace (doc_process/2026-09-11-plan-partial-replace.md): align L
+            // and R before touching the graph. Aligned → keep the interface in place,
+            // delete / insert only the pushout, SET the changed values, renumber the
+            // interface to the R walk's p21s. Not aligned → the legacy whole-graphlet
+            // path below, unchanged.
+            if (rule.Op == RuleOp.Replace
+                && rule.SharedDelete.Count == 0
+                && applied.BeforeGraphlet is { Nodes.Count: > 0 } capturedL)
+            {
+                var diff = GraphletDiff.Compare(capturedL, rule.Graphlet);
+                applied = applied with { Diff = diff };
+                if (diff.IsAligned)
+                    return await ApplyAlignedAsync(tx, applied, diff);
+            }
+
             // Name the rule's context portably while the graph still holds it: SharedDelete
             // nodes are gone by the end of this transaction, and paths must not route
             // through the graphlet this rule is about to delete or has yet to create.
@@ -146,6 +161,155 @@ public static class CypherEmitter
             // chain from the current-state graph.
             return applied with { Stored = await RuleStore.PersistAsync(tx, applied) };
         });
+    }
+
+    /// <summary>
+    /// The aligned apply: the interface I stays, only the pushout moves.
+    /// <list type="number">
+    /// <item>Resolve portable names for every node on the pushout boundary (interface
+    ///   nodes the pushout edges touch, true external context, shared-refresh ends) —
+    ///   keyed by the p21 the GRAPH holds now, i.e. the L p21 for interface nodes.</item>
+    /// <item>Delete the L pushout (with inline children).</item>
+    /// <item>Merge the R pushout: its nodes, its internal edges, its edges to interface
+    ///   nodes (target translated R→L p21, the graph has not been renumbered yet), the
+    ///   interface's edges INTO it (source translated), its inline children.</item>
+    /// <item>SET the changed values on interface nodes, addressed by their L p21.</item>
+    /// <item>Renumber the interface to the R p21s — the ggifc mirror now holds the R
+    ///   objects, and every later rule (containment refresh, a hosted insert's void rel,
+    ///   context resolution) will name these nodes by those ids. p21 is a local file
+    ///   number, not an identity (Esser 2022 §3.6); GlobalId and paths are.</item>
+    /// <item>Shared refresh as usual (its edges already carry the R p21s).</item>
+    /// <item>Persist — a NoChange stores nothing but still renumbered (the mirror moved).</item>
+    /// </list>
+    /// </summary>
+    private static async Task<GraphRule> ApplyAlignedAsync(
+        IAsyncQueryRunner tx, GraphRule rule, GraphletDiffOutcome diff)
+    {
+        var captured = rule.BeforeGraphlet!;
+        var left = captured.Nodes.ToDictionary(d => d.P21);
+        var right = rule.Graphlet.ToDictionary(d => d.P21);
+        var toL = diff.Match.ToDictionary(kv => kv.Value, kv => kv.Key);   // R p21 → L p21
+        var pushoutL = diff.PushoutL.ToHashSet();
+        var pushoutR = diff.PushoutR.ToHashSet();
+        int GraphP21(int rp21) => toL.TryGetValue(rp21, out var lp21) ? lp21 : rp21;
+
+        // 1. Boundary of the pushout, in graph (L) p21s.
+        var boundary = new HashSet<int>();
+        foreach (var l in pushoutL)
+            foreach (var e in left[l].Edges)
+                if (!pushoutL.Contains(e.TargetP21)) boundary.Add(e.TargetP21);
+        foreach (var e in captured.IncomingGlue)
+            if (pushoutL.Contains(e.TargetP21)) boundary.Add(e.SourceP21);
+        foreach (var (l, node) in left)
+            if (!pushoutL.Contains(l) && node.Edges.Any(e => pushoutL.Contains(e.TargetP21)))
+                boundary.Add(l);
+        foreach (var r in pushoutR)
+            foreach (var e in right[r].Edges)
+                if (!pushoutR.Contains(e.TargetP21)) boundary.Add(GraphP21(e.TargetP21));
+        foreach (var (r, node) in right)
+            if (!pushoutR.Contains(r) && node.Edges.Any(e => pushoutR.Contains(e.TargetP21)))
+                boundary.Add(GraphP21(r));
+        foreach (var shared in rule.SharedRefresh)
+        {
+            boundary.Add(shared.P21);
+            foreach (var e in shared.Edges)
+            {
+                boundary.Add(e.SourceP21);
+                if (!pushoutR.Contains(e.TargetP21)) boundary.Add(GraphP21(e.TargetP21));
+            }
+        }
+        boundary.ExceptWith(pushoutL);
+        var contextRefs = await ContextResolver.ResolveAsync(
+            tx, rule.Timestamp, boundary, new HashSet<int>(pushoutL));
+        var applied = rule with { ContextRefs = contextRefs };
+
+        // 2. Delete the L pushout.
+        if (pushoutL.Count > 0)
+            await tx.RunAsync(@"
+UNWIND $p21s AS p
+MATCH (n:GenericNode {timestamp: $ts, p21_id: p})
+OPTIONAL MATCH (n)-[:rel]->(i:InlineNode {timestamp: $ts})
+DETACH DELETE i, n",
+                new { ts = rule.Timestamp, p21s = pushoutL.Select(P21Id.Of).ToList() });
+
+        // 3. Merge the R pushout and every edge that touches it.
+        if (pushoutR.Count > 0)
+        {
+            var inserted = rule.Graphlet.Where(d => pushoutR.Contains(d.P21)).ToList();
+            foreach (var kind in new[] { NodeKind.Primary, NodeKind.Connection, NodeKind.Secondary })
+                await BulkMergeNodes(tx, kind, inserted.Where(d => d.Kind == kind).ToList());
+
+            var edges = new List<EdgeData>();
+            foreach (var d in inserted)
+                foreach (var e in d.Edges)
+                    edges.Add(e with { TargetP21 = pushoutR.Contains(e.TargetP21) ? e.TargetP21 : GraphP21(e.TargetP21) });
+            foreach (var d in rule.Graphlet)
+                if (!pushoutR.Contains(d.P21))
+                    foreach (var e in d.Edges)
+                        if (pushoutR.Contains(e.TargetP21))
+                            edges.Add(e with { SourceP21 = GraphP21(d.P21) });
+            await BulkMergeEdges(tx, edges, rule.Timestamp);
+            await BulkCreateInlines(tx, inserted.SelectMany(d => d.Inlines).ToList(), rule.Timestamp);
+        }
+
+        // 4. Changed values on interface nodes (graph still holds their L p21s).
+        await ApplyPropertyChangesAsync(tx, rule.Timestamp, diff.Changes);
+
+        // 5. Renumber the interface L → R.
+        await RenumberAsync(tx, rule.Timestamp,
+            diff.Match.Select(kv => (P21Id.Of(kv.Key), P21Id.Of(kv.Value))).ToList());
+
+        // 6. Shared context refresh (edge sets replaced wholesale from the fresh walk).
+        foreach (var shared in rule.SharedRefresh)
+        {
+            await BulkMergeNodes(tx, shared.Kind, new List<EntityData> { shared });
+            await tx.RunAsync(
+                "MATCH (a:GenericNode {p21_id: $p21, timestamp: $ts})-[e:rel]->() DELETE e",
+                new { p21 = P21Id.Of(shared.P21), ts = rule.Timestamp });
+            await BulkMergeEdges(tx, shared.Edges.ToList(), rule.Timestamp);
+        }
+
+        // 7. Persist in the same transaction (apply and record commit or fail together).
+        return applied with { Stored = await RuleStore.PersistAsync(tx, applied) };
+    }
+
+    /// <summary>
+    /// SET the after-values of <paramref name="changes"/> on the live graph, addressing
+    /// each node by its L p21 — exact here, because this runs against the very graph the
+    /// change was diffed from, before any renumbering.
+    /// </summary>
+    internal static async Task ApplyPropertyChangesAsync(
+        IAsyncQueryRunner tx, string timestamp, IReadOnlyList<PropertyChange> changes)
+    {
+        foreach (var c in changes)
+        {
+            if (c.Inline)
+                await tx.RunAsync(@"
+MATCH (n:GenericNode {timestamp: $ts, p21_id: $p21})
+      -[e:rel {rel_type: $key, list_index: $li}]->(v:InlineNode {timestamp: $ts})
+SET v.wrappedValue = $value",
+                    new { ts = timestamp, p21 = P21Id.Of(c.P21Before), key = c.Key, li = c.ListIndex!.Value, value = c.After });
+            else
+                await tx.RunAsync(
+                    "MATCH (n:GenericNode {timestamp: $ts, p21_id: $p21}) SET n += $props",
+                    new { ts = timestamp, p21 = P21Id.Of(c.P21Before), props = new Dictionary<string, object?> { [c.Key] = c.After } });
+        }
+    }
+
+    /// <summary>Rename node ids in one atomic UNWIND (from/to ranges never overlap: ggifc never reuses a StepId).</summary>
+    internal static async Task RenumberAsync(
+        IAsyncQueryRunner tx, string timestamp, IReadOnlyList<(string From, string To)> pairs)
+    {
+        if (pairs.Count == 0) return;
+        await tx.RunAsync(@"
+UNWIND $pairs AS pair
+MATCH (n:GenericNode {timestamp: $ts, p21_id: pair.from})
+SET n.p21_id = pair.to",
+            new
+            {
+                ts = timestamp,
+                pairs = pairs.Select(p => new Dictionary<string, object> { ["from"] = p.From, ["to"] = p.To }).ToList(),
+            });
     }
 
     /// <summary>
