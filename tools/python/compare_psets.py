@@ -5,7 +5,7 @@ Usage:
     python compare_psets.py <native.ifc> [--timestamp plugin-live] [--props IsExternal,LoadBearing]
 
 For every product that carries a Pset_*Common in either source, prints the property
-values side by side, keyed by the Revit element id (the IFC Tag on the native side,
+values side by side — plus, with --storeys, the storey each product is contained in — keyed by the Revit element id (the IFC Tag on the native side,
 revit_element_id on the graph side) and the IFC entity type. Exit code 1 when any
 value differs or exists on one side only — so it doubles as a check in scripts.
 
@@ -60,6 +60,33 @@ RETURN p.revit_element_id AS eid, p.EntityType AS t, ps.Name AS pset, v.Name AS 
     return out
 
 
+def native_storeys(path):
+    f = ifcopenshell.open(path)
+    out = {}
+    for e in f.by_type("IfcProduct"):
+        if e.is_a() not in PRODUCT_TYPES or not getattr(e, "Tag", None) or getattr(e, "Decomposes", None):
+            continue
+        rels = getattr(e, "ContainedInStructure", None) or []
+        out[(int(e.Tag), e.is_a())] = rels[0].RelatingStructure.Name if rels else None
+    return out
+
+
+def graph_storeys(timestamp):
+    driver = GraphDatabase.driver("bolt://127.0.0.1:7687",
+                                  auth=("neo4j", os.environ.get("NEO4J_LOCAL_PASSWORD", "password")))
+    out = {}
+    query = """
+MATCH (p:PrimaryNode {timestamp: $ts}) WHERE p.revit_element_id IS NOT NULL AND p.EntityType IN $types
+OPTIONAL MATCH (c {timestamp: $ts, EntityType: 'IfcRelContainedInSpatialStructure'})-[:rel {rel_type: 'RelatedElements'}]->(p)
+OPTIONAL MATCH (c)-[:rel {rel_type: 'RelatingStructure'}]->(st)
+RETURN p.revit_element_id AS eid, p.EntityType AS t, st.Name AS storey"""
+    with driver.session() as s:
+        for r in s.run(query, ts=timestamp, types=PRODUCT_TYPES):
+            out[(r["eid"], r["t"])] = r["storey"]
+    driver.close()
+    return out
+
+
 def norm(v):
     if v is None:
         return None
@@ -73,11 +100,18 @@ def main():
     ap.add_argument("native")
     ap.add_argument("--timestamp", default="plugin-live")
     ap.add_argument("--props", default="IsExternal,LoadBearing")
+    ap.add_argument("--storeys", action="store_true",
+                    help="also compare the storey (IfcRelContainedInSpatialStructure) of every product")
     a = ap.parse_args()
     props = [p.strip() for p in a.props.split(",") if p.strip()]
 
     native = native_psets(a.native, props)
     graph = graph_psets(a.timestamp, props)
+    if a.storeys:
+        for key, storey in native_storeys(a.native).items():
+            native.setdefault(key, ("(containment)", {}))[1]["Storey"] = storey
+        for key, storey in graph_storeys(a.timestamp).items():
+            graph.setdefault(key, ("(containment)", {}))[1]["Storey"] = storey
 
     print(f"{'element':<10} {'type':<12} {'pset':<22} {'prop':<12} {'native':<8} {'graph':<8}")
     diffs = 0
