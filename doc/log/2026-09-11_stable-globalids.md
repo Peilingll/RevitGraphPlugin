@@ -65,11 +65,18 @@ run and every loop test passed: each modified an element exactly once.
 - `dotnet test` with Neo4j **up**: 99 passed, 0 failed, 0 skipped. Before the change the
   acceptance test failed exactly as quoted above; after it, checkout walks all four steps
   in both directions.
-- Not yet verified in Revit: a live modify of a real wall's Function (IsExternal) twice,
-  then `checkout.ps1` below the second change. Also to observe there: the **one-time
-  migration** — the first modify of any element already in `plugin-live` deletes its
-  random-id pset / rel nodes and rebuilds them with the seeded ids; stored rules are
-  unaffected (their `P21Before` fallback still resolves).
+- **Verified in Revit** (same day, new DLL): live chain `plugin-live` = Baseline → Insert
+  wall 314478 → Modify (`IsExternal` True→False) → Modify (False→True) → Remove. Both
+  `:Change` rows carry the SAME pset anchor before and after
+  (`[primary_node=3kDyvvXEEu19RqjNgRRbRh]|[IfcPropertySingleValue, HasProperties[0]]`) —
+  the seeded id; with the old DLL these were four different random values.
+  `checkout.ps1 3` / `4 -Ifc` / `head` / `1` / `head` all succeeded, including the undo of
+  seq 3 that previously threw `context not found`; `graph2ifc.py` exports at seq 3 and 4
+  validate with 0 issues.
+- Still to observe once: the **one-time migration** of elements already in a graph
+  recorded with the old DLL — their first modify deletes the random-id pset / rel nodes
+  and rebuilds them with seeded ids; stored rules are unaffected (their `P21Before`
+  fallback still resolves). Not exercised here because this chain was recorded fresh.
 
 ## Gotcha caught on the way
 
