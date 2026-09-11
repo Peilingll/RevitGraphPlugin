@@ -44,7 +44,8 @@ public sealed class WindowConverter : IElementConverter
 
         // Anchor to the storey. A wall-hosted window's own LevelId may be unset, so
         // fall back to the host wall's base level.
-        // TODO(verify): window.LevelId vs host wall WALL_BASE_CONSTRAINT.
+        // Verified 2026-09-11 against native exports of a single- and a three-storey model (compare_psets.py --storeys).
+        // A window sill-high in a wall spanning two storeys lands on Level 1, as in the native export.
         var levelId = window.LevelId;
         if (levelId is null || levelId == ElementId.InvalidElementId)
             levelId = host?.get_Parameter(BuiltInParameter.WALL_BASE_CONSTRAINT)?.AsElementId();

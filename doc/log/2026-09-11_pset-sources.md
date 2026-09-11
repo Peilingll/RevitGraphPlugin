@@ -57,3 +57,22 @@ the incremental path), native export redone, `compare_psets.py data/native.ifc`:
 **23 rows, 0 differences** — including the interior door family (Function = Interior →
 both doors False), the partition-wall window (False), the architectural column (no
 LoadBearing on either side), the exterior structural floor (True / True).
+
+## Follow-up the same evening: a three-storey model
+
+`data/samples/rvt/native_cross_level.rvt` / `data/samples/ifc/native_cross_level.ifc`:
+Level 0 / 1 / 2 at 0 / 4000 / 8500, a wall, floor, column, beam and ceiling on every
+level, one wall spanning Level 0–2 with a window at Level 1 height, a sloped beam, the
+roof on Level 2. `compare_psets.py --storeys` (the tool now also compares the storey each
+product is contained in): **0 differences** across 12 storey-bearing element types — the
+window in the two-storey wall lands on Level 1 on both sides, the exact case the door /
+window level TODOs worried about. Every remaining `TODO(verify)` was retired; the
+converters carry none now.
+
+The run also exposed a live-sync gap unrelated to the converters: **levels created while
+Live Sync is ON are ignored** (`category='Levels' supported=False`), so the roof placed on
+the new Level 2 found no storey, was skipped by its converter, and yet the session logged
+`applied=True` and stored three empty Insert rules (seq 126–128, zero copies). Toggling
+Live Sync OFF / ON re-baselined with all three levels and the roof, after which the
+comparison passed. Logged in open-questions; the fix (at least a loud failure, ideally
+Level add / modify / remove as rules) is the next item.

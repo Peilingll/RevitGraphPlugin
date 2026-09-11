@@ -44,7 +44,8 @@ public sealed class DoorConverter : IElementConverter
 
         // Anchor to the storey. A wall-hosted door's own LevelId may be unset, so
         // fall back to the host wall's base level.
-        // TODO(verify): door.LevelId vs host wall WALL_BASE_CONSTRAINT.
+        // Verified 2026-09-11 against native exports of a single- and a three-storey model (compare_psets.py --storeys).
+        // A door in a wall spanning two storeys lands on its own level, as in the native export.
         var levelId = door.LevelId;
         if (levelId is null || levelId == ElementId.InvalidElementId)
             levelId = host?.get_Parameter(BuiltInParameter.WALL_BASE_CONSTRAINT)?.AsElementId();

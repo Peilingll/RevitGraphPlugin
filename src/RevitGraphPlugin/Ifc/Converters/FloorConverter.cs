@@ -33,7 +33,7 @@ public sealed class FloorConverter : IElementConverter
         if (element is not Floor floor) return;
 
         // Anchor to the storey built from the floor's associated level.
-        // TODO(verify): floors expose their level via Floor.LevelId (HostObject).
+        // Verified 2026-09-11 against native exports of a single- and a three-storey model (compare_psets.py --storeys).
         // If a project uses a different level association, fall back to
         // get_Parameter(BuiltInParameter.LEVEL_PARAM)?.AsElementId().
         var levelId = floor.LevelId;
@@ -46,8 +46,9 @@ public sealed class FloorConverter : IElementConverter
         // Placement origin: floors have no LocationCurve (unlike walls), so use the
         // element bounding-box min as the local origin. Body vertices are then emitted
         // relative to it (same scheme as WallConverter, keeping the point list small).
-        // TODO(verify): confirm Z handling against native export — storey placement
-        // already carries the level elevation.
+        // Verified 2026-09-11: world Z matches the native export. Convention differs — the
+        // plugin keeps every storey placement at 0 and puts the elevation here; Revit puts
+        // the elevation in the storey placement (open-questions §3, convention item).
         var bbox = floor.get_BoundingBox(null);
         var origin = bbox?.Min ?? XYZ.Zero;
 

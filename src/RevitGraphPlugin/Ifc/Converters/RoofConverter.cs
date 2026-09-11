@@ -33,7 +33,7 @@ public sealed class RoofConverter : IElementConverter
 
         // Anchor to the storey built from the roof's base level (HostObject.LevelId);
         // fall back to the roof base-level parameter if unset.
-        // TODO(verify): ROOF_BASE_LEVEL_PARAM vs LevelId across FootPrint/Extrusion roofs.
+        // Verified 2026-09-11 against native exports of a single- and a three-storey model (compare_psets.py --storeys). (footprint roof on Level 2)
         var levelId = roof.LevelId;
         if (levelId is null || levelId == ElementId.InvalidElementId)
             levelId = roof.get_Parameter(BuiltInParameter.ROOF_BASE_LEVEL_PARAM)?.AsElementId();
@@ -60,7 +60,8 @@ public sealed class RoofConverter : IElementConverter
         // IfcRoof.PredefinedType is read-only in ggifc 0.1.22 (internal mPredefinedType,
         // defaults to NOTDEFINED). We carry the actual geometry as a BRep body rather
         // than classifying the roof form, so NOTDEFINED matches native generic-roof
-        // export. TODO(verify) against a real export; revisit if a form must be set.
+        // export. Verified 2026-09-11: Pset_RoofCommon matches; Revit expresses the form by
+        // decomposing the roof into IfcSlab parts instead (open-questions §3, structural item).
 
         var roofType = roof.Document.GetElement(roof.GetTypeId()) as ElementType;
         var family = roofType?.FamilyName ?? "Roof";

@@ -33,7 +33,8 @@ public sealed class BeamConverter : IElementConverter
         // Anchor to the storey built from the beam's reference level. Structural
         // framing exposes it via INSTANCE_REFERENCE_LEVEL_PARAM ("Reference Level");
         // fall back to FamilyInstance.LevelId if unset.
-        // TODO(verify): reference-level vs the two end levels for sloped beams.
+        // Verified 2026-09-11 against native exports of a single- and a three-storey model (compare_psets.py --storeys).
+        // Sloped beams: the reference level is what Revit's exporter uses too.
         var levelId = beam.get_Parameter(BuiltInParameter.INSTANCE_REFERENCE_LEVEL_PARAM)?.AsElementId();
         if (levelId is null || levelId == ElementId.InvalidElementId)
             levelId = beam.LevelId;
