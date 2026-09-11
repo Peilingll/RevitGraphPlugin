@@ -6,7 +6,8 @@ using Xunit;
 namespace RevitGraphPlugin.Tests;
 
 /// <summary>
-/// Rule persistence step 3a: GraphletDiff decides whether a Replace was really a
+/// Rule persistence step 3a (+ partial replace, 2026-09-11): GraphletDiff aligns the two
+/// sides of a Replace into interface + pushout, and decides whether it was really a
 /// property-only Modify. Revit-free — both sides are built with ggifc and walked with
 /// EntityWalker, the second build behind a StepId offset so every p21 differs (exactly
 /// what a live re-conversion does). The L side normally comes back from Neo4j with
@@ -115,13 +116,56 @@ public sealed class GraphletDiffTests
     }
 
     [Fact]
-    public void Structural_difference_wins_over_any_property_change()
+    public void Node_added_on_R_is_Partial_with_the_new_node_as_pushout()
     {
-        // R gained a second property — node added ⇒ Replace, even though Name changed too.
+        // R gained a second property AND the wall was renamed: the wall, rel, pset and
+        // IsExternal value align (interface I, Name change recorded as a SET), the new
+        // LoadBearing value is the only pushout. Before 2026-09-11 this was a full
+        // Structural replace of all five nodes.
         var l = BuildWallGraphlet(0, "Wall-A", isExternal: true);
         var r = BuildWallGraphlet(0, "Wall-B", isExternal: true, secondProperty: true);
 
-        Assert.Equal(GraphletDiffKind.Structural, GraphletDiff.Compare(AsCapture(l), r).Kind);
+        var outcome = GraphletDiff.Compare(AsCapture(l), r);
+        Assert.Equal(GraphletDiffKind.Partial, outcome.Kind);
+        Assert.Equal(l.Count, outcome.Match.Count);                 // every L node kept
+        Assert.Empty(outcome.PushoutL);
+        var added = Assert.Single(outcome.PushoutR);
+        Assert.Equal("IfcPropertySingleValue", r.Single(d => d.P21 == added).EntityType);
+        Assert.Equal("LoadBearing", r.Single(d => d.P21 == added).Properties["Name"]);
+        var change = Assert.Single(outcome.Changes);
+        Assert.Equal(("Name", "Wall-A", "Wall-B"), (change.Key, (string)change.Before!, (string)change.After!));
+    }
+
+    [Fact]
+    public void Node_removed_on_R_is_Partial_with_the_old_node_as_pushout()
+    {
+        var l = BuildWallGraphlet(0, "Wall-A", isExternal: true, secondProperty: true);
+        var r = BuildWallGraphlet(3, "Wall-A", isExternal: true);
+
+        var outcome = GraphletDiff.Compare(AsCapture(l), r);
+        Assert.Equal(GraphletDiffKind.Partial, outcome.Kind);
+        Assert.Equal(r.Count, outcome.Match.Count);
+        Assert.Empty(outcome.PushoutR);
+        var removed = Assert.Single(outcome.PushoutL);
+        Assert.Equal("LoadBearing", l.Single(d => d.P21 == removed).Properties["Name"]);
+        Assert.Empty(outcome.Changes);
+    }
+
+    [Fact]
+    public void Match_pairs_the_product_and_walks_to_every_interface_node()
+    {
+        var l = BuildWallGraphlet(0, "Wall-A", isExternal: true);
+        var r = BuildWallGraphlet(5, "Wall-A", isExternal: false);
+
+        var outcome = GraphletDiff.Compare(AsCapture(l), r);
+        Assert.Equal(GraphletDiffKind.PropertyOnly, outcome.Kind);
+        var wallL = l.Single(d => d.GlobalId == WallGid).P21;
+        var wallR = r.Single(d => d.GlobalId == WallGid).P21;
+        Assert.Equal(wallR, outcome.Match[wallL]);
+        // Every pair joins nodes of the same entity type, and the interface is the whole graphlet.
+        Assert.All(outcome.Match, kv => Assert.Equal(
+            l.Single(d => d.P21 == kv.Key).EntityType, r.Single(d => d.P21 == kv.Value).EntityType));
+        Assert.Equal(l.Count, outcome.Match.Count);
     }
 
     [Fact]
@@ -167,16 +211,35 @@ public sealed class GraphletDiffTests
     }
 
     [Fact]
-    public void Empty_or_size_mismatched_sides_are_Structural()
+    public void Empty_side_is_Structural()
     {
         var r = BuildWallGraphlet(0, "Wall-A", isExternal: true);
 
         Assert.Equal(GraphletDiffKind.Structural,
             GraphletDiff.Compare(new GraphletCapture(
                 Array.Empty<EntityData>(), Array.Empty<EdgeData>()), r).Kind);
-
-        var l = BuildWallGraphlet(0, "Wall-A", isExternal: true);
         Assert.Equal(GraphletDiffKind.Structural,
-            GraphletDiff.Compare(AsCapture(l), r.Take(r.Count - 1).ToList()).Kind);
+            GraphletDiff.Compare(AsCapture(r), Array.Empty<EntityData>()).Kind);
+    }
+
+    [Fact]
+    public void Interface_edge_to_a_pushout_node_does_not_break_the_alignment()
+    {
+        // Drop R's last node (a value node the pset points at): the pset stays in the
+        // interface even though one of its outgoing edges now leads to nowhere on R —
+        // that edge is glue of the pushout, not an interface edge.
+        var l = BuildWallGraphlet(0, "Wall-A", isExternal: true, secondProperty: true);
+        var r = BuildWallGraphlet(0, "Wall-A", isExternal: true, secondProperty: true);
+        var dropped = r.Single(d => d.Properties.GetValueOrDefault("Name") as string == "LoadBearing");
+        r = r.Where(d => d != dropped)
+             .Select(d => d with { Edges = d.Edges.Where(e => e.TargetP21 != dropped.P21).ToList() })
+             .ToList();
+
+        var outcome = GraphletDiff.Compare(AsCapture(l), r);
+        Assert.Equal(GraphletDiffKind.Partial, outcome.Kind);
+        Assert.Empty(outcome.PushoutR);
+        Assert.Equal("LoadBearing",
+            l.Single(d => d.P21 == Assert.Single(outcome.PushoutL)).Properties["Name"]);
+        Assert.Equal(r.Count, outcome.Match.Count);
     }
 }
