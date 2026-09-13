@@ -12,7 +12,7 @@ public static class BoilerplateBuilder
 {
     public static IfcModelContext Build(Document doc)
     {
-        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var db = new DatabaseIfc(ReleaseVersion.IFC4A2);
         var factory = db.Factory;
 
         var projInfo = doc.ProjectInformation;
@@ -63,14 +63,20 @@ public static class BoilerplateBuilder
         building.CompositionType = IfcElementCompositionEnum.ELEMENT;
         StableIds.StampAggregates(building);   // site → building rel: stable GlobalId
 
-        // -- Building postal address (hard-coded to the reference model; ggifc writes an
-        //    empty PostalCode as $ where native writes '').
+        // -- Building postal address, as Revit's exporter derives it: the project address
+        //    as the address line, town / region / country parsed from the site's place
+        //    name ("Town, Country" or "Town, Region, Country").
         var address = new IfcPostalAddress(db);
-        address.AddressLines.Add("Enter address here");
-        address.Town = "London";
-        address.Region = "London";
-        address.PostalCode = "";
-        address.Country = "United Kingdom";
+        if (!string.IsNullOrWhiteSpace(projInfo.Address))
+            address.AddressLines.Add(projInfo.Address);
+        var place = (siteLocation?.PlaceName ?? "")
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (place.Length >= 2)
+        {
+            address.Town = place[0];
+            address.Region = place.Length >= 3 ? place[1] : place[0];
+            address.Country = place[^1];
+        }
         building.BuildingAddress = address;
 
         var levels = new FilteredElementCollector(doc)
@@ -79,13 +85,13 @@ public static class BoilerplateBuilder
             .OrderBy(l => l.Elevation)
             .ToList();
 
-        var storeys = new List<IfcBuildingStorey>();
+        var storeys = new List<(IfcBuildingStorey Storey, string LevelTypeName)>();
         var storeyByLevel = new Dictionary<ElementId, IfcBuildingStorey>();
         foreach (var level in levels)
         {
             // Same entity LevelConverter builds for a level added live.
             var storey = Converters.LevelConverter.CreateStorey(level, building, doc);
-            storeys.Add(storey);
+            storeys.Add((storey, doc.GetElement(level.GetTypeId())?.Name ?? "Level"));
             storeyByLevel[level.Id] = storey;
         }
 
@@ -119,15 +125,15 @@ public static class BoilerplateBuilder
         DatabaseIfc db,
         IfcSite site,
         IfcBuilding building,
-        IReadOnlyList<IfcBuildingStorey> storeys)
+        IReadOnlyList<(IfcBuildingStorey Storey, string LevelTypeName)> storeys)
     {
         var unknown = IfcLogicalEnum.UNKNOWN;
 
-        // Deduplicated property values (reused across Psets, as native).
+        // Deduplicated property values (reused across Psets, as native). A storey's
+        // Reference is its level type name; storeys of the same type share one value.
         var refProjInfo = new IfcPropertySingleValue(db, "Reference",
             new IfcIdentifier("Project Information"));
-        var refLevelDatum = new IfcPropertySingleValue(db, "Reference",
-            new IfcIdentifier("Circle Head - Project Datum"));
+        var refByLevelType = new Dictionary<string, IfcPropertySingleValue>(StringComparer.Ordinal);
         var aboveGround = new IfcPropertySingleValue(db, "AboveGround",
             new IfcLogical(unknown));
         var numberOfStoreys = new IfcPropertySingleValue(db, "NumberOfStoreys",
@@ -140,9 +146,12 @@ public static class BoilerplateBuilder
         // IfcPropertySet(name, props[]) populates HasProperties (keyed by property name).
         StableIds.AttachPset(site, "Pset_SiteCommon", refProjInfo);
 
-        foreach (var storey in storeys)
+        foreach (var (storey, levelTypeName) in storeys)
         {
-            StableIds.AttachPset(storey, "Pset_BuildingStoreyCommon", refLevelDatum, aboveGround);
+            if (!refByLevelType.TryGetValue(levelTypeName, out var reference))
+                refByLevelType[levelTypeName] = reference =
+                    new IfcPropertySingleValue(db, "Reference", new IfcIdentifier(levelTypeName));
+            StableIds.AttachPset(storey, "Pset_BuildingStoreyCommon", reference, aboveGround);
         }
 
         // Four template Psets on the Building (as native).
