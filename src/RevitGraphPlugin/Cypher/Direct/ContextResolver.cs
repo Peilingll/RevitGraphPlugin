@@ -92,27 +92,30 @@ public static class ContextResolver
     private static async Task<ContextRef?> ShortestAnchoredPathAsync(
         IAsyncQueryRunner tx, string timestamp, int p21, IReadOnlyList<string> excluded)
     {
-        // Rank anchors by stability first, then depth. Nodes without revit_element_id
-        // (project / site / building / storey, containment rels, contexts) are built once
-        // per session and never re-converted, so a name anchored on them survives later
-        // edits; an element-owned anchor dies when that element is re-converted.
-        // ORDER BY must be a total order (a shared node like IfcOwnerHistory has dozens of
-        // equally short paths) so LIMIT 1 picks the same candidate every time.
-        // MaxPathDepth is inlined: Cypher rejects a parameter as a var-length bound.
+        // The anchor and every node the path passes through must be unowned (no
+        // revit_element_id): project / site / building / storey, containment rels,
+        // contexts are built once per session and never re-converted, so such a name
+        // survives later edits. A path through an element-owned node breaks as soon as
+        // that element is re-converted (its list_index or p21 changes), so no name is
+        // better than a fragile one: the caller then stores the raw p21, which is stable
+        // within one database. ORDER BY must be a total order (a shared node like
+        // IfcOwnerHistory has dozens of equally short paths) so LIMIT 1 picks the same
+        // candidate every time. MaxPathDepth is inlined: Cypher rejects a parameter as a
+        // var-length bound.
         var cypher = $@"
 MATCH path = allShortestPaths(
         (a:GenericNode {{timestamp: $ts}})-[:rel*1..{MaxPathDepth}]->(x:GenericNode {{timestamp: $ts, p21_id: $p21}}))
 WHERE (a:PrimaryNode OR a:ConnectionNode) AND a.GlobalId IS NOT NULL
   AND NONE(n IN nodes(path) WHERE n.p21_id IN $excluded)
+  AND NONE(n IN nodes(path)[0..-1] WHERE n.revit_element_id IS NOT NULL)
 WITH a.GlobalId AS gid,
-     CASE WHEN a.revit_element_id IS NULL THEN 0 ELSE 1 END AS stability_rank,
      CASE WHEN a:PrimaryNode THEN 0 ELSE 1 END AS kind_rank,
      labels(a) AS anchor_labels,
      [r IN relationships(path) | r.rel_type]   AS rel_types,
      [r IN relationships(path) | r.list_index] AS list_indexes,
      [n IN tail(nodes(path)) | n.EntityType]   AS entity_types,
      length(path) AS depth
-ORDER BY stability_rank, depth, kind_rank, gid, rel_types, list_indexes, entity_types
+ORDER BY depth, kind_rank, gid, rel_types, list_indexes, entity_types
 LIMIT 1
 RETURN gid, anchor_labels, rel_types, list_indexes, entity_types";
 
