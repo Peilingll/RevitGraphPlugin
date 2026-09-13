@@ -29,6 +29,9 @@ public sealed class ElementConverterRegistry
     public bool Supports(BuiltInCategory category)
         => _converters.Any(c => c.Category == category);
 
+    /// <summary>Every category a registered converter handles.</summary>
+    public IEnumerable<BuiltInCategory> Categories => _converters.Select(c => c.Category);
+
     /// <summary>
     /// Conversion order of a category — its converter's registration index. The
     /// registration order intentionally puts hosts before hosted elements (walls

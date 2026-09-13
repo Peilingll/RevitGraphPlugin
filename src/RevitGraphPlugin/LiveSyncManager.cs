@@ -59,7 +59,7 @@ public static class LiveSyncManager
         var deleted = e.GetDeletedElementIds();
         var modified = e.GetModifiedElementIds();
         LiveSyncLog.Write(
-            $"DocumentChanged: doc='{doc.Title}' refMatch={ReferenceEquals(doc, _session.Document)} "
+            $"DocumentChanged: doc='{doc.Title}' op={e.Operation} refMatch={ReferenceEquals(doc, _session.Document)} "
             + $"eqMatch={doc.Equals(_session.Document)} "
             + $"added={added.Count} deleted={deleted.Count} modified={modified.Count}");
 
@@ -99,6 +99,18 @@ public static class LiveSyncManager
             foreach (var element in SupportedByPriority(doc, ExpandTypesToInstances(doc, modified)))
                 LiveSyncLog.Write(
                     $"  modify {element.Id.Value} ({element.Category?.Name}): applied={_session.ApplyModified(element)}");
+
+            // Undo / redo / rollback: Revit reports no ids, only that something happened.
+            // Cheap roll call on every event (a tracked element that vanished is removed),
+            // full re-conversion only when the operation was not a plain commit.
+            var gone = _session.ReconcileVanished();
+            if (gone.Count > 0)
+                LiveSyncLog.Write($"  reconcile: {gone.Count} tracked element(s) no longer in the document, removed: {string.Join(",", gone.Select(id => id.Value))}");
+            if (e.Operation != UndoOperation.TransactionCommitted)
+            {
+                var (modified2, inserted) = _session.ReconcileAll();
+                LiveSyncLog.Write($"  reconcile after {e.Operation}: re-converted {modified2}, inserted {inserted}");
+            }
         }
         catch (Exception ex)
         {

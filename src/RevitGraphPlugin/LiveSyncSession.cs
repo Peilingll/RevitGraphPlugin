@@ -160,6 +160,56 @@ public sealed class LiveSyncSession : IDisposable
     /// <summary>True if this id is a level the session mirrors as a storey.</summary>
     public bool IsLevel(ElementId id) => _ctx.StoreyByLevel.ContainsKey(id);
 
+    /// <summary>Every Revit element the session currently mirrors (elements and levels).</summary>
+    public IReadOnlyCollection<ElementId> TrackedIds
+        => _ctx.ConvertedElements.Keys.Concat(_ctx.StoreyByLevel.Keys).Distinct().ToList();
+
+    /// <summary>
+    /// Remove every tracked element that no longer exists in the document. Revit's
+    /// DocumentChanged carries NO element ids for an undo, a redo or a rolled-back
+    /// sketch — only an empty notification — so an undone insert would otherwise stay
+    /// in the mirror and the graph forever (seen 2026-09-11: a cancelled roof sketch).
+    /// Cheap (one GetElement per tracked id), so the manager runs it on every event.
+    /// Returns the ids removed.
+    /// </summary>
+    public IReadOnlyList<ElementId> ReconcileVanished()
+    {
+        var gone = TrackedIds.Where(id => Document.GetElement(id) is null).ToList();
+        foreach (var id in gone.OrderBy(id => IsLevel(id) ? 1 : 0))
+            ApplyRemoved(id);
+        return gone;
+    }
+
+    /// <summary>
+    /// The heavy half of undo / redo handling: re-convert every tracked element that
+    /// still exists (a Modify for whatever the undo changed, nothing stored for the
+    /// rest — the diff reports NoChange) and insert any supported element the document
+    /// holds but the session does not (a redone insert). O(model); only for events
+    /// whose Operation is not a plain commit. Returns (re-converted, inserted).
+    /// </summary>
+    public (int Modified, int Inserted) ReconcileAll()
+    {
+        var tracked = TrackedIds
+            .Select(Document.GetElement)
+            .Where(e => e is not null)
+            .OrderBy(Priority)
+            .ToList();
+        foreach (var element in tracked)
+            ApplyModified(element!);
+
+        var known = TrackedIds.ToHashSet();
+        var missing = new FilteredElementCollector(Document)
+            .WherePasses(new ElementMulticategoryFilter(_registry.Categories.ToList()))
+            .WhereElementIsNotElementType()
+            .Where(e => !known.Contains(e.Id) && Supports(e))
+            .OrderBy(Priority)
+            .ToList();
+        foreach (var element in missing)
+            ApplyAdded(element);
+
+        return (tracked.Count, missing.Count);
+    }
+
     /// <summary>
     /// Level modified (renamed, moved) → update the storey IN PLACE and store the value
     /// changes. A storey is never rebuilt: its containment rel and every element on it
