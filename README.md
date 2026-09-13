@@ -21,8 +21,8 @@ Revit transaction ──► added / modified / deleted element ids
   stay in place; only the difference is applied and stored.
 - **Rule chain**: `:Baseline` and `:Rule` nodes linked in order. Each rule holds copies of
   what it deleted and inserted, the value changes, and portable names for its context.
-- **Checkout**: `checkout.ps1` walks the chain forwards (replay) or backwards (undo), one
-  transaction per step.
+- **Checkout**: `checkout.ps1` (over the `rulechain` CLI) walks the chain forwards
+  (replay) or backwards (undo), one transaction per step.
 
 Schema, rule storage layout, configuration and a per-file reference:
 [`doc/spec/livesync-architecture.md`](doc/spec/livesync-architecture.md).

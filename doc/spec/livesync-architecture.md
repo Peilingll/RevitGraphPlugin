@@ -166,15 +166,16 @@ A rule references nodes it does not own: the storey's containment rel, the host 
 window, `IfcOwnerHistory`, placements. Inside the rule p21 is a local name; the stored rule
 names such nodes portably (`ContextRef`, ConMan2's `create_unique_path_mappings`): the
 GlobalId of an IfcRoot anchor plus the path from it, each step keyed by
-`rel_type / list_index / EntityType`. `ContextResolver` prefers anchors without
-`revit_element_id` (boilerplate, never re-converted) over nearer element-owned ones, so a
-name survives later edits of other elements.
+`rel_type / list_index / EntityType`. `ContextResolver` only accepts anchors and paths
+through nodes without `revit_element_id` (boilerplate, never re-converted), so a name
+survives later edits of other elements; a node reachable only through another element
+gets no name and is stored as a raw p21.
 
 ---
 
 ## 5. Version checkout
 
-`RuleReplayer` (`checkout.ps1`) walks the chain from `checked_out_seq` to the requested
+`RuleReplayer` walks the chain from `checked_out_seq` to the requested
 member, one rule per transaction: forwards applies a rule (delete L pushout by copy p21s,
 merge R copies, glue, SET, renumber), backwards inverts it. Each step commits together with
 the new `checked_out_seq`, so a failure leaves the graph at a real version. Below the newest
@@ -187,7 +188,18 @@ the new `checked_out_seq`, so a failure leaves the graph at a real version. Belo
 .\checkout.ps1 head             # newest version
 ```
 
-Run it with Live Sync OFF; turning Live Sync ON again re-baselines. Exports land in
+`checkout.ps1` wraps the `rulechain` CLI (`tools/RuleChainCli`), which exposes the
+replayer directly:
+
+```
+rulechain list                   [--target TS]
+rulechain checkout <seq|head>    [--target TS] [--onto TS]
+rulechain undo [--count N] [--below SEQ]
+rulechain replay
+rulechain pingpong [--rounds N]  # bounce baseline <-> head N times, report any drift
+```
+
+Run either with Live Sync OFF; turning Live Sync ON again re-baselines. Exports land in
 `data/out/`.
 
 ---
@@ -251,8 +263,9 @@ Known limits:
   is one BRep (native: `IfcRoof` aggregating `IfcSlab` parts). Same world coordinates,
   different IFC structure.
 - A hosted insert carries its full family geometry, copied on every Insert and Remove.
-- The first geometry-bearing element's `IfcGeometricRepresentationSubContext` glue is a
-  raw p21, valid in the same database only.
+- The `IfcGeometricRepresentationSubContext` an element's geometry points at has no
+  GlobalId and no path from an unowned anchor, so its glue is stored as a raw p21: valid
+  in the same database, not on another host.
 - The bridge mode supports CREATE only.
 
 ---
@@ -279,7 +292,8 @@ machine can compile for any version. A Debug build copies the DLL and `.addin` t
 .\package.ps1 -RevitVersion 2026     # dist\RevitGraphPlugin-2026.zip
 ```
 
-The zip holds the built DLLs, `.addin`, `install.ps1`, `INSTALL.md`, `checkout.ps1` and
+The zip holds the built DLLs, `.addin`, `install.ps1`, `INSTALL.md`, `checkout.ps1`, the
+published `rulechain` CLI and
 `graph2ifc.py`. The target machine needs Neo4j; ConMan2 only for `-Ifc`.
 
 ### Environment variables
@@ -322,8 +336,7 @@ MATCH (n {timestamp: 'plugin-live'}) RETURN n.EntityType AS entity, count(*) AS 
 
 Tests: `dotnet test tests\RevitGraphPlugin.Tests`. Pure tests (converters, parsers, diff)
 always run; graph tests need Neo4j at `bolt://127.0.0.1:7687` and are reported as skipped
-without it. `ManualChainTools` drives `RuleReplayer` against a real chain when
-`CHAIN_TOOL` is set (`undo | replay | checkout | pingpong`).
+without it. `rulechain pingpong` (section 5) exercises replay and undo against a real chain.
 
 ---
 
@@ -364,7 +377,8 @@ src/RevitGraphPlugin/
 ├── RevitGraphPlugin.addin
 └── RevitGraphPlugin.csproj
 tests/RevitGraphPlugin.Tests/    xUnit
-tools/python/                    compare_psets.py, graph2ifc.py, ifc_roundtrip_check.py, snippet_to_cypher.py, compare_ifc.py, compare_neo4j.py
+tools/python/                    compare_psets.py, graph2ifc.py, snippet_to_cypher.py
+tools/RuleChainCli/              rulechain CLI (list, checkout, undo, replay, pingpong)
 tools/Neo4jSmokeTest/            connection check
 data/schema/ifc4_attributes.json IFC4 attribute order, embedded at build time
 checkout.ps1, package.ps1, deploy/   version checkout; distribution zip and installer
