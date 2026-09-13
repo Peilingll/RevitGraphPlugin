@@ -12,15 +12,17 @@ public static class ContextResolver
     public const int MaxPathDepth = 4;
 
     /// <summary>
-    /// Name each of <paramref name="targets"/> portably. Must run before the rule mutates
-    /// anything; paths never route through <paramref name="exclude"/> (the rule's own
-    /// graphlet). Unresolvable targets are absent from the result.
+    /// Name each of <paramref name="targets"/> portably for a rule about
+    /// <paramref name="ownerElementId"/>. Must run before the rule mutates anything; paths
+    /// never route through <paramref name="exclude"/> (the rule's own graphlet) nor through
+    /// nodes owned by another element. Unresolvable targets are absent from the result.
     /// </summary>
     public static async Task<IReadOnlyDictionary<int, ContextRef>> ResolveAsync(
         IAsyncQueryRunner tx,
         string timestamp,
         IReadOnlyCollection<int> targets,
-        IReadOnlySet<int> exclude)
+        IReadOnlySet<int> exclude,
+        long ownerElementId)
     {
         var resolved = new Dictionary<int, ContextRef>();
         if (targets.Count == 0) return resolved;
@@ -49,7 +51,7 @@ public static class ContextResolver
         var excluded = exclude.Select(P21Id.Of).ToList();
         foreach (var p21 in needsPath)
         {
-            var contextRef = await ShortestAnchoredPathAsync(tx, timestamp, p21, excluded);
+            var contextRef = await ShortestAnchoredPathAsync(tx, timestamp, p21, excluded, ownerElementId);
             if (contextRef is not null) resolved[p21] = contextRef;
         }
 
@@ -90,24 +92,23 @@ public static class ContextResolver
     }
 
     private static async Task<ContextRef?> ShortestAnchoredPathAsync(
-        IAsyncQueryRunner tx, string timestamp, int p21, IReadOnlyList<string> excluded)
+        IAsyncQueryRunner tx, string timestamp, int p21, IReadOnlyList<string> excluded, long owner)
     {
-        // The anchor and every node the path passes through must be unowned (no
-        // revit_element_id): project / site / building / storey, containment rels,
-        // contexts are built once per session and never re-converted, so such a name
-        // survives later edits. A path through an element-owned node breaks as soon as
-        // that element is re-converted (its list_index or p21 changes), so no name is
-        // better than a fragile one: the caller then stores the raw p21, which is stable
-        // within one database. ORDER BY must be a total order (a shared node like
-        // IfcOwnerHistory has dozens of equally short paths) so LIMIT 1 picks the same
-        // candidate every time. MaxPathDepth is inlined: Cypher rejects a parameter as a
-        // var-length bound.
+        // The anchor and every node the path passes through must be unowned (project /
+        // site / building / storey, containment rels, contexts: built once, never
+        // re-converted) or owned by the rule's own element (its GlobalId is stable and its
+        // internal structure is the converter's). A path through ANOTHER element breaks as
+        // soon as that element is re-converted (its list_index or p21 changes), so no name
+        // is better than a fragile one: the caller then stores the raw p21. ORDER BY must
+        // be a total order (a shared node like IfcOwnerHistory has dozens of equally short
+        // paths) so LIMIT 1 picks the same candidate every time. MaxPathDepth is inlined:
+        // Cypher rejects a parameter as a var-length bound.
         var cypher = $@"
 MATCH path = allShortestPaths(
         (a:GenericNode {{timestamp: $ts}})-[:rel*1..{MaxPathDepth}]->(x:GenericNode {{timestamp: $ts, p21_id: $p21}}))
 WHERE (a:PrimaryNode OR a:ConnectionNode) AND a.GlobalId IS NOT NULL
   AND NONE(n IN nodes(path) WHERE n.p21_id IN $excluded)
-  AND NONE(n IN nodes(path)[0..-1] WHERE n.revit_element_id IS NOT NULL)
+  AND NONE(n IN nodes(path)[0..-1] WHERE n.revit_element_id IS NOT NULL AND n.revit_element_id <> $owner)
 WITH a.GlobalId AS gid,
      CASE WHEN a:PrimaryNode THEN 0 ELSE 1 END AS kind_rank,
      labels(a) AS anchor_labels,
@@ -120,7 +121,7 @@ LIMIT 1
 RETURN gid, anchor_labels, rel_types, list_indexes, entity_types";
 
         var rows = await (await tx.RunAsync(
-            cypher, new { ts = timestamp, p21 = P21Id.Of(p21), excluded = excluded.ToList() })).ToListAsync();
+            cypher, new { ts = timestamp, p21 = P21Id.Of(p21), excluded = excluded.ToList(), owner })).ToListAsync();
         if (rows.Count == 0) return null;
 
         var row = rows[0];

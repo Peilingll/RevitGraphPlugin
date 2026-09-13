@@ -117,7 +117,7 @@ public static class CypherEmitter
             applied = applied with
             {
                 ContextRefs = await ContextResolver.ResolveAsync(
-                    tx, rule.Timestamp, external, exclude),
+                    tx, rule.Timestamp, external, exclude, rule.RevitElementId),
             };
 
             if (rule.Op is RuleOp.Remove or RuleOp.Replace)
@@ -200,7 +200,7 @@ public static class CypherEmitter
         }
         boundary.ExceptWith(pushoutL);
         var contextRefs = await ContextResolver.ResolveAsync(
-            tx, rule.Timestamp, boundary, new HashSet<int>(pushoutL));
+            tx, rule.Timestamp, boundary, new HashSet<int>(pushoutL), rule.RevitElementId);
         var applied = rule with { ContextRefs = contextRefs };
 
         // 2. Delete the L pushout.

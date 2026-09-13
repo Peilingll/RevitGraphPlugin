@@ -167,9 +167,10 @@ window, `IfcOwnerHistory`, placements. Inside the rule p21 is a local name; the 
 names such nodes portably (`ContextRef`, ConMan2's `create_unique_path_mappings`): the
 GlobalId of an IfcRoot anchor plus the path from it, each step keyed by
 `rel_type / list_index / EntityType`. `ContextResolver` only accepts anchors and paths
-through nodes without `revit_element_id` (boilerplate, never re-converted), so a name
-survives later edits of other elements; a node reachable only through another element
-gets no name and is stored as a raw p21.
+through unowned nodes (boilerplate, never re-converted) or nodes of the rule's own
+element, never through another element, so a name survives later edits of other
+elements; a node reachable only through another element gets no name and is stored as
+a raw p21.
 
 ---
 
