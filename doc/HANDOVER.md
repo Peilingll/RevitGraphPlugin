@@ -1,103 +1,61 @@
 # Handover — RevitGraphPlugin
 
-Last updated 2026-09-13. Branch `feat/dev`. Read this first, then the README, then
-`doc/spec/livesync-architecture.md`; the research logs in `doc/log/` record why each
-decision was made.
+Last updated 2026-09-13, branch `feat/dev`. Read this first, then the README, then
+`doc/spec/livesync-architecture.md`.
 
-## 1. What it is
+## 1. Introduction
 
-A Revit add-in that mirrors a Revit document into Neo4j as an IFC property graph in the
-[ConMan2](https://github.com/seb-esser/ConMan2) schema, **live**: every committed Revit
-transaction becomes a graph transformation rule (Esser, Vilgertshofer & Borrmann 2022,
-*Graph-based version control for asynchronous BIM collaboration*, §3.4) that is applied
-to the current-state graph and **stored** in a `:Rule` chain in the same database. The
-chain can be walked in both directions (`checkout.ps1`), and any version can be exported
-as IFC. This is the paper's "option 1" (API callbacks, §3.3) — the alternative to
-ConMan2's file-based diff of two exports.
+The plugin is a Revit add-in that mirrors a Revit document into Neo4j as an IFC property
+graph in the [ConMan2](https://github.com/seb-esser/ConMan2) schema, live. Every committed
+Revit transaction becomes a graph transformation rule (Esser, Vilgertshofer & Borrmann
+2022, §3.4: L / I / R with context and glue). The rule is applied to the current-state
+graph and stored in a `:Rule` chain in the same database. `checkout.ps1` moves the graph
+to any recorded version, and any version can be exported as IFC. This is the paper's
+option 1 (API callbacks, §3.3); ConMan2 implements option 2 (diff of two exports).
 
-## 2. What follows ConMan2 / the paper, and what the plugin adds
+## 2. Vocabulary
 
-| Layer | Vocabulary | Source of truth |
+| Layer | Names | Defined in |
 |---|---|---|
-| Current-state graph | labels `Node` ⊃ `GenericNode` ⊃ `PrimaryNode` / `ConnectionNode` / `SecondaryNode`, `InlineNode`; one edge type `rel {rel_type, list_index}`; node properties = IFC attributes (`$` unset) + `EntityType`, `p21_id`, `timestamp` | ConMan2 `neo4j_core/neo4j_model.py`; paper Fig. 13. Plugin side: `Cypher/Direct/NodeClassifier.cs`, `EntityWalker.cs` |
-| Ownership | `revit_element_id` on every node an element's conversion created | plugin-only (ConMan2 ignores it); `ElementConverterRegistry.ConvertOne` |
-| Rule chain | `:Rule`, `:Baseline`, `:RuleChain`, `:Change`, `:Glue`; edges `NEXT`, `HEAD`, `INSERTS`, `DELETES`, `SETS`, `GLUE` | plugin; `Cypher/Direct/RuleStore.cs`. Maps 1:1 onto ConMan2's `Patch_Topo` / `Patch_Sema` and the paper's L / I / R |
-| Ops | `Insert`, `Remove`, `Modify`, `Replace` | plugin names for Revit's added / deleted / modified; paper: structural vs property modification |
-| Identity | `GlobalId` from Revit's own export GUID (`ExportUtils.GetExportId`); synthetic nodes seeded from their owner (`Ifc/StableIds.cs`); `p21_id` is not an identity | paper §3.3 / §5.2 (matching needs stable identifiers), §3.6 (file ids are local) |
+| Current-state graph | Node labels `Node` ⊃ `GenericNode` ⊃ `PrimaryNode` / `ConnectionNode` / `SecondaryNode`, and `InlineNode`. One edge type `rel {rel_type, list_index}`. Node properties are the IFC attributes (`$` = unset) plus `EntityType`, `p21_id`, `timestamp`. | ConMan2 `neo4j_core/neo4j_model.py`; paper Fig. 13. Plugin side: `Cypher/Direct/NodeClassifier.cs`, `EntityWalker.cs` |
+| Ownership | `revit_element_id` on every node an element's conversion created | Plugin. `ElementConverterRegistry.ConvertOne` |
+| Rule chain | Labels `:Rule`, `:Baseline`, `:RuleChain`, `:Change`, `:Glue`. Edges `NEXT`, `HEAD`, `INSERTS`, `DELETES`, `SETS`, `GLUE`. | Plugin. `Cypher/Direct/RuleStore.cs`. Same content as ConMan2's `Patch_Topo` / `Patch_Sema` and the paper's L / I / R, stored in the graph instead of in files |
+| Operations | `Insert`, `Remove`, `Modify`, `Replace` | Plugin names for Revit's added / deleted / modified. Paper: structural vs property modification |
+| Identity | `GlobalId` from Revit's own export GUID (`ExportUtils.GetExportId`); synthetic nodes get deterministic ids from their owner (`Ifc/StableIds.cs`); `p21_id` is a file-local number, not an identity | Paper §3.3, §5.2, §3.6 |
 
-## 3. How to run
+## 3. Running
 
-- Build / deploy / package: README (Quick start, Building for another Revit version,
-  Packaging). `dotnet build -c Debug` deploys the add-in for Revit 2025 on this machine.
-- Tests: `dotnet test tests\RevitGraphPlugin.Tests`. 110 tests; the Neo4j-backed ones
-  are reported **Skipped** when `bolt://127.0.0.1:7687` is unreachable (a green run with
-  17 skips has not exercised the graph). `ManualChainTools` is an opt-in harness
-  (`CHAIN_TOOL=undo|replay|checkout|pingpong`).
-- Live sync: Neo4j running, `NEO4J_LOCAL_PASSWORD` set (User scope), open a model, click
-  **Live Sync**. Diagnostics: `%LOCALAPPDATA%\Temp\<session GUID>\RevitGraphPlugin\live.log`
+- Build and deploy: README, *Quick start*. `dotnet build -c Debug` deploys the add-in
+  for Revit 2025.
+- Tests: `dotnet test tests\RevitGraphPlugin.Tests`. 110 tests. The Neo4j-backed ones are
+  reported as Skipped when `bolt://127.0.0.1:7687` is not reachable.
+- Live sync: Neo4j running, `NEO4J_LOCAL_PASSWORD` set at User scope, open a model, click
+  **Live Sync**. Log: `%LOCALAPPDATA%\Temp\<session GUID>\RevitGraphPlugin\live.log`
   (newest folder).
-- Versions: `.\checkout.ps1` (list) · `.\checkout.ps1 <seq>` · `.\checkout.ps1 head` ·
-  `-Ifc file.ifc` exports (needs the ConMan2 venv as a sibling clone, see README).
-- Acceptance against Revit: `python tools\python\compare_psets.py <native.ifc> --storeys`
-  compares Pset values and storey containment of every element with a native Revit
-  export of the same model. Fixtures: `data/samples/rvt/native*.rvt` + `data/samples/ifc/native*.ifc`.
+- Versions: `.\checkout.ps1` lists the chain, `.\checkout.ps1 <seq>` moves the graph,
+  `.\checkout.ps1 head` returns to the newest version, `-Ifc file.ifc` exports (needs the
+  ConMan2 venv as a sibling clone, see README).
+- Check against Revit: `python tools\python\compare_psets.py <native.ifc> --storeys`
+  compares property sets and storey containment with a native Revit export of the same
+  model.
 
-## 4. State on handover (all verified in Revit 2025, Neo4j 2026.04)
+## 4. Status
 
-Done and verified:
-- Baseline + incremental sync for Wall, Floor, Column, Beam, Ceiling, Roof, Door, Window
-  and **Level**; hosted openings (void / fill chain).
-- Rule chain: insert / remove / modify / replace stored; **partial replace** — L and R
-  are aligned, the interface I stays in place, only the pushout is copied and applied
-  (`GraphletDiff.cs`). A window placed / moved / deleted: 8 rules, 745 nodes (was 11 / 1677).
-- Checkout: one transaction per step, bookmark on the chain; IFC export at any version
-  validates (ifcopenshell) on every chain built during handover; head ↔ baseline round
-  trips 10× with no drift (`PingPongTests`).
-- Identity: product GlobalIds equal Revit's IfcGUID parameter; pset / rel / containment /
-  aggregation / opening ids are stable across re-conversions (`StableIds`).
-- Pset sources (IsExternal / LoadBearing) and storey containment match Revit's native
-  export on a single- and a three-storey model (0 differences).
-- Revit undo / rollback (events without ids) reconciled; a storey emptied and re-used
-  stays replayable.
+Verified in Revit 2025 with Neo4j 2026.04:
 
-## 5. Known gaps (ranked)
+- Baseline and incremental sync for Level, Wall, Floor, Column, Beam, Ceiling, Roof, Door,
+  Window, including openings (void / fill chain).
+- Rules stored for insert, remove, modify and replace. A replace keeps the unchanged part
+  of the element in place and stores only what changed (`GraphletDiff.cs`).
+- Checkout runs one transaction per step and records its position on the chain. IFC
+  exported at any version validates. Repeated head ↔ baseline round trips show no drift.
+- Product GlobalIds equal Revit's IfcGUID parameter; ids of property sets, relationships,
+  containment, aggregation and openings are stable across re-conversions.
+- Property set values (IsExternal, LoadBearing) and storey containment match Revit's
+  native export on a single-storey and a three-storey model.
+- Revit undo and rollback events are reconciled against the document.
 
-1. **STEP string escapes** `\X2\ … \X0\` (non-ASCII names) are not parsed —
-   `StepLineParser.cs` fails loudly. First real problem with German or Chinese names.
-2. **`ReconcileAll` is O(model)** per undo / rollback (every tracked element re-converted).
-   Fine at demo scale; limit it to elements touched by the last few rules for big models.
-3. **Conventions that differ from Revit's export** (same world geometry, not 1:1 aligned):
-   elevation lives in the element placement (Revit: storey placement); a roof is one BRep
-   (Revit: `IfcRoof` aggregating `IfcSlab` parts).
-4. **Hosted insert geometry**: a window is 225 nodes (208 tessellated faces) copied on
-   every Insert / Remove. Bounding-box representation would cut it to ~30 — a fidelity
-   vs chain-size decision for the professor.
-5. A change of edges between two interface nodes falls back to the whole-graphlet
-   replace (correct, just fat); not seen on any real chain.
-6. A level's Pset `Reference` (level type name) is not updated on a type change.
-7. Cross-host portability: the first geometry-bearing element's
-   `IfcGeometricRepresentationSubContext` glue is a raw `#p21`; fine in one database.
-8. Bridge mode (`snippet_to_cypher.py`) supports CREATE only; it is a reference path.
-
-## 6. Open questions for the professor
-
-1. Should rules be exportable as ConMan2 patch files (`Patch_Topo` / `Patch_Sema`) so
-   `apply_patch` can consume them? The stored shape maps 1:1; the adapter is ~half a day.
-2. Hosted inserts: full family geometry or bounding box (gap 4)?
-3. Align the two conventions in gap 3, or accept them?
-
-## 7. Suggested order for whoever continues
-
-1. Read the README, this file, the spec; run the tests with Neo4j up; build a small model
-   with Live Sync ON and walk it with `checkout.ps1 -Ifc`.
-2. Gap 1 (string escapes) — small, isolated, a real correctness issue.
-3. Gap 2 (reconcile cost) — before any large model.
-4. The professor's answers to §6 decide gaps 3 and 4.
-
-## 8. Research logs (doc/log/)
-
-2026-05 … 08: hybrid architecture, wall converter, STEP-line round trip, live incremental
-sync, rule persistence steps 1–5, portable build. 2026-09-11 … 13: repeated
-reversibility evidence, stable GlobalIds, Revit export GUID, partial replace, pset
-sources, levels in live sync, long-chain findings (revival / undo). Each log states goal,
-what shipped, verification, and what stayed open.
+Known limits: non-ASCII strings in STEP (`\X2\` escapes) are not parsed; the undo
+reconciliation re-converts every tracked element; elevation is stored in the element
+placement rather than the storey placement; a roof is one BRep rather than an aggregate
+of slabs; a window carries its full family geometry on every insert and remove.
