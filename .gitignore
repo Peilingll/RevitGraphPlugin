@@ -1,5 +1,6 @@
-# Working drafts (not for publication)
+# Working drafts and research logs (kept locally)
 doc_process/
+doc/log/
 
 # Visual Studio / .NET build output
 bin/
@@ -23,8 +24,10 @@ __pycache__/
 *.nupkg
 packages/
 
-# checkout.ps1 -Ifc exports
+# checkout.ps1 -Ifc exports; sample fixtures and tool outputs (kept locally)
 data/out/
+data/samples/
+data/test/
 
 # MSBuild logs / test output
 *.binlog

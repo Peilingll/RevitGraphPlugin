@@ -218,7 +218,6 @@ data/schema/ifc4_attributes.json # embedded at build time (IFC4 attribute order)
 data/samples/                    # fixtures: native Revit exports + .rvt models, ConMan2 baseline, DPO chain exports
 doc/HANDOVER.md                  # start here: state, how to run, known gaps, next steps
 doc/spec/livesync-architecture.md # per-file live-sync walkthrough
-doc/log/                         # English research logs, one per stage
 ```
 
 ## Version checkout
