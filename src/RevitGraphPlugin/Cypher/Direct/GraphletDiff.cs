@@ -1,24 +1,9 @@
 // ── Pipeline: DIRECT-WRITE, live incremental sync ──
-// Rule persistence step 3a (doc_process/2026-08-02-plan-rule-persistence.md §6), extended
-// 2026-09-11 (doc_process/2026-09-11-plan-partial-replace.md): align the L side (captured
-// from the graph) with the R side (the fresh re-conversion walk) of the same element and
-// split the graphlet the way Esser 2022 §3.4 splits a rule:
-//   - the INTERFACE I: nodes present on both sides (matched) — kept in place, only their
-//     changed values are SET;
-//   - the PUSHOUT: L nodes with no partner (deleted) and R nodes with no partner (inserted).
-// ConMan2's GraphPatch does the same with its equivalent_to edges — context nodes are
-// referenced by path, only pushout nodes go into the patch.
-//
-// Matching L nodes to R nodes is the part ConMan2's run_diff pays dearly for
-// (equivalent_to inference over the whole model); here it is nearly free because both
-// sides are the SAME element's graphlet: seed on stable GlobalIds (products from the
-// Revit UniqueId, pset / rel nodes seeded by StableIds), then propagate along edges whose
-// (rel_type, list_index) keys are unique — list members pair up by position, exactly the
-// rule ConMan2's create_equivalence_relations_primary applies.
-// Anything the matcher cannot decide safely (a pairing conflict, an edge between two
-// interface nodes that changed, an inline list that changed shape, an unnameable changed
-// node) → Structural, and the caller stores and applies the full Replace: the partial
-// form is a shortcut, never a requirement.
+// Align the L side (from the graph) with the R side (the fresh re-conversion) of one
+// element and split it as Esser 2022 §3.4 splits a rule: the interface I (matched nodes,
+// kept in place, changed values SET) and the pushout (unmatched nodes, deleted / inserted).
+// Matching seeds on stable GlobalIds and propagates along (rel_type, list_index) edges;
+// anything undecidable → Structural, and the caller applies a full Replace.
 namespace RevitGraphPlugin.Cypher;
 
 public enum GraphletDiffKind
@@ -38,38 +23,20 @@ public enum GraphletDiffKind
 }
 
 /// <summary>
-/// One value difference on a matched node, named TWICE — the same node wears different
-/// GlobalIds in different graphs. <paramref name="Node"/> anchors on the L side: it
-/// resolves against a graph holding the pre-modify state (forward replay) or one built
-/// from the stored copies (undo of a replayed graph). <paramref name="NodeAfter"/>
-/// anchors on the R side: a graph rebuilt from the R walk carries the R walk's ggifc
-/// GlobalIds, so undoing against IT needs the after-name. Since StableIds (2026-09-11)
-/// the two names are normally identical; both are kept for chains recorded before that.
-/// <paramref name="Inline"/> distinguishes an inline child's wrappedValue (key = the
-/// inline's rel_type at <paramref name="ListIndex"/>) from a plain node property
-/// (<paramref name="ListIndex"/> null).
+/// One value difference on a matched node. <paramref name="Node"/> names it on the L side,
+/// <paramref name="NodeAfter"/> on the R side (identical with StableIds; both kept for
+/// older chains). <paramref name="Inline"/>: an inline child's wrappedValue (key = rel_type
+/// at <paramref name="ListIndex"/>) rather than a node property.
 /// </summary>
-/// <param name="P21Before">
-/// The changed node's local id on each side — a same-database fallback for when neither
-/// portable name resolves. Inside a graphlet the only Revit-derived identity is the
-/// PRODUCT's GlobalId, and a property node is not reachable from it by outgoing edges
-/// (the IfcRelDefinesByProperties points AT the product, not away from it), so every
-/// forward-only anchor for it sits on a ggifc-random GlobalId that dies on the next
-/// re-conversion. Until paths can step backwards, replay within the same database uses
-/// these: a rule is always applied to the state it was recorded against, where its p21s
-/// are exact. Cross-host portability of property changes stays a known gap.
-/// </param>
+/// <param name="P21Before">Local ids on each side: same-database fallback when neither portable name resolves (a rule is always applied to the state it was recorded against).</param>
 public sealed record PropertyChange(
     ContextRef Node, ContextRef NodeAfter, string Key, int? ListIndex,
     object? Before, object? After, bool Inline, int P21Before = 0, int P21After = 0);
 
 /// <summary>
-/// The diff of one element's graphlet across a re-conversion.
-/// <paramref name="Match"/> is the interface I as (L p21 → R p21) pairs — the nodes the
-/// apply keeps and renumbers; <paramref name="PushoutL"/> / <paramref name="PushoutR"/>
-/// are the p21s (on their own side) of the nodes it deletes / inserts. All three are
-/// empty for <see cref="GraphletDiffKind.Structural"/>, where the whole graphlet is the
-/// pushout by definition.
+/// The diff of one element's graphlet across a re-conversion: <paramref name="Match"/> is
+/// the interface (L p21 → R p21), <paramref name="PushoutL"/> / <paramref name="PushoutR"/>
+/// the nodes to delete / insert. All empty for Structural.
 /// </summary>
 public sealed record GraphletDiffOutcome(
     GraphletDiffKind Kind,
@@ -88,13 +55,7 @@ public sealed record GraphletDiffOutcome(
 
 public static class GraphletDiff
 {
-    /// <summary>
-    /// Node properties that never count as a semantic difference: identity/bookkeeping
-    /// columns (p21 renumbers on every re-conversion; revit_element_id and timestamp are
-    /// plugin columns), EntityType (enforced as a match precondition instead), and
-    /// GlobalId (stable ones are the match seeds; ggifc-random ones are churn — masked
-    /// exactly like compare_neo4j masks them).
-    /// </summary>
+    /// <summary>Properties that never count as a difference: bookkeeping columns, EntityType (a match precondition), GlobalId (the match seed).</summary>
     private static readonly HashSet<string> MaskedKeys = new(StringComparer.Ordinal)
     {
         "p21_id", "timestamp", "revit_element_id", "EntityType", "GlobalId",
@@ -107,8 +68,7 @@ public static class GraphletDiff
         if (left.Count == 0 || right.Count == 0)
             return GraphletDiffOutcome.Structural;   // nothing to align: whole-graphlet replace
 
-        // ── 1. Match: seed on shared GlobalIds, propagate along unambiguous edges.
-        // Nodes left over on either side are the pushout. ──
+        // 1. Match; leftovers on either side are the pushout.
         if (!TryMatch(left, right, out var match))
             return GraphletDiffOutcome.Structural;
 
@@ -116,14 +76,11 @@ public static class GraphletDiff
         var pushoutL = left.Keys.Where(p => !match.ContainsKey(p)).OrderBy(p => p).ToList();
         var pushoutR = right.Keys.Where(p => !matchedR.Contains(p)).OrderBy(p => p).ToList();
 
-        // ── 2. The interface must be wired identically: every edge whose SOURCE is an
-        // interface node and whose target is an interface node or external context must
-        // exist on both sides. Edges touching the pushout are free to differ — they are
-        // the glue the rule stores. ──
+        // 2. Interface edges (to interface or external nodes) must match on both sides.
         if (!InterfaceEdgesEqual(left, right, match))
             return GraphletDiffOutcome.Structural;
 
-        // ── 3. Value diff on matched pairs ──
+        // 3. Value diff on matched pairs.
         var changes = new List<(int LeftP21, PropertyChange Change)>();
         foreach (var (lp21, rp21) in match)
         {
@@ -160,9 +117,7 @@ public static class GraphletDiff
         if (changes.Count == 0)
             return new GraphletDiffOutcome(kind, Array.Empty<PropertyChange>(), match, pushoutL, pushoutR);
 
-        // ── 4. Name every changed node portably, on BOTH sides (within-graphlet
-        // unique paths): the L name for pre-modify graphs, the R name for graphs that
-        // carry the R walk's GlobalIds. ──
+        // 4. Name every changed node portably on both sides.
         var changedL = changes.Select(c => c.LeftP21).Distinct().ToList();
         var namesL = NameNodes(left, changedL);
         var namesR = NameNodes(right, changedL.Select(lp21 => match[lp21]));
@@ -191,15 +146,9 @@ public static class GraphletDiff
     }
 
     /// <summary>
-    /// Pair L nodes with R nodes, as many as can be decided safely. Seeds: GlobalIds
-    /// present on both sides (unique per side). Propagation: from each matched pair,
-    /// follow internal edges forward — (rel_type, list_index) is unique per source node,
-    /// an EXPRESS attribute, so list members pair by position — and backward where
-    /// (rel_type, list_index, source EntityType) is unique per target (this reaches the
-    /// IfcRelDefinesByProperties-style nodes that only POINT AT the product). A slot
-    /// present on one side only, or holding a different entity type on the two sides,
-    /// simply leaves its node(s) unmatched — that is the pushout. Only a genuine conflict
-    /// (one node claimed by two partners) fails the match.
+    /// Pair L with R nodes: seed on GlobalIds present on both sides, propagate forward
+    /// along (rel_type, list_index) and backward where (rel_type, list_index, source
+    /// EntityType) is unique. Unpaired nodes are the pushout; only a conflict fails.
     /// </summary>
     private static bool TryMatch(
         Dictionary<int, EntityData> left,
@@ -225,9 +174,7 @@ public static class GraphletDiff
             return true;
         }
 
-        // Seeds. A GlobalId duplicated within one side cannot seed; a stable GlobalId that
-        // CHANGED shows up as "one side only" and the node must then be reached
-        // structurally or it becomes pushout. No seed at all → nothing to align.
+        // Seeds; no seed at all → nothing to align.
         var lByGid = GlobalIdIndex(left.Values);
         var rByGid = GlobalIdIndex(right.Values);
         foreach (var (gid, lp21) in lByGid)
@@ -243,7 +190,7 @@ public static class GraphletDiff
         {
             var (l, r) = queue.Dequeue();
 
-            // Forward: (rel_type, list_index) → target; slots on one side only are pushout.
+            // Forward: (rel_type, list_index) → target.
             var lFwd = InternalEdgeMap(left[l], left, ref ok);
             var rFwd = InternalEdgeMap(right[r], right, ref ok);
             if (!ok) return false;
@@ -316,13 +263,7 @@ public static class GraphletDiff
         return map;
     }
 
-    /// <summary>
-    /// The edges the apply leaves untouched must agree: for every INTERFACE source node,
-    /// its edges to other interface nodes (translated through the match) and to external
-    /// context (target p21 kept) form a multiset that must be identical on both sides.
-    /// Edges to or from pushout nodes are excluded — they are created / deleted with the
-    /// pushout and stored as glue.
-    /// </summary>
+    /// <summary>For every interface source node, its edges to interface / external nodes must be identical on both sides; edges touching the pushout are glue.</summary>
     private static bool InterfaceEdgesEqual(
         Dictionary<int, EntityData> left, Dictionary<int, EntityData> right, Dictionary<int, int> match)
     {
@@ -349,11 +290,7 @@ public static class GraphletDiff
         return lSig.SequenceEqual(rSig);
     }
 
-    /// <summary>
-    /// Values from two worlds — Neo4j read-back (L: long/double/string/bool) and the
-    /// EntityWalker (R: int/double/string/bool) — so numeric types must be normalized
-    /// before comparing, or every int-vs-long pair would read as a change.
-    /// </summary>
+    /// <summary>Numeric-normalized equality: L comes from Neo4j (long), R from the walker (int).</summary>
     private static bool ValuesEqual(object? a, object? b)
     {
         if (a is null || b is null) return ReferenceEquals(a, b);
@@ -366,12 +303,9 @@ public static class GraphletDiff
         or int or uint or long or ulong or float or double or decimal;
 
     /// <summary>
-    /// Portable within-graphlet names for the given L nodes: anchor on a GlobalId-bearing
-    /// Primary/Connection node, walk outgoing internal edges. Total order over candidates
-    /// (depth → anchor kind → anchor GlobalId → step list) mirrors ContextResolver, so the
-    /// same graphlet always yields the same name. Every IFC entity hangs off some IfcRoot,
-    /// so reachable coverage is the norm; a node no anchor reaches gets no name and the
-    /// caller falls back to Structural.
+    /// Portable within-graphlet names for the given nodes: shortest path from a
+    /// GlobalId-bearing anchor, same total order as ContextResolver. Unreachable nodes get
+    /// no name (caller falls back to Structural).
     /// </summary>
     private static Dictionary<int, ContextRef> NameNodes(
         Dictionary<int, EntityData> left, IEnumerable<int> wanted)
@@ -386,8 +320,7 @@ public static class GraphletDiff
                 ? ContextAnchorKind.Primary : ContextAnchorKind.Connection;
             var kindRank = kind == ContextAnchorKind.Primary ? 0 : 1;
 
-            // BFS from this anchor; per-anchor first visit is the shortest, deterministic
-            // because edges are explored in sorted order.
+            // BFS in sorted edge order: first visit is the shortest path, deterministically.
             var visited = new Dictionary<int, List<ContextStep>> { [anchor.P21] = new() };
             var queue = new Queue<int>();
             queue.Enqueue(anchor.P21);
@@ -411,9 +344,7 @@ public static class GraphletDiff
 
             foreach (var (p21, steps) in visited)
             {
-                // Total order: depth → anchor kind (Primary first) → anchor GlobalId →
-                // step list; the last two collapse into one ordinal Path comparison,
-                // since Path = anchor + steps.
+                // Total order: depth → anchor kind → Path (anchor GlobalId + steps).
                 var candidate = new ContextRef(kind, anchor.GlobalId!, steps);
                 if (!best.TryGetValue(p21, out var incumbent)
                     || steps.Count < incumbent.Depth

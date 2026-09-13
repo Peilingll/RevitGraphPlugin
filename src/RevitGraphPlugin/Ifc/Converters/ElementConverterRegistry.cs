@@ -5,9 +5,9 @@ using GeometryGym.Ifc;
 namespace RevitGraphPlugin.Ifc.Converters;
 
 /// <summary>
-/// Dispatches Revit elements to the matching <see cref="IElementConverter"/>.
-/// Register new converters in <see cref="_converters"/> to extend element-type
-/// coverage (stage 2 of the professor's two-stage methodology).
+/// Dispatches Revit elements to their <see cref="IElementConverter"/> and tags every
+/// entity a conversion creates with its Revit element id. Register new converters in
+/// <see cref="_converters"/>; order matters (hosts before hosted).
 /// </summary>
 public sealed class ElementConverterRegistry
 {
@@ -32,13 +32,7 @@ public sealed class ElementConverterRegistry
     /// <summary>Every category a registered converter handles.</summary>
     public IEnumerable<BuiltInCategory> Categories => _converters.Select(c => c.Category);
 
-    /// <summary>
-    /// Conversion order of a category — its converter's registration index. The
-    /// registration order intentionally puts hosts before hosted elements (walls
-    /// before windows/doors), and the live path must respect the same order when a
-    /// batch of changes arrives (a window's converter wires back to its host wall
-    /// via ConvertedElements). Unsupported categories sort last.
-    /// </summary>
+    /// <summary>Conversion order of a category (registration index; hosts before hosted). Unsupported categories sort last.</summary>
     public int ConversionPriority(BuiltInCategory category)
     {
         for (var i = 0; i < _converters.Count; i++)
@@ -46,11 +40,7 @@ public sealed class ElementConverterRegistry
         return int.MaxValue;
     }
 
-    /// <summary>
-    /// Convert a single element through its category's converter (ownership-tagged,
-    /// same as the full pass) — the live incremental path's entry point. Returns
-    /// false when no converter covers the element's category.
-    /// </summary>
+    /// <summary>Convert one element (the live path's entry point). False if no converter covers its category.</summary>
     public bool TryConvertOne(Element element, IfcModelContext ctx)
     {
         if (element.Category is null) return false;
@@ -78,12 +68,8 @@ public sealed class ElementConverterRegistry
     }
 
     /// <summary>
-    /// Convert one element, recording ownership of every ggifc entity the converter
-    /// creates: StepIds are allocated monotonically, so the ids minted during the call
-    /// are exactly (before, after] between two <see cref="StepIdWatermark"/> reads.
-    /// The tags feed <see cref="IfcModelContext.OwnerByStepId"/> → the graph's
-    /// <c>revit_element_id</c> property, which incremental sync uses to locate an
-    /// element's graphlet (remove/replace without touching shared boilerplate).
+    /// Convert one element and record ownership of every entity it created (the StepIds
+    /// in (before, after] around the call) in <see cref="IfcModelContext.OwnerByStepId"/>.
     /// </summary>
     private static void ConvertOne(IElementConverter converter, Element element, IfcModelContext ctx)
     {
@@ -93,9 +79,7 @@ public sealed class ElementConverterRegistry
 
         for (var stepId = before + 1; stepId <= after; stepId++)
         {
-            // Shared context entities (e.g. the storey's containment rel, which ggifc
-            // creates while converting the FIRST element on that storey) belong to no
-            // single element — removal of their creator must not tear them out.
+            // Shared context (e.g. the storey's containment rel) belongs to no single element.
             if (ctx.Db[stepId] is { } created
                 && Cypher.GraphRule.SharedResourceTypes.Contains(created.GetType().Name))
                 continue;
@@ -103,29 +87,20 @@ public sealed class ElementConverterRegistry
             ctx.OwnerByStepId[stepId] = element.Id.Value;
         }
 
-        // Register the element's principal IFC product so the live path can find it for
-        // modify (Replace vs Insert), remove (ggifc-side detach), and hosted-element
-        // host lookup. Every converter sets product.GlobalId = IfcGuidConverter.ForElement(element),
-        // so match on that — one place, so a new converter cannot forget to register
-        // (the missing registration made every non-wall modify duplicate instead of replace).
+        // Register the principal product (matched by GlobalId) so the live path can find
+        // it for modify / remove and hosted elements can find their host.
         string? guid = null;
         try { guid = IfcGuidConverter.ForElement(element); }
         catch { /* no derivable GUID → leave unregistered */ }
         if (guid is not null && FindProduct(ctx.Db, before, after, guid) is { } product)
         {
             ctx.ConvertedElements[element.Id] = product;
-            // One line per converted element: lets anyone check the graph's GlobalId
-            // against the IfcGUID parameter Revit shows (and against a native export).
+            // One log line per element: graph GlobalId vs Revit's IfcGUID parameter.
             LiveSyncLog.Write($"    guid {element.Id.Value}: uid={element.UniqueId} -> {guid}");
         }
     }
 
-    /// <summary>
-    /// The IfcElement created in the watermark range (<paramref name="before"/>,
-    /// <paramref name="after"/>] whose GlobalId matches <paramref name="globalId"/> —
-    /// i.e. the Revit element's principal IFC product (not its placement, geometry, or
-    /// opening). Null if the converter produced no such element.
-    /// </summary>
+    /// <summary>The IfcElement in (<paramref name="before"/>, <paramref name="after"/>] whose GlobalId is <paramref name="globalId"/> — the principal product. Null if none.</summary>
     public static IfcElement? FindProduct(DatabaseIfc db, int before, int after, string globalId)
     {
         for (var id = before + 1; id <= after; id++)

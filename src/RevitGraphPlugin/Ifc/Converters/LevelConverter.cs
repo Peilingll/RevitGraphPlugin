@@ -4,22 +4,10 @@ using GeometryGym.Ifc;
 namespace RevitGraphPlugin.Ifc.Converters;
 
 /// <summary>
-/// Revit <see cref="Level"/> → <see cref="IfcBuildingStorey"/>. Registered FIRST so a
-/// batch that adds a level and elements on it converts the storey before the elements
-/// look it up in <see cref="IfcModelContext.StoreyByLevel"/>.
-///
-/// Two paths create storeys:
-/// <list type="bullet">
-/// <item>the baseline: <c>BoilerplateBuilder</c> creates every storey up front (with
-///   Revit's deduplicated Pset value layout) and tags storey + pset + rel with the level
-///   id, so this converter is a no-op for levels that already have a storey;</item>
-/// <item>live sync: a level added after the baseline arrives here and gets a storey of
-///   its own, with its own Pset values (nothing to deduplicate against).</item>
-/// </list>
-/// Both produce the same GlobalIds (level UniqueId; pset / rel seeded by StableIds).
-/// Modify and remove of a level are handled by <c>LiveSyncSession</c> directly — a
-/// storey is never rebuilt (its containment rel and every contained element point at
-/// it), its properties are updated in place.
+/// Revit <see cref="Level"/> → <see cref="IfcBuildingStorey"/>. Registered first so a
+/// batch converts the storey before the elements on it. The baseline builds every storey
+/// up front (<c>BoilerplateBuilder</c>), so this only handles levels added live; modify and
+/// remove are handled in place by <c>LiveSyncSession</c> (a storey is never rebuilt).
 /// </summary>
 public sealed class LevelConverter : IElementConverter
 {
@@ -40,12 +28,7 @@ public sealed class LevelConverter : IElementConverter
         ctx.StoreyByLevel[level.Id] = storey;
     }
 
-    /// <summary>
-    /// The storey entity itself, as the boilerplate builds it: aggregated under
-    /// <paramref name="building"/> (ggifc wires the IfcRelAggregates, seeded stable),
-    /// GlobalId from the level, Name / LongName / Elevation / ObjectType as Revit's
-    /// exporter writes them. Psets are the caller's business (layouts differ).
-    /// </summary>
+    /// <summary>The storey entity, aggregated under <paramref name="building"/>, attributes as Revit's exporter writes them. Psets are the caller's business.</summary>
     internal static IfcBuildingStorey CreateStorey(Level level, IfcBuilding building, Document doc)
     {
         var storey = new IfcBuildingStorey(building, level.Name, ElevationMm(level));
@@ -56,10 +39,7 @@ public sealed class LevelConverter : IElementConverter
         return storey;
     }
 
-    /// <summary>
-    /// Copy the level's current values onto an existing storey (a modify never rebuilds
-    /// the storey object — elements and the containment rel point at it).
-    /// </summary>
+    /// <summary>Copy the level's current values onto an existing storey.</summary>
     internal static void UpdateStorey(IfcBuildingStorey storey, Level level, Document doc)
     {
         storey.Name = level.Name;

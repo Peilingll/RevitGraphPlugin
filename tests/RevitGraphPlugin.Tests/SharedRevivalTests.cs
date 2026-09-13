@@ -8,13 +8,9 @@ using Xunit.Abstractions;
 namespace RevitGraphPlugin.Tests;
 
 /// <summary>
-/// A storey's containment rel is dropped when its last element leaves (memberless rels
-/// are invalid IFC) — but the ggifc object survives with zero members, and the next
-/// element placed on that storey re-joins the SAME object. That arrives at the apply as
-/// a shared REFRESH of a node the graph no longer holds. Found 2026-09-11 on a 139-rule
-/// chain: the live apply silently MERGEd the node back, nothing recorded it, and replay
-/// past that point threw <c>context not found</c> on the glue that named it.
-/// The apply must record the revived rel as inserted so the chain can rebuild it.
+/// A containment rel dropped when its storey emptied is re-joined by the next element
+/// (ggifc reuses the object) and arrives as a refresh of a node the graph no longer
+/// holds. The apply must record it as inserted so the chain can rebuild it.
 /// </summary>
 public sealed class SharedRevivalTests : IDisposable
 {
@@ -68,8 +64,7 @@ public sealed class SharedRevivalTests : IDisposable
         var stats = await CypherEmitter.WriteAsync(_driver, db, Ts, owner);
         await RuleStore.RecordBaselineAsync(_driver, Ts, stats);                          // seq 1
 
-        // wall A: first element on the storey → ggifc creates the containment rel, which
-        // rides in this Insert's copy.
+        // wall A: first element on the storey → the containment rel rides in its Insert.
         var w0 = StepIdWatermark.Current(db);
         var wallA = new IfcWall(storey, null, null) { GlobalId = Gid1, Name = "A" };
         StableIds.StampContainment(wallA);
@@ -85,8 +80,7 @@ public sealed class SharedRevivalTests : IDisposable
         Assert.Contains($"#{rel.StepId}", remove.SharedDelete);
         Assert.Equal(0, await Count("IfcRelContainedInSpatialStructure"));
 
-        // wall B: re-joins the SAME rel object (outside the watermark) → refresh of a node
-        // the graph no longer holds → must be revived as an insert.
+        // wall B: re-joins the same rel object → must be revived as an insert.
         var w2 = StepIdWatermark.Current(db);
         var wallB = new IfcWall(storey, null, null) { GlobalId = Gid2, Name = "B" };
         StableIds.StampContainment(wallB);
@@ -113,12 +107,7 @@ public sealed class SharedRevivalTests : IDisposable
         Assert.Equal(1, await Members());
     }
 
-    /// <summary>
-    /// After a storey has been emptied (its rel node dropped), the ggifc rel object still
-    /// exists with zero members and every later rule keeps listing it for deletion. That
-    /// must not cost the later rules their alignment: a rename on another storey is still
-    /// a Modify, not a full Replace.
-    /// </summary>
+    /// <summary>A lingering memberless rel (listed for deletion by every later rule) must not cost later rules their alignment.</summary>
     [SkippableFact]
     public async Task Lingering_memberless_rel_does_not_break_alignment_of_later_rules()
     {

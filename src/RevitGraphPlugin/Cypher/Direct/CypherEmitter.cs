@@ -2,15 +2,12 @@ using GeometryGym.Ifc;
 using Neo4j.Driver;
 
 // ── Pipeline: DIRECT-WRITE (Revit → ggifc tree → Cypher → Neo4j; no temp IFC) ──
-// Opt-in. Default sink is the temp-IFC bridge (Cypher/IfcSnippetSink.cs).
 namespace RevitGraphPlugin.Cypher;
 
 /// <summary>
-/// Walk a ggifc DatabaseIfc, classify entities per ConMan2 schema, and emit
-/// the corresponding Cypher to a Neo4j driver in two phases:
-///   Phase 1: MERGE all nodes (grouped by kind: Primary / Connection / Secondary).
-///   Phase 2: MERGE all edges as `[:rel {rel_type, list_index}]` between nodes.
-/// MERGE is used everywhere so re-running on the same Revit project is idempotent.
+/// The Neo4j sink. <see cref="WriteAsync"/> writes a full snapshot (nodes, then edges,
+/// then inline nodes; ConMan2 schema); <see cref="ApplyRuleAsync"/> applies one
+/// incremental <see cref="GraphRule"/> and stores it in the rule chain, in one transaction.
 /// </summary>
 public static class CypherEmitter
 {
@@ -32,10 +29,8 @@ public static class CypherEmitter
 
         await using var session = driver.AsyncSession();
 
-        // Clear this snapshot first so re-syncing is idempotent: inline nodes are
-        // CREATEd (no key to MERGE on), so they would otherwise accumulate on re-run.
-        // Mirrors the bridge's per-timestamp clear; scoped by timestamp, so other
-        // snapshots are untouched.
+        // Wipe this timestamp first: inline nodes are CREATEd (no merge key) and would
+        // otherwise accumulate on re-run.
         await session.RunAsync("MATCH (n {timestamp: $ts}) DETACH DELETE n", new { ts = timestamp });
 
         await BulkMergeNodes(session, NodeKind.Primary,    primary);
@@ -48,38 +43,19 @@ public static class CypherEmitter
     }
 
     /// <summary>
-    /// Apply one incremental <see cref="GraphRule"/> to the current-state graph in a
-    /// single transaction (all-or-nothing — a half-applied change would desync the
-    /// graph from the Revit document):
-    /// <list type="number">
-    /// <item>Remove/Replace: delete every node owned by the element
-    ///   (<c>revit_element_id</c>, inline nodes included — they carry the tag too).</item>
-    /// <item>Insert/Replace: MERGE the graphlet's nodes, edges and inline nodes
-    ///   (same shapes as the full-snapshot path).</item>
-    /// <item>Refresh shared context: MERGE each <c>SharedRefresh</c> node's properties,
-    ///   then replace its outgoing edge set wholesale with the freshly walked one —
-    ///   membership list_index renumbers to exactly what a fresh snapshot would hold.</item>
-    /// <item>Drop <c>SharedDelete</c> nodes (e.g. a containment rel left memberless —
-    ///   absent from a fresh export of the same model state).</item>
-    /// </list>
-    /// Returns the rule completed with its <see cref="GraphRule.BeforeGraphlet"/> (the L
-    /// side, read inside the same transaction before step 1 destroys it) — the payload
-    /// rule persistence will store.
+    /// Apply one <see cref="GraphRule"/> to the current-state graph and persist it, in one
+    /// transaction: capture L, align L / R (<see cref="GraphletDiff"/>) and apply only the
+    /// pushout when possible, otherwise delete the owned graphlet and merge the new one;
+    /// then refresh / drop shared context and <see cref="RuleStore.PersistAsync"/>.
+    /// Returns the rule completed with its L side and what was stored.
     /// </summary>
     public static async Task<GraphRule> ApplyRuleAsync(IDriver driver, GraphRule rule)
     {
         await using var session = driver.AsyncSession();
         return await session.ExecuteWriteAsync(async tx =>
         {
-            // A shared node the mirror still holds but the graph does not: a containment
-            // rel emptied earlier (dropped by SharedDelete) that an element now re-joins —
-            // ggifc reuses the object, so it is outside the watermark and arrives as a
-            // REFRESH. Refreshing would MERGE the node back silently, unrecorded; replay
-            // would then find nothing to glue to (seen 2026-09-11, seq 119 of a 139-rule
-            // chain). Treat it as inserted instead: it rides in the R graphlet and its copy.
-            // (A rel created INSIDE this rule's watermark — the storey's first element —
-            // is already in the graphlet as a rider; only a rel that is in neither the
-            // graph nor the graphlet is a revival.)
+            // A shared rel the mirror holds but the graph dropped earlier (emptied, now
+            // re-joined) arrives as a refresh; record it as inserted so replay can rebuild it.
             var revived = new List<EntityData>();
             foreach (var shared in rule.SharedRefresh)
                 if (rule.Graphlet.All(d => d.P21 != shared.P21)
@@ -92,13 +68,8 @@ public static class CypherEmitter
                     SharedRefresh = rule.SharedRefresh.Except(revived).ToList(),
                 };
 
-            // The mirror image of the above: a memberless containment rel whose graph
-            // node is ALREADY gone (dropped by an earlier rule) keeps being reported for
-            // deletion by every later rule, because the ggifc object lingers with zero
-            // members. Deleting nothing is harmless, but a non-empty SharedDelete
-            // disqualifies a Replace from the aligned path — so every later property
-            // change stored as a full replace (seen 2026-09-11 after a roof rollback).
-            // Keep only the shared deletes the graph can actually perform.
+            // Drop shared deletes of nodes already gone: the memberless ggifc rel lingers
+            // and would otherwise disqualify every later Replace from the aligned path.
             if (rule.SharedDelete.Count > 0)
             {
                 var stillThere = new List<string>();
@@ -113,9 +84,7 @@ public static class CypherEmitter
 
             if (rule.Op is RuleOp.Remove or RuleOp.Replace)
             {
-                // Capture L first — after DETACH DELETE it is unrecoverable. The
-                // SharedDelete nodes are L too (the rule destroys them), but they are
-                // not element-owned, so they are read by p21 into their own list.
+                // Capture L before anything is deleted; SharedDelete nodes are read by p21.
                 applied = rule with
                 {
                     BeforeGraphlet = (await GraphletReader.ReadOwnedAsync(
@@ -127,11 +96,7 @@ public static class CypherEmitter
                 };
             }
 
-            // Partial replace (doc_process/2026-09-11-plan-partial-replace.md): align L
-            // and R before touching the graph. Aligned → keep the interface in place,
-            // delete / insert only the pushout, SET the changed values, renumber the
-            // interface to the R walk's p21s. Not aligned → the legacy whole-graphlet
-            // path below, unchanged.
+            // Aligned Replace: keep the interface, move only the pushout.
             if (rule.Op == RuleOp.Replace
                 && rule.SharedDelete.Count == 0
                 && applied.BeforeGraphlet is { Nodes.Count: > 0 } capturedL)
@@ -142,13 +107,8 @@ public static class CypherEmitter
                     return await ApplyAlignedAsync(tx, applied, diff);
             }
 
-            // Name the rule's context portably while the graph still holds it: SharedDelete
-            // nodes are gone by the end of this transaction, and paths must not route
-            // through the graphlet this rule is about to delete or has yet to create.
-            // The SharedDelete nodes themselves are also barred from OTHER targets' paths —
-            // a name anchored on a node this rule drops (e.g. OwnerHistory reached via the
-            // emptied containment rel) could never resolve at undo time. They still name
-            // themselves: direct IfcRoot anchoring does not walk a path.
+            // Resolve portable context names while the graph still holds every node; paths
+            // must not route through nodes this rule deletes or has yet to create.
             var (external, own) = applied.PartitionReferences();
             var exclude = new HashSet<int>(own);
             foreach (var p21Id in rule.SharedDelete)
@@ -178,8 +138,7 @@ public static class CypherEmitter
             foreach (var shared in rule.SharedRefresh)
             {
                 await BulkMergeNodes(tx, shared.Kind, new List<EntityData> { shared });
-                // Replace the outgoing edge set: stale member edges (removed members,
-                // superseded list_index values) must go before the fresh set lands.
+                // Replace the outgoing edge set wholesale (list_index renumbers).
                 await tx.RunAsync(
                     "MATCH (a:GenericNode {p21_id: $p21, timestamp: $ts})-[e:rel]->() DELETE e",
                     new { p21 = $"#{shared.P21}", ts = rule.Timestamp });
@@ -193,32 +152,15 @@ public static class CypherEmitter
                     new { p21s = rule.SharedDelete.ToList(), ts = rule.Timestamp });
             }
 
-            // Persist the completed rule into the :Rule chain as part of THIS transaction
-            // (plan step 3): apply and persist commit or fail together — a graph that
-            // changed without a record (or a record without the change) would desync the
-            // chain from the current-state graph.
+            // Persist in the same transaction: apply and record commit or fail together.
             return applied with { Stored = await RuleStore.PersistAsync(tx, applied) };
         });
     }
 
     /// <summary>
-    /// The aligned apply: the interface I stays, only the pushout moves.
-    /// <list type="number">
-    /// <item>Resolve portable names for every node on the pushout boundary (interface
-    ///   nodes the pushout edges touch, true external context, shared-refresh ends) —
-    ///   keyed by the p21 the GRAPH holds now, i.e. the L p21 for interface nodes.</item>
-    /// <item>Delete the L pushout (with inline children).</item>
-    /// <item>Merge the R pushout: its nodes, its internal edges, its edges to interface
-    ///   nodes (target translated R→L p21, the graph has not been renumbered yet), the
-    ///   interface's edges INTO it (source translated), its inline children.</item>
-    /// <item>SET the changed values on interface nodes, addressed by their L p21.</item>
-    /// <item>Renumber the interface to the R p21s — the ggifc mirror now holds the R
-    ///   objects, and every later rule (containment refresh, a hosted insert's void rel,
-    ///   context resolution) will name these nodes by those ids. p21 is a local file
-    ///   number, not an identity (Esser 2022 §3.6); GlobalId and paths are.</item>
-    /// <item>Shared refresh as usual (its edges already carry the R p21s).</item>
-    /// <item>Persist — a NoChange stores nothing but still renumbered (the mirror moved).</item>
-    /// </list>
+    /// Aligned apply: the interface stays, only the pushout moves. Interface nodes are
+    /// addressed by their L p21 until step 5 renumbers them to the R p21s the mirror now
+    /// holds (p21 is a file-local number, not an identity — Esser 2022 §3.6).
     /// </summary>
     private static async Task<GraphRule> ApplyAlignedAsync(
         IAsyncQueryRunner tx, GraphRule rule, GraphletDiffOutcome diff)
@@ -311,11 +253,7 @@ DETACH DELETE i, n",
         return applied with { Stored = await RuleStore.PersistAsync(tx, applied) };
     }
 
-    /// <summary>
-    /// SET the after-values of <paramref name="changes"/> on the live graph, addressing
-    /// each node by its L p21 — exact here, because this runs against the very graph the
-    /// change was diffed from, before any renumbering.
-    /// </summary>
+    /// <summary>SET the after-values of <paramref name="changes"/>, addressing nodes by their L p21 (runs before renumbering).</summary>
     internal static async Task ApplyPropertyChangesAsync(
         IAsyncQueryRunner tx, string timestamp, IReadOnlyList<PropertyChange> changes)
     {
@@ -359,14 +297,9 @@ SET n.p21_id = pair.to",
     }
 
     /// <summary>
-    /// Walk every STEP entity of <paramref name="db"/> into its <see cref="EntityData"/>.
-    /// Inline value wrappers (StepId == 0) have no node of their own — they are captured
-    /// as InlineData on their parent entity instead. When <paramref name="ownerByStepId"/>
-    /// is given (see <c>IfcModelContext.OwnerByStepId</c>), element-owned entities get a
-    /// <c>revit_element_id</c> node property — the plugin-only ownership column that
-    /// incremental sync keys graphlet removal/replacement on. Shared boilerplate entities
-    /// are absent from the map and carry no such property. ConMan2's <c>graph_2_ifc</c>
-    /// ignores it (not an IFC attribute), and compare_neo4j masks it.
+    /// Walk every STEP entity of <paramref name="db"/> into <see cref="EntityData"/>,
+    /// stamping <c>revit_element_id</c> on element-owned entities when
+    /// <paramref name="ownerByStepId"/> is given.
     /// </summary>
     public static List<EntityData> WalkAll(
         DatabaseIfc db, string timestamp, IReadOnlyDictionary<int, long>? ownerByStepId = null)
@@ -381,12 +314,7 @@ SET n.p21_id = pair.to",
         return allData;
     }
 
-    /// <summary>
-    /// Walk one entity and, when the ownership map claims it, stamp the
-    /// <c>revit_element_id</c> onto its node properties AND its inline values —
-    /// inline nodes belong to their parent's graphlet, so graphlet removal by
-    /// <c>revit_element_id</c> must reach them too or they leak as orphans.
-    /// </summary>
+    /// <summary>Walk one entity; owned entities get <c>revit_element_id</c> on the node and its inline values (so graphlet deletion reaches them).</summary>
     public static EntityData WalkOwned(
         BaseClassIfc entity, string timestamp, IReadOnlyDictionary<int, long>? ownerByStepId)
     {
@@ -407,8 +335,7 @@ SET n.p21_id = pair.to",
         var labels = NodeClassifier.LabelExpression(kind);
         var batch  = data.Select(d => (object)d.Properties).ToList();
 
-        // Use p21_id + timestamp as the merge key (unique within a snapshot).
-        // SET n += props upserts all attributes (incl. GlobalId for Primary/Connection).
+        // Merge key: p21_id + timestamp (unique within a snapshot).
         var cypher = $@"
 UNWIND $batch AS props
 MERGE (n:{labels} {{p21_id: props.p21_id, timestamp: props.timestamp}})
@@ -439,10 +366,8 @@ MERGE (a)-[:rel {rel_type: e.rel_type, list_index: e.list_index}]->(b)";
         await session.RunAsync(cypher, new { batch });
     }
 
-    // Inline values (e.g. a property's NominalValue) become InlineNode:Node entities
-    // CREATEd and linked to their parent — exactly ConMan2's inline_patterns query
-    // (IfcGraphInterface.ifc_2_graph). CREATE (not MERGE): inline nodes have no key;
-    // the per-timestamp clear in WriteAsync keeps re-runs idempotent.
+    // Inline values become InlineNode:Node entities linked to their parent (ConMan2's
+    // inline_patterns). CREATE, not MERGE: inline nodes have no key.
     internal static async Task BulkCreateInlines(IAsyncQueryRunner session, List<InlineData> inlines, string timestamp)
     {
         if (inlines.Count == 0) return;
@@ -458,8 +383,7 @@ MERGE (a)-[:rel {rel_type: e.rel_type, list_index: e.list_index}]->(b)";
                 ["wrapped_value"] = i.WrappedValue,
                 ["timestamp"]     = timestamp,
             };
-            // Owned inline nodes carry their parent's revit_element_id (a missing map
-            // key reads as null in Cypher, so unowned rows simply set no property).
+            // Owned inline nodes carry their parent's revit_element_id.
             if (i.OwnerElementId is long owner)
                 row["revit_element_id"] = owner;
             return (object)row;

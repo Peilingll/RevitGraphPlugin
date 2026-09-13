@@ -1,22 +1,22 @@
 using Neo4j.Driver;
 
 // ── Pipeline: DIRECT-WRITE, live incremental sync ──
-// Rule persistence step 3b (doc_process/2026-08-02-plan-rule-persistence.md §6):
-// write the completed rule into the :Rule chain — the professor's "stores them to
-// Neo4j", the option-2 deliverable proper. Runs INSIDE the same transaction as
-// ApplyRuleAsync's mutation of the current-state graph: apply and persist commit or
-// fail together, or the chain and the graph would disagree about history.
+// Write the completed rule into the :Rule chain, inside ApplyRuleAsync's transaction.
 //
-// Storage layout (schema frozen in the plan; refinements documented there):
-//   (:Rule:Node {timestamp:"<target>-rule-<seq>", seq, op, revit_element_id,
-//                target_ts, deletes, inserts, changes, applied_at})
+// Storage layout:
+//   (:RuleChain:Node {target_ts, next_seq, checked_out_seq})-[:HEAD]->(newest member)
+//   (:Baseline:Node {timestamp:"<target>-baseline-<seq>", seq, target_ts, applied_at, …})
+//   (:Rule:Node {timestamp:"<target>-rule-<seq>", seq, op, revit_element_id, target_ts,
+//                deletes, inserts, changes, shared_delete, applied_at,
+//                aligned, renumber_from, renumber_to})
+//   chain members are linked in application order by -[:NEXT]->
 //      -[:DELETES]-> L-side copies   in namespace "<target>-rule-<seq>-L"
 //      -[:INSERTS]-> R-side copies   in namespace "<target>-rule-<seq>-R"
-//      -[:SETS]->    (:Change {path, key, list_index, before, after, inline})
+//      -[:SETS]->    (:Change {path, path_after, p21_before, p21_after, key, list_index,
+//                              before, after, inline})
 //      -[:GLUE]->    (:Glue {context, rel_type, list_index, local_p21, side, direction})
-// The current-state graph is never touched: every stored node lives under a rule
-// timestamp, never under the target timestamp, so a re-baseline's per-timestamp wipe
-// cannot reach the chain, and MATCH-by-target-timestamp queries see no pollution.
+// Every stored node lives under a rule timestamp, never the target timestamp: the
+// current-state graph stays pure ConMan2 schema and a re-baseline wipe cannot reach the chain.
 namespace RevitGraphPlugin.Cypher;
 
 public static class RuleStore
@@ -25,13 +25,9 @@ public static class RuleStore
     public sealed record StoredRule(long Seq, string Op, string RuleTimestamp);
 
     /// <summary>
-    /// Persist one completed rule (L captured, context refs resolved) into the chain.
-    /// A Replace is first classified by <see cref="GraphletDiff"/>:
-    /// property-only → stored as a small <c>Modify</c> (op + Change rows, no copies);
-    /// semantically unchanged → <b>not stored at all</b> (Revit fires modify events for
-    /// changes our converters do not read — a rule that provably did nothing is noise);
-    /// anything else → the full Replace with both graphlet copies. Returns what was
-    /// stored, or null for the not-stored case.
+    /// Persist one completed rule. A Replace stores what its diff says: NoChange → nothing
+    /// (returns null), PropertyOnly → Modify (Change rows), Partial → pushout copies +
+    /// changes + renumbering, Structural → both whole graphlets.
     /// </summary>
     public static async Task<StoredRule?> PersistAsync(IAsyncQueryRunner tx, GraphRule rule)
     {
@@ -54,10 +50,7 @@ public static class RuleStore
                 break;
 
             default:
-                // The apply already aligned L and R (GraphRule.Diff). Aligned rules store
-                // only what moved: the pushout copies, the value changes, and the
-                // interface renumbering. A rule without a diff (could not align, or drops
-                // shared nodes) is the legacy full Replace with both graphlets copied.
+                // Aligned rules store only what moved; a rule without a diff is a full Replace.
                 var diff = rule.Diff ?? GraphletDiffOutcome.Structural;
                 switch (diff.Kind)
                 {
@@ -86,8 +79,7 @@ public static class RuleStore
                 break;
         }
 
-        // Portable names of the shared nodes this rule drops — replay needs to drop
-        // them in its own graph, and they cannot be found by element id (unowned).
+        // Portable names of the shared nodes this rule drops (unowned, so not findable by element id).
         var sharedDelete = rule.SharedDelete
             .Select(p21Id => P21Id.TryParse(p21Id, out var p21)
                              && rule.ContextRefs.TryGetValue(p21, out var r) ? r.Path : p21Id)
@@ -96,16 +88,11 @@ public static class RuleStore
         var seq = await NextSeqAsync(tx, rule.Timestamp);
         var ruleTs = $"{rule.Timestamp}-rule-{seq}";
 
-        // Graphlet copies, one sub-namespace per DPO side. Reuses the verified snapshot
-        // writers with only the timestamp swapped; edges to context nodes fall out
-        // naturally (BulkMergeEdges matches both ends inside the namespace) and are
-        // stored portably as :Glue rows instead.
+        // Graphlet copies, one namespace per DPO side; edges to context are stored as :Glue rows.
         await WriteCopies(tx, deletes, ruleTs + "-L");
         await WriteCopies(tx, inserts, ruleTs + "-R");
 
-        // Interface renumbering (aligned rules only): the graph's ids for the kept nodes
-        // before → after. Two parallel arrays (Neo4j properties cannot nest); replay
-        // applies from→to, undo to→from. Absent on legacy rules and on Insert / Remove.
+        // Interface renumbering (aligned rules): two parallel arrays, Neo4j properties cannot nest.
         var renumberFrom = aligned?.Match.Select(kv => P21Id.Of(kv.Key)).ToList() ?? new List<string>();
         var renumberTo   = aligned?.Match.Select(kv => P21Id.Of(kv.Value)).ToList() ?? new List<string>();
 
@@ -176,14 +163,7 @@ CREATE (r)-[:GLUE]->(x)",
     /// <summary>What a re-baseline anchored into the chain.</summary>
     public sealed record BaselineAnchor(long Seq, string Timestamp);
 
-    /// <summary>
-    /// Record a re-baseline as a <c>(:Baseline)</c> chain member (plan step 4): the
-    /// current-state graph was wiped and rewritten here, so rules BEFORE this anchor
-    /// cannot seamlessly replay past it — replay starts from the newest anchor. History
-    /// accumulates: the wipe is per-timestamp and never reaches the chain, and the chain
-    /// deliberately survives it. Runs in its own transaction — the baseline snapshot
-    /// itself (<see cref="CypherEmitter.WriteAsync"/>) is already committed when this runs.
-    /// </summary>
+    /// <summary>Record a re-baseline as a <c>(:Baseline)</c> chain member: the graph was rebuilt here, so replay starts from the newest anchor.</summary>
     public static async Task<BaselineAnchor> RecordBaselineAsync(
         IDriver driver, string targetTs, CypherEmitter.EmitStats stats)
     {
@@ -205,11 +185,7 @@ CREATE (b:Baseline:Node {timestamp: $ts, seq: $seq, target_ts: $target, applied_
         });
     }
 
-    /// <summary>
-    /// Allocate the next chain sequence number from the per-target <c>(:RuleChain)</c>
-    /// node's counter — one property read instead of a <c>max(seq)</c> scan over the
-    /// whole chain. Single Revit API thread ⇒ no allocation races.
-    /// </summary>
+    /// <summary>Next chain sequence number from the <c>(:RuleChain)</c> counter.</summary>
     private static async Task<long> NextSeqAsync(IAsyncQueryRunner tx, string target)
     {
         return (await (await tx.RunAsync(@"
@@ -220,13 +196,7 @@ RETURN c.next_seq - 1 AS seq",
             new { target })).ToListAsync()).Single()["seq"].As<long>();
     }
 
-    /// <summary>
-    /// Append a member (:Rule or :Baseline) to its target's chain: move <c>[:HEAD]</c>
-    /// to it and link the previous head via <c>[:NEXT]</c>. The chain is one linked
-    /// list of rules and baseline anchors in application order — replay walks
-    /// <c>[:NEXT]</c> from the newest <c>(:Baseline)</c>, and "latest rule" is one hop
-    /// from the chain node instead of an ORDER BY over every rule.
-    /// </summary>
+    /// <summary>Append a member (:Rule or :Baseline) to the chain: move <c>[:HEAD]</c>, link the previous head via <c>[:NEXT]</c>, set <c>checked_out_seq</c>.</summary>
     private static async Task AppendToChainAsync(
         IAsyncQueryRunner tx, string target, string label, string memberTs)
     {
@@ -241,10 +211,6 @@ WITH m, prev
 WHERE prev IS NOT NULL
 CREATE (prev)-[:NEXT]->(m)",
             new { target, memberTs });
-        // checked_out_seq tracks where the graph stands: a newly applied rule leaves it
-        // at the new HEAD. RuleReplayer.CheckoutAsync reads it to decide which way — and
-        // how far — to walk, so no rule is ever applied to a state it was not recorded
-        // against (its context anchors would not exist there).
     }
 
     /// <summary>The full DPO L side: the element-owned capture plus the shared nodes the rule drops.</summary>
@@ -276,7 +242,7 @@ CREATE (prev)-[:NEXT]->(m)",
 
     private static async Task Link(IAsyncQueryRunner tx, string ruleTs, string copyTs, string relType)
     {
-        // Inline copies are not linked directly — they hang off their parent node copy.
+        // Inline copies hang off their parent node copy.
         await tx.RunAsync($@"
 MATCH (r:Rule {{timestamp: $ruleTs}})
 MATCH (n:GenericNode {{timestamp: $copyTs}})
@@ -284,19 +250,7 @@ MERGE (r)-[:{relType}]->(n)",
             new { ruleTs, copyTs });
     }
 
-    /// <summary>
-    /// The rule's boundary edges as portable rows: every edge with exactly one end
-    /// inside a stored copy. <c>context</c> is the external end's <see cref="ContextRef"/>
-    /// (falling back to the raw p21 literal if it was unresolvable — step 2's acceptance
-    /// tests assert that never happens); <c>local_p21</c> is the inside end within the
-    /// <c>side</c> copy namespace. A Modify stores none — structure did not change.
-    /// </summary>
-    /// <summary>
-    /// Glue of an aligned rule: every edge crossing the PUSHOUT boundary, on each side.
-    /// Context is whatever is not pushout — interface nodes included — named by the
-    /// portable refs the apply resolved against the graph's pre-renumber (L) p21s; an R
-    /// side edge end that is an interface node is therefore translated R→L before lookup.
-    /// </summary>
+    /// <summary>Glue of an aligned rule: every edge crossing the pushout boundary. Context (including interface nodes) is named by L p21, so R-side interface ends are translated first.</summary>
     private static List<object> CollectAlignedGlue(
         GraphRule rule, GraphletDiffOutcome diff,
         IReadOnlyList<EntityData> deletes, IReadOnlyList<EntityData> inserts)
@@ -321,9 +275,7 @@ MERGE (r)-[:{relType}]->(n)",
                 ["direction"] = direction,
             });
 
-        // L side: pushout → outside (out); outside → pushout (in), where "outside" is an
-        // interface node (an internal L edge whose source is kept) or true context
-        // (captured IncomingGlue).
+        // L side: pushout → outside (out); outside → pushout (in).
         foreach (var d in deletes)
             foreach (var e in d.Edges)
                 if (!pushoutL.Contains(e.TargetP21))
@@ -340,7 +292,7 @@ MERGE (r)-[:{relType}]->(n)",
                     Row(e.SourceP21, e.RelType, e.ListIndex, e.TargetP21, "L", "in");
         }
 
-        // R side: same, with interface ends translated to the graph's p21.
+        // R side: same, interface ends translated to the graph's p21.
         foreach (var d in inserts)
             foreach (var e in d.Edges)
                 if (!pushoutR.Contains(e.TargetP21))
@@ -358,6 +310,7 @@ MERGE (r)-[:{relType}]->(n)",
         return rows;
     }
 
+    /// <summary>Glue of an unaligned rule: every edge with exactly one end inside a stored copy; <c>context</c> is the external end's <see cref="ContextRef"/>, <c>local_p21</c> the inside end.</summary>
     private static List<object> CollectGlue(
         GraphRule rule, IReadOnlyList<EntityData> deletes, IReadOnlyList<EntityData> inserts)
     {
@@ -389,16 +342,13 @@ MERGE (r)-[:{relType}]->(n)",
         OutgoingOf(deletes, "L");
         OutgoingOf(inserts, "R");
 
-        // Incoming, L: captured with the graphlet (step 1's IncomingGlue).
+        // Incoming, L: captured with the graphlet (GraphletCapture.IncomingGlue).
         if (deletes.Count > 0 && rule.BeforeGraphlet is not null)
             foreach (var e in rule.BeforeGraphlet.IncomingGlue)
                 Row(e.SourceP21, e.RelType, e.ListIndex, e.TargetP21, "L", "in");
 
-        // Incoming, R: the shared-context refresh edges that point INTO the new graphlet
-        // (e.g. the containment rel's RelatedElements membership of this element). A
-        // source that is itself part of the graphlet is NOT glue — the first element on
-        // a storey carries the freshly created containment rel inside its own graphlet,
-        // so that edge is internal and already stored with the copies.
+        // Incoming, R: shared-refresh edges into the new graphlet (a rel inside the
+        // graphlet itself is not glue — it is stored with the copies).
         if (inserts.Count > 0)
         {
             var own = inserts.Select(d => d.P21).ToHashSet();

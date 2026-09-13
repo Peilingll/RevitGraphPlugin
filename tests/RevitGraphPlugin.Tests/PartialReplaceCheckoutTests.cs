@@ -8,13 +8,9 @@ using Xunit.Abstractions;
 namespace RevitGraphPlugin.Tests;
 
 /// <summary>
-/// Acceptance test for the partial replace (doc_process/2026-09-11-plan-partial-replace.md):
-/// a structural change that keeps most of the graphlet must store only the pushout, keep
-/// the interface nodes in place (renumbered to the mirror's p21s), and stay fully
-/// reversible. The chain: insert a wall with one pset property → re-convert with a second
-/// property (Partial: one node inserted) → re-convert without it (Partial: one node
-/// deleted) → checkout 1 / head / 2 / head, comparing node + edge + value signatures
-/// against the states the live apply produced.
+/// Partial replace: a structural change stores only the pushout, keeps the interface in
+/// place (renumbered), and stays reversible. Chain: insert a wall → add a pset property →
+/// remove it → checkout 1 / head / 2 / head against the live states.
 /// </summary>
 public sealed class PartialReplaceCheckoutTests : IDisposable
 {

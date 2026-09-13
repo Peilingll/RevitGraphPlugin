@@ -1,29 +1,16 @@
 using Neo4j.Driver;
 
 // ── Pipeline: DIRECT-WRITE, live incremental sync ──
-// Rule persistence step 5 (doc_process/2026-08-02-plan-rule-persistence.md §7):
-// consume the :Rule chain. Replay walks [:NEXT] from the newest (:Baseline) and applies
-// each stored rule to a target graph; undo walks backwards from HEAD inverting each.
-// Together they are the closed-loop acceptance of everything below them: replay(chain)
-// over a baseline copy must reproduce the current-state graph, and undo(chain) must
-// take the current-state graph back to its baseline. Both resolve context through the
-// stored ContextRef strings (ContextResolver.FindAsync) — the same machinery a foreign
-// host graph would use — falling back to the raw p21 literal only where storage did
-// (the known first-geometry-element limitation).
+// Consume the :Rule chain: replay applies stored rules forward from the newest
+// (:Baseline), undo inverts them backwards from HEAD. Context is resolved through the
+// stored ContextRef strings, falling back to a raw p21 only where storage did.
 namespace RevitGraphPlugin.Cypher;
 
 public static class RuleReplayer
 {
     private sealed record Member(long Seq, bool IsBaseline, string Op, long ElementId, string Ts, bool Aligned);
 
-    /// <summary>
-    /// Re-apply every rule after the newest <c>(:Baseline)</c> anchor of
-    /// <paramref name="chainTarget"/>'s chain onto the <paramref name="ontoTs"/> graph
-    /// (which is expected to hold that baseline's content). Returns the rules replayed.
-    /// <para>
-    /// One transaction PER RULE (see <see cref="CheckoutAsync"/> for why).
-    /// </para>
-    /// </summary>
+    /// <summary>Re-apply every rule after the newest <c>(:Baseline)</c> onto <paramref name="ontoTs"/> (expected to hold that baseline). One transaction per rule. Returns the count.</summary>
     public static async Task<int> ReplayAsync(IDriver driver, string chainTarget, string ontoTs)
     {
         await using var session = driver.AsyncSession();
@@ -36,13 +23,8 @@ public static class RuleReplayer
     }
 
     /// <summary>
-    /// Invert the newest <paramref name="count"/> rules of the chain, newest first,
-    /// against the <paramref name="ontoTs"/> graph. Stops at a <c>(:Baseline)</c> anchor —
-    /// the graph was rebuilt there, so earlier rules cannot be unwound across it.
-    /// The walk is stateless: the chain records history and undoing does not pop it, so
-    /// a caller continuing a partial undo must say where it stopped via
-    /// <paramref name="belowSeq"/> (only rules with a smaller seq are considered).
-    /// One transaction per rule.
+    /// Invert the newest <paramref name="count"/> rules below <paramref name="belowSeq"/>,
+    /// stopping at a <c>(:Baseline)</c>. Undoing does not pop the chain. One transaction per rule.
     /// </summary>
     public static async Task<int> UndoAsync(
         IDriver driver, string chainTarget, string ontoTs,
@@ -61,28 +43,11 @@ public static class RuleReplayer
     }
 
     /// <summary>
-    /// Move <paramref name="ontoTs"/> to the state right after chain member
-    /// <paramref name="targetSeq"/>, going whichever way is needed from where it
-    /// currently stands (tracked on the chain node as <c>checked_out_seq</c>; a chain
-    /// that has never been checked out sits at HEAD, where a live session leaves it).
-    /// <para>
-    /// Direction matters: a rule may only be applied to — or inverted from — the state
-    /// it was recorded against. Its stored context refs are anchored on GlobalIds that
-    /// ggifc regenerates whenever an element is re-converted, so replaying an old rule
-    /// onto a much later state can find no anchor at all. Walking one step at a time in
-    /// the right direction keeps every rule on the state it knows.
-    /// </para>
-    /// <para>
-    /// <b>One transaction per step</b>, each committing the step together with the new
-    /// <c>checked_out_seq</c>. Within a single step every delete precedes every
-    /// <c>SET p21_id</c> (the interface renumbering of an aligned rule), which keeps
-    /// Neo4j's transaction-state index consistent. Several steps in one transaction
-    /// violate that order — a node renumbered by step k and deleted by step k+1 is still
-    /// returned by an index seek in step k+2 ("Node with id N has been deleted in this
-    /// transaction", seen 2026-09-11 on undo 5→2 of a window chain). Per-step commits
-    /// are also what a user sees: a failure leaves the graph at a real version, and the
-    /// bookmark says which.
-    /// </para>
+    /// Move <paramref name="ontoTs"/> to the state after chain member <paramref name="targetSeq"/>,
+    /// walking from <c>checked_out_seq</c> one rule at a time so every rule is applied to
+    /// the state it was recorded against. One transaction per step: a failure leaves the
+    /// graph at a real version, and several steps in one transaction break Neo4j's index
+    /// after a renumber-then-delete ("Node with id N has been deleted in this transaction").
     /// </summary>
     public static async Task<(long From, long To, int Steps)> CheckoutAsync(
         IDriver driver, string chainTarget, string ontoTs, long targetSeq)
@@ -187,9 +152,7 @@ ORDER BY m.seq", new { target })).ToListAsync();
                 await ApplyGlueAsync(tx, rule.Ts, "R", ontoTs);
                 break;
 
-            // Aligned Replace (partial): the copies are the pushout only, the interface
-            // stayed — drop the L pushout by its copy p21s, merge the R pushout, glue it,
-            // SET the values, then renumber the interface forward.
+            // Aligned Replace: copies are the pushout only; the interface is renumbered.
             case "Replace" when rule.Aligned:
                 await DeleteByCopyP21sAsync(tx, rule.Ts + "-L", ontoTs);
                 await MergeCopiesAsync(tx, rule.Ts + "-R", ontoTs);
@@ -225,15 +188,9 @@ ORDER BY m.seq", new { target })).ToListAsync();
     {
         switch (rule.Op)
         {
-            // Undoing an insertion deletes BOTH by the copies' p21s and by element id:
-            // an untagged rider — a first-element containment rel — has no element id
-            // and is caught by its (stable, never-reused) p21, while nodes a legacy
-            // (pre-partial) Modify rebuilt under new p21s are caught by the id. p21
-            // FIRST: an earlier undo in the same transaction may just have renumbered
-            // these nodes (SET p21_id), and Neo4j's index lookup by a property changed
-            // in-transaction still returns a node deleted later in that transaction
-            // ("Node with id N has been deleted in this transaction") — so the p21 match
-            // must run while the nodes are still alive.
+            // Delete by copy p21s (catches untagged riders such as a first-element
+            // containment rel) and by element id (catches nodes rebuilt under new p21s).
+            // p21 first: it must run while the nodes are still alive in this transaction.
             case "Insert":
                 await DeleteByCopyP21sAsync(tx, rule.Ts + "-R", ontoTs);
                 await DeleteOwnedAsync(tx, ontoTs, rule.ElementId);
@@ -288,8 +245,7 @@ ORDER BY m.seq", new { target })).ToListAsync();
             await CypherEmitter.BulkMergeNodes(tx, kind, stamped.Where(d => d.Kind == kind).ToList());
         await CypherEmitter.BulkMergeEdges(tx, stamped.SelectMany(d => d.Edges).ToList(), ontoTs);
 
-        // Inline children are CREATEd (no merge key), so restoring over an existing node
-        // must clear its old inline children first or they would double up.
+        // Inline children have no merge key: clear the old ones before re-creating.
         await Run(tx, @"
 UNWIND $p21s AS p
 MATCH (n:GenericNode {timestamp: $ts, p21_id: p})-[:rel]->(i:InlineNode {timestamp: $ts})
@@ -304,11 +260,7 @@ DETACH DELETE i",
             "MATCH (n {timestamp: $ts, revit_element_id: $eid}) DETACH DELETE n",
             new { ts = ontoTs, eid = elementId });
 
-    /// <summary>
-    /// Delete exactly the nodes a stored copy namespace lists, by their preserved p21s —
-    /// how an Insert is undone. Reaches untagged riders (a first-element containment rel)
-    /// that element-id deletion would miss, plus their inline children (which have no p21).
-    /// </summary>
+    /// <summary>Delete the nodes a copy namespace lists, by p21, with their inline children.</summary>
     private static async Task DeleteByCopyP21sAsync(IAsyncQueryRunner tx, string copyTs, string ontoTs)
     {
         await Run(tx, @"
@@ -349,17 +301,12 @@ RETURN c.path AS path, c.path_after AS path_after,
 
         foreach (var row in rows)
         {
-            // Chains recorded before StableIds: the same node wore different ggifc-
-            // generated GlobalIds in different graphs — the L name matched pre-modify /
-            // replayed graphs, the R name the live graph the old delete+rebuild apply
-            // produced. Forward prefers the before-name, undo the after-name; either
-            // falls back to the other. Since StableIds both names are the same.
+            // Forward prefers the before-name, undo the after-name (they differ only on
+            // chains recorded before StableIds).
             var (primary, secondary) = reverse
                 ? (row["path_after"]?.As<string>(), row["path"].As<string>())
                 : (row["path"].As<string>(), row["path_after"]?.As<string>());
-            // Same-database fallback: the local id on the side we are moving from. A rule
-            // is only ever applied to the state it was recorded against, so that id is
-            // exact here even when no portable name survives (see PropertyChange).
+            // Same-database fallback: the local id on the side we are moving from.
             var localP21 = (reverse ? row["p21_after"] : row["p21_before"])?.As<string>();
             var p21 = await ResolveEitherAsync(tx, ontoTs, primary, secondary, localP21);
             var key = row["key"].As<string>();
@@ -383,11 +330,9 @@ SET v.wrappedValue = $value",
     }
 
     /// <summary>
-    /// Replay the interface renumbering an aligned rule recorded (from→to forward,
-    /// to→from on undo). Legacy rules carry no arrays → no-op. A pair whose "from" id is
-    /// not in the graph is skipped silently: that node was renumbered by a later
-    /// NoChange modify that was deliberately not stored, and already holds the id the
-    /// ggifc mirror expects — see doc_process/2026-09-11-plan-partial-replace.md.
+    /// Replay an aligned rule's interface renumbering (from→to forward, to→from on undo).
+    /// A "from" id absent from the graph is skipped: a later unstored NoChange modify
+    /// already renumbered it.
     /// </summary>
     private static async Task RenumberAsync(
         IAsyncQueryRunner tx, string ruleTs, string ontoTs, bool reverse)
@@ -433,12 +378,7 @@ MERGE (a)-[:rel {rel_type: $relType, list_index: $listIndex}]->(b)",
         }
     }
 
-    /// <summary>
-    /// A stored context string back to a p21 in the target graph: portable refs go
-    /// through <see cref="ContextResolver.FindAsync"/>; raw "#n" fallbacks (the known
-    /// first-geometry-element limitation) resolve literally — valid in the same
-    /// database, meaningless on a foreign host.
-    /// </summary>
+    /// <summary>A stored context string back to a p21: portable refs via <see cref="ContextResolver.FindAsync"/>, raw "#n" literally (same database only).</summary>
     private static async Task<int> ResolveContextAsync(
         IAsyncQueryRunner tx, string ontoTs, string contextString)
         => await TryResolveContextAsync(tx, ontoTs, contextString)
@@ -476,11 +416,7 @@ MERGE (a)-[:rel {rel_type: $relType, list_index: $listIndex}]->(b)",
         throw new InvalidOperationException($"unreadable context reference: {contextString}");
     }
 
-    /// <summary>
-    /// Run a write statement and consume its result NOW, so a server-side error (e.g. a
-    /// node touched after being deleted in this transaction) surfaces at the statement
-    /// that caused it, not at commit.
-    /// </summary>
+    /// <summary>Run a write and consume its result now, so a server-side error surfaces at the statement, not at commit.</summary>
     private static async Task Run(IAsyncQueryRunner tx, string query, object parameters)
         => await (await tx.RunAsync(query, parameters)).ConsumeAsync();
 }

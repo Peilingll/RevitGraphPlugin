@@ -8,15 +8,9 @@ using Xunit.Abstractions;
 namespace RevitGraphPlugin.Tests;
 
 /// <summary>
-/// Acceptance test for stable GlobalIds on pset / rel nodes (2026-09-11 finding).
 /// Two consecutive property-only modifies on the same element, then checkout below the
-/// second one. Under the shallow apply every re-conversion rebuilds the pset with fresh
-/// p21s; before StableIds it also got a fresh ggifc-random GlobalId, so the FIRST
-/// Modify's three names (L path, R path, R p21) all pointed at nodes the SECOND rebuild
-/// had already replaced — undo of seq 3 threw <c>context not found</c>. A change on the
-/// product itself (its Name) never tripped this: the product's GlobalId is Revit-derived.
-/// With the pset GlobalId seeded from the wall, the L / R paths are the same name and
-/// resolve in every graph state.
+/// second: the first Modify's names must still resolve. Requires the pset GlobalId to be
+/// stable across re-conversions (StableIds).
 /// </summary>
 public sealed class ConsecutiveModifyCheckoutTests : IDisposable
 {
@@ -103,13 +97,7 @@ public sealed class ConsecutiveModifyCheckoutTests : IDisposable
         return string.Join(" | ", rows.Select(r => $"wall@{r["wp"]} pset={r["pg"]} IsExternal={r["val"]}@{r["vp"]}"));
     }
 
-    /// <summary>
-    /// The converter shape: wall + Pset_WallCommon(IsExternal), pset / rel / containment
-    /// GlobalIds seeded through StableIds exactly as WallConverter does. (With raw ggifc
-    /// psets — random GlobalIds per build — this test's checkout to seq 1 throws
-    /// <c>context not found</c> on undoing seq 3; that run is recorded in
-    /// doc/log/2026-09-11.)
-    /// </summary>
+    /// <summary>Wall + Pset_WallCommon(IsExternal), GlobalIds seeded through StableIds as WallConverter does.</summary>
     private static void BuildWall(DatabaseIfc db, IfcBuildingStorey storey, bool isExternal)
     {
         var wall = new IfcWall(storey, null, null) { GlobalId = Gid1, Name = "A" };

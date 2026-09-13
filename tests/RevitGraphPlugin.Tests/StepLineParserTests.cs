@@ -5,16 +5,13 @@ namespace RevitGraphPlugin.Tests;
 
 /// <summary>
 /// Verifies the STEP-line parser and its Python-repr formatting against real lines from
-/// data/samples/ifc/test/plugin_full_rebuild.ifc and the property values the temp-IFC
-/// bridge stored in data/samples/cypher/01_one_wall_neo4j_query_table_data.json.
+/// a plugin IFC export and the property values the temp-IFC bridge stored for them.
 /// No Revit / Neo4j required.
 /// </summary>
 public class StepLineParserTests
 {
-    // Map a full STEP line to its ordered primitive properties by zipping the argument
-    // tokens with the schema's declaration-ordered attribute names — the same pairing
-    // step 3 will do inside EntityWalker. Slots the reflection layer owns (references,
-    // typed inline values, aggregates thereof) are dropped.
+    // STEP line → primitive properties, zipped with the schema's attribute order (as
+    // EntityWalker does). Reference / inline / aggregate slots are dropped.
     private static Dictionary<string, object> PrimitiveProps(string entityType, string stepLine)
     {
         var tokens = StepLineParser.ParseArguments(stepLine);

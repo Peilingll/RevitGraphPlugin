@@ -6,14 +6,10 @@ using Xunit.Abstractions;
 namespace RevitGraphPlugin.Tests;
 
 /// <summary>
-/// Opt-in command-line harness for driving <see cref="RuleReplayer"/> against REAL data
-/// (e.g. the plugin-live chain a Revit session produced) — RuleReplayer has no UI yet,
-/// and the automated closed loops (RuleReplayTests) clean up after themselves, so this
-/// is how a human watches undo/replay happen in Neo4j Browser / graph2ifc.
+/// Opt-in harness for driving <see cref="RuleReplayer"/> against a real chain (e.g. the
+/// plugin-live chain a Revit session produced). Runs only when CHAIN_TOOL is set.
 ///
-/// Inert under a normal <c>dotnet test</c>: it runs only when CHAIN_TOOL is set.
-///
-///   CHAIN_TOOL   = undo | replay          (required)
+///   CHAIN_TOOL   = undo | replay | checkout | pingpong   (required)
 ///   CHAIN_TARGET = chain's target_ts      (default plugin-live)
 ///   CHAIN_ONTO   = graph to mutate        (default = CHAIN_TARGET)
 ///   CHAIN_COUNT  = undo: rules to undo    (default 1)
@@ -67,13 +63,8 @@ public sealed class ManualChainTools
             }
             case "pingpong":
             {
-                // Repeated-reversibility probe against a REAL chain (Esser 2022 §3.6:
-                // reverse application must return the initial graph — here: N times).
-                // Bounces between the newest baseline anchor and HEAD, comparing a
-                // structure+value signature (identity columns masked) against the first
-                // visit of each end; finishes back at the seq it started from. A failing
-                // round prints round, direction and the drifted rows — the coordinates
-                // "checkout sometimes fails" lacks.
+                // PingPongTests against a real chain: bounce between the newest baseline
+                // and HEAD, compare every visit with the first; ends where it started.
                 var rounds = int.Parse(Environment.GetEnvironmentVariable("CHAIN_ROUNDS") ?? "5");
                 await PingPong(driver, target, onto, rounds);
                 break;

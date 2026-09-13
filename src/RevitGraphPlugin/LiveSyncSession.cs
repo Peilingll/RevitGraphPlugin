@@ -7,16 +7,10 @@ using RevitGraphPlugin.Ifc.Converters;
 namespace RevitGraphPlugin;
 
 /// <summary>
-/// The live incremental sync session for one Revit document (plan step 3):
-/// baseline-then-increment. <see cref="Start"/> performs a full snapshot through the
-/// verified direct pipeline and keeps the ggifc <see cref="IfcModelContext"/> alive as
-/// the in-memory mirror of the document; each subsequent element change is converted
-/// into a <see cref="GraphRule"/> and applied to the current-state graph in one
-/// transaction. Restarting a session simply re-baselines (wipe + rewrite of the live
-/// timestamp), which also self-heals any p21_id drift across Revit restarts.
-/// All methods must be called from the Revit API thread (they touch Elements and the
-/// shared ggifc db); the Neo4j writes block via Task.Run like SyncDirectCommand —
-/// step 4 decides queueing/threading when wiring DocumentChanged.
+/// Live sync for one Revit document: <see cref="Start"/> writes a full baseline and keeps
+/// the ggifc <see cref="IfcModelContext"/> as the in-memory mirror; each later element
+/// change becomes one <see cref="GraphRule"/>, applied and stored in one transaction.
+/// Restarting re-baselines (wipe + rewrite). Call only from the Revit API thread.
 /// </summary>
 public sealed class LiveSyncSession : IDisposable
 {
@@ -40,11 +34,7 @@ public sealed class LiveSyncSession : IDisposable
         BaselineStats = baseline;
     }
 
-    /// <summary>
-    /// Begin a session: build the full ggifc model from the document and write the
-    /// baseline snapshot under <see cref="Timestamp"/> (wipe + rewrite, so enabling
-    /// live sync is always a clean re-baseline).
-    /// </summary>
+    /// <summary>Build the full ggifc model and write the baseline snapshot (wipe + rewrite under <see cref="Timestamp"/>).</summary>
     public static LiveSyncSession Start(Document doc)
     {
         var ctx = ModelAssembler.Build(doc);
@@ -55,8 +45,7 @@ public sealed class LiveSyncSession : IDisposable
             var stats = Task.Run(() => CypherEmitter.WriteAsync(driver, ctx.Db, Timestamp, ctx.OwnerByStepId))
                             .GetAwaiter().GetResult();
 
-            // Anchor the re-baseline into the rule chain (plan step 4): the chain
-            // survives the wipe, but replay must know the graph was rebuilt here.
+            // Record the re-baseline in the rule chain: replay must know the graph was rebuilt here.
             var anchor = Task.Run(() => RuleStore.RecordBaselineAsync(driver, Timestamp, stats))
                              .GetAwaiter().GetResult();
             LiveSyncLog.Write($"  baseline anchor: seq={anchor.Seq} ({anchor.Timestamp})");
@@ -84,10 +73,8 @@ public sealed class LiveSyncSession : IDisposable
     public bool ApplyAdded(Element element) => Upsert(element, RuleOp.Insert);
 
     /// <summary>
-    /// Element modified in Revit → detach + re-convert + Replace rule (old graphlet
-    /// deleted by <c>revit_element_id</c>, new one inserted, same GlobalId). Elements
-    /// we never converted (e.g. modified before live sync supported them) fall back to
-    /// a plain Insert. False if unsupported.
+    /// Element modified → re-convert and Replace (same GlobalId). Elements never
+    /// converted fall back to Insert. False if unsupported.
     /// </summary>
     public bool ApplyModified(Element element)
     {
@@ -102,24 +89,13 @@ public sealed class LiveSyncSession : IDisposable
         }
         var applied = Upsert(element, known ? RuleOp.Replace : RuleOp.Insert);
 
-        // A re-converted host (wall) is a brand-new ggifc object; any hosted insert's
-        // opening/void/fill still references the old, detached object in the MIRROR, so
-        // its IfcRelVoidsElement.RelatingBuildingElement would go null on the next walk.
-        // Re-sync each insert so its opening re-attaches to the new host object. In the
-        // GRAPH the host node survives an aligned (partial) apply, so this re-sync
-        // normally diffs to NoChange and stores nothing — it only keeps the mirror
-        // consistent. (Placing OR moving a window/door modifies its host wall.)
+        // A re-converted host is a new ggifc object; re-sync its inserts so their opening
+        // chain points at it in the mirror (in the graph this usually diffs to NoChange).
         if (applied) ResyncHostedInserts(element);
         return applied;
     }
 
-    /// <summary>
-    /// Re-sync the hosted inserts (windows / doors) of a just-re-converted host so their
-    /// opening chain re-attaches to the new host object. No-op for non-hosts. Each insert
-    /// is re-applied as a modify (Replace): its old opening/void/fill — owned by the
-    /// insert's revit_element_id — is deleted and rebuilt against the current host, which
-    /// the insert's converter finds via the (now-updated) ConvertedElements[host.Id].
-    /// </summary>
+    /// <summary>Re-apply the hosted inserts (windows / doors) of a re-converted host as modifies so their opening chain re-attaches to the new host object.</summary>
     private void ResyncHostedInserts(Element element)
     {
         if (element is not HostObject host) return;
@@ -136,12 +112,7 @@ public sealed class LiveSyncSession : IDisposable
         }
     }
 
-    /// <summary>
-    /// Element deleted in Revit → detach its ggifc mirror + Remove rule. Deleted
-    /// elements have no body anymore, so this takes only the id — everything needed
-    /// lives in the session (ConvertedElements) and the graph (revit_element_id).
-    /// False if the element was never part of the session.
-    /// </summary>
+    /// <summary>Element deleted → detach its mirror entities and apply a Remove rule. False if the element was never part of the session.</summary>
     public bool ApplyRemoved(ElementId id)
     {
         if (_ctx.StoreyByLevel.ContainsKey(id)) return RemoveLevel(id);
@@ -165,12 +136,8 @@ public sealed class LiveSyncSession : IDisposable
         => _ctx.ConvertedElements.Keys.Concat(_ctx.StoreyByLevel.Keys).Distinct().ToList();
 
     /// <summary>
-    /// Remove every tracked element that no longer exists in the document. Revit's
-    /// DocumentChanged carries NO element ids for an undo, a redo or a rolled-back
-    /// sketch — only an empty notification — so an undone insert would otherwise stay
-    /// in the mirror and the graph forever (seen 2026-09-11: a cancelled roof sketch).
-    /// Cheap (one GetElement per tracked id), so the manager runs it on every event.
-    /// Returns the ids removed.
+    /// Remove every tracked element that no longer exists in the document. Revit's undo /
+    /// redo / rollback events carry no element ids, so this roll-call runs on every event.
     /// </summary>
     public IReadOnlyList<ElementId> ReconcileVanished()
     {
@@ -181,11 +148,8 @@ public sealed class LiveSyncSession : IDisposable
     }
 
     /// <summary>
-    /// The heavy half of undo / redo handling: re-convert every tracked element that
-    /// still exists (a Modify for whatever the undo changed, nothing stored for the
-    /// rest — the diff reports NoChange) and insert any supported element the document
-    /// holds but the session does not (a redone insert). O(model); only for events
-    /// whose Operation is not a plain commit. Returns (re-converted, inserted).
+    /// Undo / redo handling: re-convert every tracked element (unchanged ones diff to
+    /// NoChange) and insert supported elements the session does not track. O(model).
     /// </summary>
     public (int Modified, int Inserted) ReconcileAll()
     {
@@ -211,11 +175,8 @@ public sealed class LiveSyncSession : IDisposable
     }
 
     /// <summary>
-    /// Level modified (renamed, moved) → update the storey IN PLACE and store the value
-    /// changes. A storey is never rebuilt: its containment rel and every element on it
-    /// point at the object, and the graph node keeps its p21. Elements Revit moves along
-    /// with the level arrive as their own modifies. A level never seen (added before live
-    /// sync covered levels) is inserted instead.
+    /// Level renamed / moved → update the storey in place (never rebuilt: its containment
+    /// rel and elements point at it). A level with no storey yet is inserted instead.
     /// </summary>
     private bool ModifyLevel(Level level)
     {
@@ -231,11 +192,8 @@ public sealed class LiveSyncSession : IDisposable
     }
 
     /// <summary>
-    /// Level deleted → detach the storey from the building, forget its ownership, and
-    /// store a Remove: the storey's owned nodes go, the building's aggregation rel is
-    /// refreshed (or dropped if it was the last storey), the storey's containment rels
-    /// are dropped (Revit deletes a level's elements with it; their own removes are
-    /// routed before this one — see LiveSyncManager).
+    /// Level deleted → detach the storey from the building and apply a Remove: its owned
+    /// nodes and containment rels go, the building's aggregation rel is refreshed.
     /// </summary>
     private bool RemoveLevel(ElementId id)
     {
@@ -261,8 +219,7 @@ public sealed class LiveSyncSession : IDisposable
             element.Id.Value, before, after, Timestamp, _ctx.Building);
         if (rule.Graphlet.Count == 0)
         {
-            // The converter produced nothing (e.g. an element on a level with no storey):
-            // storing an empty rule would only hide it. Fail loud in the log instead.
+            // Converter produced nothing (e.g. element on a level without a storey): log, skip.
             LiveSyncLog.Write($"    !! {op} {element.Id.Value} ({element.Category?.Name}) produced no entities — not applied");
             return false;
         }
@@ -270,12 +227,7 @@ public sealed class LiveSyncSession : IDisposable
         return true;
     }
 
-    /// <summary>
-    /// Apply one rule and hand back the completed rule — the same rule plus its
-    /// <see cref="GraphRule.BeforeGraphlet"/> (L side, captured inside the transaction).
-    /// Nothing consumes the return value yet; rule persistence (step 3 of
-    /// doc_process/2026-08-02-plan-rule-persistence.md) is what will store it.
-    /// </summary>
+    /// <summary>Apply one rule in one Neo4j transaction; returns it completed with its L side and what <see cref="RuleStore"/> recorded.</summary>
     private GraphRule Apply(GraphRule rule)
     {
         var applied = Task.Run(() => CypherEmitter.ApplyRuleAsync(_driver, rule)).GetAwaiter().GetResult();

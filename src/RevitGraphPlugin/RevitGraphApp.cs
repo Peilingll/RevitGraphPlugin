@@ -10,13 +10,11 @@ public class RevitGraphApp : IExternalApplication
 
     public Result OnStartup(UIControlledApplication application)
     {
-        // Three buttons (see BuildRibbon): the temp-IFC bridge (SyncCommand), the
-        // direct C# write (SyncDirectCommand), and the live incremental toggle
-        // (LiveSyncToggleCommand). Drivers/processes are opened on demand.
+        // Three ribbon buttons: bridge sync, direct sync, live-sync toggle.
         BuildRibbon(application);
 
-        // Live incremental sync (plan step 4): DocumentChanged fires per committed
-        // transaction; the manager no-ops unless a session is active for that document.
+        // Live incremental sync: DocumentChanged fires per committed transaction; the
+        // manager no-ops unless a session is active for that document.
         application.ControlledApplication.DocumentChanged += LiveSyncManager.OnDocumentChanged;
         application.ControlledApplication.DocumentClosing += LiveSyncManager.OnDocumentClosing;
         return Result.Succeeded;

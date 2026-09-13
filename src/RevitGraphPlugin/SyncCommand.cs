@@ -33,10 +33,8 @@ public class SyncCommand : IExternalCommand
             return Result.Failed;
         }
 
-        // Phase B — hand the ggifc tree off to the Python bridge: it serialises the
-        // tree to STEP, spawns snippet_to_cypher.py which parses via ifcopenshell and
-        // emits Cypher following ConMan2 schema rules. See
-        // doc_process/2026-05-29-architecture-revisit-ifc-snippets.md.
+        // Phase B — write a temp .ifc and let snippet_to_cypher.py (ifcopenshell +
+        // ConMan2) turn it into Cypher.
         IfcSnippetSink.SinkResult result;
         try
         {

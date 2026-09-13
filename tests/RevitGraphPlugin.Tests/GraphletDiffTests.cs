@@ -6,25 +6,16 @@ using Xunit;
 namespace RevitGraphPlugin.Tests;
 
 /// <summary>
-/// Rule persistence step 3a (+ partial replace, 2026-09-11): GraphletDiff aligns the two
-/// sides of a Replace into interface + pushout, and decides whether it was really a
-/// property-only Modify. Revit-free — both sides are built with ggifc and walked with
-/// EntityWalker, the second build behind a StepId offset so every p21 differs (exactly
-/// what a live re-conversion does). The L side normally comes back from Neo4j with
-/// long-typed numerics; one test covers that normalization explicitly.
+/// <see cref="GraphletDiff"/>: interface / pushout alignment and the property-only
+/// (Modify) decision. Both sides are built with ggifc, the second behind a StepId offset
+/// so every p21 differs, as in a live re-conversion.
 /// </summary>
 public sealed class GraphletDiffTests
 {
     private const string Ts = "diff-test";
     private const string WallGid = "1hRFML9_L7IO_zyzwdpriJ";   // stable: derives from UniqueId
 
-    /// <summary>
-    /// Build the graphlet of "the wall" — IfcWall + Pset_WallCommon(IsExternal) wired
-    /// through IfcRelDefinesByProperties — and walk exactly its watermark range, the way
-    /// the live path builds a rule's R side. <paramref name="prepad"/> shifts StepIds so
-    /// two builds never share a p21. The wall keeps its stable GlobalId; the rel and pset
-    /// get fresh random ggifc GlobalIds per build (the churn the diff must mask).
-    /// </summary>
+    /// <summary>The wall graphlet (IfcWall + Pset_WallCommon via IfcRelDefinesByProperties), walked over its watermark range; <paramref name="prepad"/> shifts StepIds.</summary>
     private static List<EntityData> BuildWallGraphlet(
         int prepad, string wallName, bool isExternal, bool secondProperty = false)
     {
@@ -118,10 +109,8 @@ public sealed class GraphletDiffTests
     [Fact]
     public void Node_added_on_R_is_Partial_with_the_new_node_as_pushout()
     {
-        // R gained a second property AND the wall was renamed: the wall, rel, pset and
-        // IsExternal value align (interface I, Name change recorded as a SET), the new
-        // LoadBearing value is the only pushout. Before 2026-09-11 this was a full
-        // Structural replace of all five nodes.
+        // R gained a property and the wall was renamed: everything else aligns, the new
+        // LoadBearing value is the only pushout.
         var l = BuildWallGraphlet(0, "Wall-A", isExternal: true);
         var r = BuildWallGraphlet(0, "Wall-B", isExternal: true, secondProperty: true);
 
@@ -225,9 +214,7 @@ public sealed class GraphletDiffTests
     [Fact]
     public void Interface_edge_to_a_pushout_node_does_not_break_the_alignment()
     {
-        // Drop R's last node (a value node the pset points at): the pset stays in the
-        // interface even though one of its outgoing edges now leads to nowhere on R —
-        // that edge is glue of the pushout, not an interface edge.
+        // Drop R's last node: the pset stays in the interface; its edge to it is pushout glue.
         var l = BuildWallGraphlet(0, "Wall-A", isExternal: true, secondProperty: true);
         var r = BuildWallGraphlet(0, "Wall-A", isExternal: true, secondProperty: true);
         var dropped = r.Single(d => d.Properties.GetValueOrDefault("Name") as string == "LoadBearing");

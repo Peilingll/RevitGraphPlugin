@@ -8,12 +8,9 @@ using Xunit.Abstractions;
 namespace RevitGraphPlugin.Tests;
 
 /// <summary>
-/// Integration tests for <see cref="CypherEmitter.ApplyRuleAsync"/> against a local
-/// Neo4j (same NEO4J_LOCAL_* convention as the plugin). Each test runs the full
-/// incremental lifecycle on a real ggifc storey+walls model under a dedicated test
-/// timestamp and asserts the core invariant: the incrementally maintained graph equals a
-/// fresh full snapshot of the same ggifc state. Tests no-op silently when Neo4j is
-/// not reachable (they log a warning) — CI without a database still passes.
+/// <see cref="CypherEmitter.ApplyRuleAsync"/> against a local Neo4j: the incrementally
+/// maintained graph must equal a fresh full snapshot of the same ggifc state. Skipped
+/// when Neo4j is unreachable.
 /// </summary>
 public sealed class ApplyRuleIntegrationTests : IDisposable
 {
@@ -50,8 +47,7 @@ public sealed class ApplyRuleIntegrationTests : IDisposable
     private async Task Cleanup()
     {
         await using var session = _driver!.AsyncSession();
-        // STARTS WITH: ApplyRuleAsync now persists a :Rule chain in "<ts>-rule-<seq>*"
-        // namespaces alongside the graph — test cleanup must reach those too.
+        // STARTS WITH: cleanup must reach the "<ts>-rule-<seq>*" chain namespaces too.
         foreach (var ts in new[] { TsLive, TsRef })
             await session.RunAsync(
                 "MATCH (n) WHERE n.timestamp STARTS WITH $ts DETACH DELETE n", new { ts });
@@ -203,7 +199,7 @@ public sealed class ApplyRuleIntegrationTests : IDisposable
         Assert.Equal(0, leftover);
     }
 
-    // ── L-side capture (rule persistence step 1) ──────────────────────────────────
+    // ── L-side capture ────────────────────────────────────────────────────────────
 
     [SkippableFact]
     public async Task Remove_rule_captures_the_L_side_before_deleting_it()
@@ -244,9 +240,7 @@ public sealed class ApplyRuleIntegrationTests : IDisposable
         Assert.Equal(101L, wallNode.Properties["revit_element_id"]);
         Assert.Equal(wall.GlobalId, wallNode.GlobalId);
 
-        // The incoming glue: the storey's containment rel pointed at the wall. DETACH
-        // DELETE destroys this edge and the owned nodes alone do not record it, so
-        // without IncomingGlue the L side would be unattachable.
+        // Incoming glue: the containment rel's edge to the wall.
         Assert.Contains(l.IncomingGlue, e =>
             e.SourceP21 == rel.StepId && e.RelType == "RelatedElements" && e.TargetP21 == wall.StepId);
 
@@ -300,9 +294,7 @@ public sealed class ApplyRuleIntegrationTests : IDisposable
             Graphlet: removed.BeforeGraphlet!.Nodes,
             SharedRefresh: Array.Empty<EntityData>(), SharedDelete: Array.Empty<string>()));
 
-        // The capture is shaped like an insert payload, so it restores the graphlet
-        // verbatim — nodes, properties and outgoing edges (incl. edges to context that
-        // survived, e.g. the owner history).
+        // The capture restores the graphlet verbatim, outgoing edges to context included.
         Assert.Equal(nodesBefore, await OwnedNodeCount(102));
         Assert.Equal(edgesBefore, await OwnedEdgeCount(102));
         await using (var session = _driver.AsyncSession())
@@ -315,11 +307,11 @@ public sealed class ApplyRuleIntegrationTests : IDisposable
         }
 
         // Boundary: the INCOMING glue is captured but not re-applied by an insert rule —
-        // restoring shared context is undo's job (plan step 5), not step 1's.
+        // restoring shared context is undo's job (RuleReplayer), not the capture's.
         Assert.NotEmpty(removed.BeforeGraphlet!.IncomingGlue);
     }
 
-    // ── portable context refs (rule persistence step 2) ───────────────────────────
+    // ── portable context refs ─────────────────────────────────────────────────────
 
     [SkippableFact]
     public async Task Rule_names_every_external_reference_portably_and_they_resolve_back()
@@ -352,8 +344,7 @@ public sealed class ApplyRuleIntegrationTests : IDisposable
         var (external, own) = applied.PartitionReferences();
         Assert.NotEmpty(external);
 
-        // Every reference leaving the graphlet got a portable name — a gap here means a
-        // stored rule would carry a p21 that means nothing in another host graph.
+        // Every reference leaving the graphlet got a portable name.
         var unresolved = external.Where(p => !applied.ContextRefs.ContainsKey(p)).ToList();
         Assert.Empty(unresolved);
 
@@ -370,8 +361,7 @@ public sealed class ApplyRuleIntegrationTests : IDisposable
             // A ref must lead back to the node it names…
             Assert.Equal(p21, await ContextResolver.FindAsync(session, TsLive, contextRef));
 
-            // …and must never be anchored on the rule's own graphlet, which does not exist
-            // yet on insert and is about to be destroyed on remove.
+            // …and must never be anchored on the rule's own graphlet.
             Assert.DoesNotContain(own, ownP21 => ownP21 == p21);
             Assert.True(ContextRef.TryParse(contextRef.Path, out var reparsed));
             Assert.Equal(contextRef, reparsed);
@@ -406,8 +396,7 @@ public sealed class ApplyRuleIntegrationTests : IDisposable
             RuleOp.Remove, 101, TsLive,
             Graphlet: Array.Empty<EntityData>(), SharedRefresh: refresh, SharedDelete: delete));
 
-        // The glue edge that attached wall1 to the storey came FROM the containment rel;
-        // the stored rule must name that source portably, not by its p21.
+        // The containment rel (source of wall1's incoming glue) must be named portably.
         var glue = Assert.Single(applied.BeforeGraphlet!.IncomingGlue, e => e.RelType == "RelatedElements");
         var sourceRef = applied.ContextRefs[glue.SourceP21];
         Assert.Equal(rel.GlobalId, sourceRef.AnchorGlobalId);

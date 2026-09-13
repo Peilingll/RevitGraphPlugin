@@ -5,11 +5,7 @@ using Xunit;
 
 namespace RevitGraphPlugin.Tests;
 
-/// <summary>
-/// Headless tests (no Revit, no Neo4j) for <see cref="LiveRuleBuilder"/> — the
-/// change-to-rule assembly the live session runs per element change. Mimics the
-/// session flow with real ggifc entities: watermark → convert → build rule.
-/// </summary>
+/// <summary><see cref="LiveRuleBuilder"/> with real ggifc entities, following the session flow: watermark → convert → build rule.</summary>
 public class LiveRuleBuilderTests
 {
     private static (DatabaseIfc db, IfcBuildingStorey storey) NewStorey()
@@ -140,7 +136,7 @@ public class LiveRuleBuilderTests
         Assert.Equal(0, member.ListIndex);
     }
 
-    // ── levels (2026-09-11): the building's aggregation rel is shared like containment ──
+    // ── levels: the building's aggregation rel is shared like containment ──────────
 
     private static (DatabaseIfc db, IfcBuilding building) NewBuilding()
     {

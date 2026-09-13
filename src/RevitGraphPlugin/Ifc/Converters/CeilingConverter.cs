@@ -5,22 +5,9 @@ using RevitGraphPlugin.Ifc.Geometry;
 namespace RevitGraphPlugin.Ifc.Converters;
 
 /// <summary>
-/// Ceiling → IfcCovering (PredefinedType=CEILING) sub-graph (Tier 1 / BRep skeleton).
-///
-/// Mirrors <see cref="FloorConverter"/>'s proven shape: identity + placement +
-/// spatial containment + BRep body (shared <see cref="BRepBodyBuilder"/>) +
-/// Pset_CoveringCommon. Native Revit exports ceilings as IfcCovering with the
-/// CEILING predefined type — the same node/edge graphlet as a slab, only the IFC
-/// class and Pset differ.
-///
-/// DEFERRED to a later tier (present in native, not required for a
-/// structurally-correct, Solibri-openable covering):
-///   - IfcCoveringType + IfcRelDefinesByType
-///   - IfcRelAssociatesMaterial (finish layers)
-///   - IfcElementQuantity (area)
-///   - IfcRelCoversSpaces (covering ↔ bounded space), once IfcSpace exists
-///
-/// TODO markers flag the Revit-API specifics to verify against a real export.
+/// Ceiling → IfcCovering (PredefinedType = CEILING, as native): placement + BRep body +
+/// Pset_CoveringCommon + storey containment. Not emitted: IfcCoveringType, materials,
+/// quantities, IfcRelCoversSpaces.
 /// </summary>
 public sealed class CeilingConverter : IElementConverter
 {
@@ -30,9 +17,7 @@ public sealed class CeilingConverter : IElementConverter
     {
         if (element is not Ceiling ceiling) return;
 
-        // Anchor to the storey built from the ceiling's associated level
-        // (HostObject.LevelId); fall back to the level parameter if unset.
-        // Verified 2026-09-11 against native exports of a single- and a three-storey model (compare_psets.py --storeys).
+        // Storey from HostObject.LevelId, else the level parameter (matches native export).
         var levelId = ceiling.LevelId;
         if (levelId is null || levelId == ElementId.InvalidElementId)
             levelId = ceiling.get_Parameter(BuiltInParameter.LEVEL_PARAM)?.AsElementId();
@@ -42,8 +27,7 @@ public sealed class CeilingConverter : IElementConverter
 
         var db = ctx.Db;
 
-        // Placement origin: like floors, ceilings have no LocationCurve, so use the
-        // element bounding-box min as the local origin (body vertices relative to it).
+        // Origin: bounding-box min; body vertices relative to it.
         var bbox = ceiling.get_BoundingBox(null);
         var origin = bbox?.Min ?? XYZ.Zero;
 
@@ -52,7 +36,7 @@ public sealed class CeilingConverter : IElementConverter
             new IfcAxis2Placement3D(new IfcCartesianPoint(
                 db, BRepBodyBuilder.Mm(origin.X), BRepBodyBuilder.Mm(origin.Y), BRepBodyBuilder.Mm(origin.Z))));
 
-        // host = storey → ggifc creates the IfcRelContainedInSpatialStructure.
+        // host = storey → ggifc creates the containment rel.
         var ifcCovering = new IfcCovering(storey, placement, null);
         ifcCovering.GlobalId = IfcGuidConverter.ForElement(ceiling);
         StableIds.StampContainment(ifcCovering);   // storey containment rel: stable GlobalId
@@ -65,7 +49,7 @@ public sealed class CeilingConverter : IElementConverter
         ifcCovering.ObjectType = $"{family}:{typeName}";
         ifcCovering.Tag = ceiling.Id.Value.ToString();
 
-        // BRep body via the shared builder (vertices local to origin, in mm).
+        // BRep body, vertices local to the origin.
         var shape = BRepBodyBuilder.Build(db, ctx.BodyContext, ceiling, origin);
         if (shape is not null)
             ifcCovering.Representation = shape;
@@ -75,8 +59,7 @@ public sealed class CeilingConverter : IElementConverter
 
     private static void AttachCoveringCommonPset(DatabaseIfc db, IfcCovering ifcCovering)
     {
-        // Verified 2026-09-11 against a native export: Pset_CoveringCommon carries
-        // IsExternal = false and no LoadBearing for ceilings.
+        // IsExternal = false, no LoadBearing (matches native export).
         var isExternal = new IfcPropertySingleValue(db, "IsExternal",
             new IfcBoolean(false));
         StableIds.AttachPset(ifcCovering, "Pset_CoveringCommon", isExternal);

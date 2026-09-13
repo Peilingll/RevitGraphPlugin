@@ -8,12 +8,9 @@ using Xunit.Abstractions;
 namespace RevitGraphPlugin.Tests;
 
 /// <summary>
-/// Rule persistence step 3b: <see cref="RuleStore.PersistAsync"/>, running inside
-/// <see cref="CypherEmitter.ApplyRuleAsync"/>'s transaction. Asserts the frozen schema
-/// (op-dependent payload: copies for Insert/Remove/Replace, Change rows for Modify,
-/// nothing for a provably-empty Replace) and the zero-pollution invariant: persisting
-/// never adds a node to the current-state timestamp, and a re-baseline wipe never
-/// removes one from the chain. Same local-Neo4j convention as ApplyRuleIntegrationTests.
+/// <see cref="RuleStore.PersistAsync"/>: the per-op storage shape (copies, Change rows,
+/// nothing for an empty Replace) and the isolation invariant — persisting never touches
+/// the current-state timestamp, a re-baseline wipe never touches the chain.
 /// </summary>
 public sealed class RuleStoreIntegrationTests : IDisposable
 {
@@ -79,9 +76,7 @@ public sealed class RuleStoreIntegrationTests : IDisposable
         var storey = new IfcBuildingStorey(building, "S", 0);
         var owner = new Dictionary<int, long>();
 
-        // A baseline wall keeps the containment rel alive and EXTERNAL to the rules
-        // under test — the second member's containment membership is genuine in-glue
-        // (the first member carries the freshly created rel inside its own graphlet).
+        // A baseline wall keeps the containment rel external to the rules under test.
         var b0 = StepIdWatermark.Current(db);
         _ = new IfcWall(storey, null, null);
         var b1 = StepIdWatermark.Current(db);
@@ -113,16 +108,14 @@ public sealed class RuleStoreIntegrationTests : IDisposable
             "MATCH (:Rule {timestamp: $ts})-[:DELETES]->(n) RETURN count(n)",
             new { ts = inserted.Stored.RuleTimestamp }));
 
-        // Glue: outgoing (owner history …) and incoming (containment membership), all
-        // with a parseable portable context.
+        // Glue: outgoing (owner history …) and incoming (containment), all portably named.
         var glueRows = await GlueContexts(inserted.Stored.RuleTimestamp);
         Assert.Contains(glueRows, g => g.Direction == "out");
         Assert.Contains(glueRows, g => g.Direction == "in" && g.RelType == "RelatedElements");
         Assert.All(glueRows, g => Assert.True(ContextRef.TryParse(g.Context, out _),
             $"unparseable glue context: {g.Context}"));
 
-        // Persisting polluted nothing: the live graph grew by exactly the applied
-        // graphlet (+ its inline children), same as before rule persistence existed.
+        // The live graph grew by exactly the applied graphlet (+ inline children).
         var liveAfterInsert = await NodesAt(TsLive);
         var inlineCount = graphlet.Sum(d => d.Inlines.Count);
         Assert.Equal(liveBefore + graphlet.Count + inlineCount, liveAfterInsert);

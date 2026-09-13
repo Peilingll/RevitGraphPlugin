@@ -4,10 +4,8 @@ using Xunit;
 namespace RevitGraphPlugin.Tests;
 
 /// <summary>
-/// Guards the Revit UniqueId → IFC GlobalId conversion, in particular the uniqueness
-/// property that a whole-model round-trip depends on (IfcRoot.UR1). Regression for the
-/// collision found 2026-07-19: two walls in one document shared one GlobalId because
-/// only the document-wide episode GUID prefix was used.
+/// Revit UniqueId → IFC GlobalId: distinct elements must get distinct ids (IfcRoot.UR1;
+/// the episode GUID prefix alone is shared by the whole document).
 /// </summary>
 public class IfcGuidConverterTests
 {
@@ -32,19 +30,8 @@ public class IfcGuidConverterTests
     }
 
     /// <summary>
-    /// Revit's exporter XORs the element id into the GUID's last 8 hex characters as ONE
-    /// big-endian integer: the id's most significant byte lands in GUID byte 12, the
-    /// least in byte 15. Found 2026-09-11 when a real wall's IfcGUID parameter agreed
-    /// with ours on the first 16 characters and disagreed on the last 6 — the XOR
-    /// difference between the two was byte-symmetric (EA C8 C8 EA), the signature of the
-    /// same id folded in with the byte order reversed. Production converters now take the
-    /// GUID from ExportUtils.GetExportId; this pins the string re-implementation.
-    /// </summary>
-    /// <summary>
-    /// Pinned against Revit 2025 itself: wall 314334 of Project1, UniqueId read from
-    /// live.log, IfcGUID read off the element's IFC Parameters — the same value
-    /// ExportUtils.GetExportId produced in the graph. Keeps the string re-implementation
-    /// honest for callers that have no Document.
+    /// Pinned against a real Revit 2025 element (UniqueId from live.log, IfcGUID from its
+    /// IFC parameters): the XOR is big-endian, most significant byte in GUID byte 12.
     /// </summary>
     [Fact]
     public void Matches_the_IfcGUID_revit_shows_for_a_real_element()

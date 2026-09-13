@@ -3,12 +3,9 @@ using GeometryGym.Ifc;
 namespace RevitGraphPlugin.Ifc;
 
 /// <summary>
-/// StepId watermark over a ggifc <see cref="DatabaseIfc"/>: ggifc allocates StepIds
-/// monotonically, so the entities created between two <see cref="Current"/> reads are
-/// exactly those with StepId in (before, after]. Used to capture per-element entity
-/// ownership around converter calls (see <c>ElementConverterRegistry.ConvertOne</c>).
-/// ggifc's <c>NextObjectRecord</c> counter has no public getter, so this scans the
-/// database — O(entities), negligible at this project's model sizes.
+/// ggifc allocates StepIds monotonically, so the entities created between two
+/// <see cref="Current"/> reads are exactly those in (before, after]. Scans the database
+/// (ggifc exposes no counter).
 /// </summary>
 public static class StepIdWatermark
 {

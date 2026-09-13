@@ -4,14 +4,9 @@ using GeometryGym.Ifc;
 namespace RevitGraphPlugin.Ifc;
 
 /// <summary>
-/// Build an in-memory IFC4 tree for the "empty project" boilerplate:
-/// - IfcProject (with the OwnerHistory chain ggifc auto-creates: Person/Org/Application/PersonAndOrganization)
-/// - IfcUnitAssignment + IfcSIUnit (length / area / volume in metric)
-/// - IfcGeometricRepresentationContext (Model) + 4 SubContexts (Body / Axis / BoundingBox / FootPrint)
-/// - IfcSite + IfcBuilding + IfcBuildingStorey (from Revit Levels) tied together with IfcRelAggregates
-///
-/// ggifc's IfcProject(db, name) constructor only creates the project + OwnerHistory chain. Units,
-/// representation contexts, and spatial breakdown all have to be constructed explicitly here.
+/// The empty-project boilerplate, laid out like Revit's native IFC4 export: IfcProject +
+/// OwnerHistory chain, units (mm), representation contexts, Site → Building → Storeys
+/// (from Revit Levels), and their default property sets.
 /// </summary>
 public static class BoilerplateBuilder
 {
@@ -21,32 +16,25 @@ public static class BoilerplateBuilder
         var factory = db.Factory;
 
         var projInfo = doc.ProjectInformation;
-        // Native exporter maps IfcProject.Name <- Revit "Project Number" and
-        // LongName <- Revit "Project Name" (see data/samples/ifc/00_empty.ifc #29).
+        // Native: IfcProject.Name <- "Project Number", LongName <- "Project Name".
         var projNumber = string.IsNullOrWhiteSpace(projInfo.Number) ? "Project" : projInfo.Number;
 
-        // -- Project (ggifc auto-creates OwnerHistory + Person/Org/App chain alongside it).
+        // -- Project (ggifc auto-creates the OwnerHistory chain).
         var project = new IfcProject(db, projNumber);
         project.GlobalId = IfcGuidConverter.ForElement(projInfo);
         if (!string.IsNullOrWhiteSpace(projInfo.Name))   project.LongName = projInfo.Name;
         if (!string.IsNullOrWhiteSpace(projInfo.Status)) project.Phase    = projInfo.Status;
 
-        // Replace ggifc's defaults on the auto-created chain (Sandy / GeometryGymIFC / Unknown
-        // / ChangeAction=ADDED) with values that match Revit's own IFC exporter output. See
-        // RevitOwnerHistory.cs for the per-attribute source provenance.
+        // Overwrite ggifc's OwnerHistory defaults with what Revit's exporter writes.
         RevitOwnerHistory.Override(project, doc);
 
-        // -- Units: length in MILLImetre; area/volume metric squared/cubed.
-        //    Matches Revit's IFC 4 Reference View export, which uses .MILLI.METRE.
-        //    for length (see data/samples/ifc/00_empty.ifc #19). All length values
-        //    below (elevations, coordinates) must therefore be emitted in mm too.
+        // -- Units: millimetre (as native); every length below is emitted in mm.
         var lengthUnit = new IfcSIUnit(db, IfcUnitEnum.LENGTHUNIT, IfcSIPrefix.MILLI, IfcSIUnitName.METRE);
         var areaUnit   = new IfcSIUnit(db, IfcUnitEnum.AREAUNIT,   IfcSIPrefix.NONE, IfcSIUnitName.SQUARE_METRE);
         var volumeUnit = new IfcSIUnit(db, IfcUnitEnum.VOLUMEUNIT, IfcSIPrefix.NONE, IfcSIUnitName.CUBIC_METRE);
         project.UnitsInContext = new IfcUnitAssignment(new IfcUnit[] { lengthUnit, areaUnit, volumeUnit });
 
-        // -- Geometric Representation Context (Model) + 4 SubContexts.
-        //    Factory methods register them on the project automatically.
+        // -- Representation context + 4 sub-contexts (registered on the project by ggifc).
         var modelContext = factory.GeometricRepresentationContext(
             IfcGeometricRepresentationContext.GeometricContextIdentifier.Model);
         modelContext.Precision = 0.01;   // match Revit native (0.01 mm); ggifc default emits 0.0001
@@ -55,15 +43,13 @@ public static class BoilerplateBuilder
         _ = factory.SubContext(IfcGeometricRepresentationSubContext.SubContextIdentifier.BoundingBox);
         _ = factory.SubContext(IfcGeometricRepresentationSubContext.SubContextIdentifier.FootPrint);
 
-        // -- Spatial breakdown: Site -> Building -> Storeys (RelAggregates auto-created
-        //    by ggifc when the parent is passed to the constructor).
+        // -- Site -> Building -> Storeys (ggifc creates the RelAggregates).
         var site = new IfcSite(db, "Default");   // native Site Name is 'Default'
         site.GlobalId = IfcGuidConverter.FromSeed(projInfo.UniqueId + ":Site");
         site.CompositionType = IfcElementCompositionEnum.ELEMENT;
         site.RefElevation = 0;
 
-        // Geographic location. Revit stores SiteLocation lat/long in radians;
-        // IFC RefLatitude/RefLongitude are compound angles (deg, min, sec, millionth-sec).
+        // Site location: Revit radians → IFC compound angle.
         var siteLocation = doc.SiteLocation;
         if (siteLocation != null)
         {
@@ -77,9 +63,8 @@ public static class BoilerplateBuilder
         building.CompositionType = IfcElementCompositionEnum.ELEMENT;
         StableIds.StampAggregates(building);   // site → building rel: stable GlobalId
 
-        // -- Building postal address. Values hard-coded to match the sample model's
-        //    Revit address. NOTE: native writes an empty PostalCode (''), but ggifc
-        //    serialises "" as $ on write, so that one field cannot be matched from here.
+        // -- Building postal address (hard-coded to the reference model; ggifc writes an
+        //    empty PostalCode as $ where native writes '').
         var address = new IfcPostalAddress(db);
         address.AddressLines.Add("Enter address here");
         address.Town = "London";
@@ -98,26 +83,20 @@ public static class BoilerplateBuilder
         var storeyByLevel = new Dictionary<ElementId, IfcBuildingStorey>();
         foreach (var level in levels)
         {
-            // Same entity the live path builds for a level added later (LevelConverter);
-            // ObjectType = "Level:" + the Level's type name (native exporter writes
-            // e.g. 'Level:Circle Head - Project Datum'; the type name also surfaces
-            // as the Pset_BuildingStoreyCommon Reference value).
+            // Same entity LevelConverter builds for a level added live.
             var storey = Converters.LevelConverter.CreateStorey(level, building, doc);
             storeys.Add(storey);
             storeyByLevel[level.Id] = storey;
         }
 
-        // -- Property sets attached to spatial elements. Baseline shows Revit's IFC
-        //    exporter emits a fixed set of default Pset_*Common with deduplicated
-        //    IfcPropertySingleValue entities reused across multiple Psets. Mirror
-        //    the exact layout from data/samples/ifc/00_empty.ifc (#45–#67).
+        // -- Default Pset_*Common on Site / Building / Storeys, with the deduplicated
+        //    property values native uses.
         AttachDefaultPropertySets(db, site, building, storeys);
 
         var ctx = new IfcModelContext(db, bodyContext, building, storeyByLevel);
 
-        // Tag each storey, its Pset and the rel between them with the level's id so live
-        // sync can modify / remove the level like an element. The deduplicated Pset
-        // VALUES are shared with other storeys and the building — they stay untagged.
+        // Tag storey + pset + rel with the level's id (live modify / remove); the shared
+        // pset values stay untagged.
         foreach (var (levelId, storey) in storeyByLevel)
         {
             ctx.OwnerByStepId[storey.StepId] = levelId.Value;
@@ -132,17 +111,9 @@ public static class BoilerplateBuilder
     }
 
     /// <summary>
-    /// Build the Pset_*Common entities Revit's IFC exporter attaches to Site /
-    /// Building / Storeys on an empty Architectural template. Mirrors the
-    /// concrete layout in <c>data/samples/ifc/00_empty.ifc</c> (#45–#67):
-    /// <list type="bullet">
-    /// <item>6 deduplicated IfcPropertySingleValue (Reference × 2 strings, AboveGround, NumberOfStoreys, IsLandmarked, IsExternal)</item>
-    /// <item>7 IfcPropertySet (Site, Storey × 2, Building × 4)</item>
-    /// <item>7 IfcRelDefinesByProperties linking each Pset to its element</item>
-    /// </list>
-    /// The four Psets attached to <see cref="IfcBuilding"/> reproduce Revit's
-    /// quirky behaviour of emitting BuildingElementProxyCommon, BuildingStoreyCommon
-    /// and BuildingSystemCommon template Psets on the Building itself.
+    /// The Pset_*Common entities Revit's exporter attaches to Site / Building / Storeys on
+    /// an empty Architectural template, including the four template Psets it puts on the
+    /// Building itself.
     /// </summary>
     private static void AttachDefaultPropertySets(
         DatabaseIfc db,
@@ -152,7 +123,7 @@ public static class BoilerplateBuilder
     {
         var unknown = IfcLogicalEnum.UNKNOWN;
 
-        // Deduplicated property values (reused across multiple Psets, mirroring baseline).
+        // Deduplicated property values (reused across Psets, as native).
         var refProjInfo = new IfcPropertySingleValue(db, "Reference",
             new IfcIdentifier("Project Information"));
         var refLevelDatum = new IfcPropertySingleValue(db, "Reference",
@@ -166,8 +137,7 @@ public static class BoilerplateBuilder
         var isExternal = new IfcPropertySingleValue(db, "IsExternal",
             new IfcBoolean(false));
 
-        // ggifc's IfcPropertySet(name, props[]) constructor populates HasProperties for us
-        // (the dictionary is keyed by property name, so we can't just .Add(prop)).
+        // IfcPropertySet(name, props[]) populates HasProperties (keyed by property name).
         StableIds.AttachPset(site, "Pset_SiteCommon", refProjInfo);
 
         foreach (var storey in storeys)
@@ -175,7 +145,7 @@ public static class BoilerplateBuilder
             StableIds.AttachPset(storey, "Pset_BuildingStoreyCommon", refLevelDatum, aboveGround);
         }
 
-        // Four Psets on the Building (Revit's default export decoration).
+        // Four template Psets on the Building (as native).
         StableIds.AttachPset(building, "Pset_BuildingCommon", refProjInfo, numberOfStoreys, isLandmarked);
 
         StableIds.AttachPset(building, "Pset_BuildingElementProxyCommon", refProjInfo, isExternal);
@@ -185,12 +155,7 @@ public static class BoilerplateBuilder
         StableIds.AttachPset(building, "Pset_BuildingSystemCommon", refProjInfo);
     }
 
-    /// <summary>
-    /// Convert an angle in radians (as Revit stores SiteLocation lat/long) to an
-    /// IFC compound plane angle: (degrees, minutes, seconds, millionth-seconds).
-    /// IFC carries the sign on every component, e.g. London longitude is
-    /// (0, -7, -37, -956022) for ~ -0.1272 deg.
-    /// </summary>
+    /// <summary>Radians → IFC compound plane angle (deg, min, sec, millionth-sec), sign on every component.</summary>
     private static IfcCompoundPlaneAngleMeasure ToCompoundPlaneAngle(double radians)
     {
         var totalSeconds = radians * (180.0 / Math.PI) * 3600.0;
@@ -199,8 +164,7 @@ public static class BoilerplateBuilder
         var degrees = (int)(abs / 3600);
         var minutes = (int)(abs % 3600 / 60);
         var seconds = (int)(abs % 60);
-        // Truncate (not round) the fractional arc-seconds: Revit's exporter does,
-        // so this reproduces native exactly (e.g. lat 112487, not 112488).
+        // Truncate, not round (as Revit's exporter does).
         var micro   = (int)((abs - Math.Floor(abs)) * 1_000_000);
         return new IfcCompoundPlaneAngleMeasure(
             sign * degrees, sign * minutes, sign * seconds, sign * micro);

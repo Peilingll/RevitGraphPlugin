@@ -8,12 +8,9 @@ using Xunit.Abstractions;
 namespace RevitGraphPlugin.Tests;
 
 /// <summary>
-/// Rule persistence step 5 — the closed loops that accept the whole chain design
-/// (plan §7): REPLAY of every stored rule over a copy of the baseline must reproduce
-/// the current-state graph, and UNDO of every rule must take the current-state graph
-/// back to its baseline. Comparison is the structural signature (EntityType and edge
-/// triples with counts) — p21-agnostic, since a Modify-collapsed rule leaves replay
-/// with the original p21s where the live graph renumbered.
+/// Closed loops over the chain: replaying every rule onto a baseline copy must reproduce
+/// the live graph, and undoing every rule must return the live graph to its baseline.
+/// Compared by p21-agnostic structural signature.
 /// </summary>
 public sealed class RuleReplayTests : IDisposable
 {
@@ -91,11 +88,7 @@ public sealed class RuleReplayTests : IDisposable
 
     // ── the loops ─────────────────────────────────────────────────────────────────
 
-    /// <summary>
-    /// insert w1 → insert w2 → rename w2 (stored as Modify) → remove w2. Tail-only
-    /// membership changes, so no containment renumbering ambiguity; the final state is
-    /// NOT the baseline (w1 remains), so a do-nothing replay cannot pass by accident.
-    /// </summary>
+    /// <summary>insert w1 → insert w2 → rename w2 (Modify) → remove w2. The final state is not the baseline, so a do-nothing replay cannot pass.</summary>
     [SkippableFact]
     public async Task Replay_reproduces_the_live_graph_and_undo_returns_it_to_baseline()
     {
@@ -107,8 +100,7 @@ public sealed class RuleReplayTests : IDisposable
         var storey = new IfcBuildingStorey(building, "S", 0);
         var owner = new Dictionary<int, long>();
 
-        // Baseline: written to TsLive (with its chain anchor) AND to TsReplay — the
-        // "apply the baseline" step of the replay loop.
+        // Baseline written to TsLive (with its anchor) and to TsReplay.
         var stats = await CypherEmitter.WriteAsync(_driver, db, TsLive, owner);
         await RuleStore.RecordBaselineAsync(_driver, TsLive, stats);
         await CypherEmitter.WriteAsync(_driver, db, TsReplay, owner);
@@ -154,11 +146,7 @@ public sealed class RuleReplayTests : IDisposable
         AssertSameSignature(await Signature(TsLive), baselineSig);
     }
 
-    /// <summary>
-    /// insert w → remove w: the removal empties the containment rel (SharedDelete).
-    /// Replay must drop the rel too (via the stored portable refs) or the loop ends one
-    /// node heavy; undo must restore rel AND wall from the L copies, then take both away.
-    /// </summary>
+    /// <summary>insert w → remove w: the removal empties the containment rel (SharedDelete); replay must drop it and undo must restore it.</summary>
     [SkippableFact]
     public async Task Shared_delete_survives_the_loop_in_both_directions()
     {

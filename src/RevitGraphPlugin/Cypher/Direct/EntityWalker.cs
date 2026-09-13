@@ -5,7 +5,6 @@ using GeometryGym.Ifc;
 using RevitGraphPlugin.Ifc;
 
 // ── Pipeline: DIRECT-WRITE (Revit → ggifc tree → Cypher → Neo4j; no temp IFC) ──
-// Opt-in. Default sink is the temp-IFC bridge (Cypher/IfcSnippetSink.cs).
 namespace RevitGraphPlugin.Cypher;
 
 /// <summary>
@@ -14,13 +13,9 @@ namespace RevitGraphPlugin.Cypher;
 public sealed record EdgeData(int SourceP21, string RelType, int ListIndex, int TargetP21);
 
 /// <summary>
-/// One InlineNode pattern: an inline value (an <see cref="IfcValue"/> with no StepId
-/// of its own) that ConMan2 stores as a separate InlineNode connected to its parent.
-/// Mirrors ConMan2's inline_patterns (IfcGraphInterface.process_ifc_attributes).
-/// <paramref name="OwnerElementId"/> is the parent entity's Revit-element ownership
-/// (null for shared/boilerplate parents) — inline nodes live and die with their
-/// parent's graphlet, so removal by <c>revit_element_id</c> must reach them too or
-/// they leak as orphans. Set by <see cref="CypherEmitter.WalkAll"/>, not by Walk.
+/// An inline value (<see cref="IfcValue"/>, no StepId) stored as an InlineNode linked to
+/// its parent (ConMan2's inline_patterns). <paramref name="OwnerElementId"/> is the
+/// parent's ownership, set by <see cref="CypherEmitter.WalkOwned"/>.
 /// </summary>
 public sealed record InlineData(
     int SourceP21, string RelType, int ListIndex, string EntityType, object WrappedValue,
@@ -43,19 +38,13 @@ public sealed record EntityData(
 
 public static class EntityWalker
 {
-    /// <summary>
-    /// ggifc framework properties that are not part of any IFC schema. These would
-    /// never appear in <see cref="Ifc4Schema"/>, but checking here short-circuits the
-    /// whitelist lookup and keeps the filter explicit.
-    /// </summary>
+    /// <summary>ggifc framework properties that are not IFC attributes.</summary>
     private static readonly HashSet<string> GgIfcInternals = new(StringComparer.Ordinal)
     {
         "Database", "Index", "StepId", "StepClassName", "Json", "Guid",
     };
 
-    /// <summary>
-    /// Walk a single IFC entity and produce its Neo4j node properties + outgoing edges.
-    /// </summary>
+    /// <summary>Walk one IFC entity into its node properties, outgoing edges and inline children.</summary>
     public static EntityData Walk(BaseClassIfc entity, string timestamp)
     {
         var type = entity.GetType();
@@ -76,16 +65,10 @@ public static class EntityWalker
         var edges = new List<EdgeData>();
         var inlines = new List<InlineData>();
 
-        // Node properties: lossless STEP-line source (option B). Every primitive attribute
-        // value ($/''/*/.ENUM./int/real/list) is taken verbatim from ggifc's Part-21
-        // output, which faithfully preserves unset/derived/empty-string distinctions that
-        // the property getters collapse. See doc/log/2026-07-12_direct-roundtrip-diagnosis.md.
+        // Node properties come from the STEP line (lossless: keeps $ / * / '' distinct).
         EmitPropertiesFromStepLine(entity, entityType, props);
 
-        // Edges + inline nodes: reflection (unchanged; verified isomorphic to the bridge
-        // graph — 128 relationships matched). Only entity references, inline IfcValues,
-        // and aggregates thereof are consumed here; primitive slots belong to the STEP
-        // properties above.
+        // Edges and inline nodes come from reflection; primitive slots are skipped here.
         foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {
             var name = prop.Name;
@@ -108,21 +91,14 @@ public static class EntityWalker
         return new EntityData(p21, entityType, globalId, kind, props, edges, inlines);
     }
 
-    /// <summary>
-    /// Fills node properties from the entity's Part-21 (STEP) line, mapping each parameter
-    /// positionally onto its EXPRESS-declared attribute name. Only primitive slots become
-    /// properties; references / typed inline values are left to the reflection pass.
-    /// Throws (fail-loud) if ggifc's parameter count does not match the schema, so a
-    /// malformed serialization surfaces the offending entity instead of corrupting silently.
-    /// </summary>
+    /// <summary>Node properties from the STEP line, mapped positionally onto the EXPRESS attribute names. Throws if the parameter count does not match the schema.</summary>
     private static void EmitPropertiesFromStepLine(
         BaseClassIfc entity, string entityType, Dictionary<string, object> props)
     {
         var names = Ifc4Schema.GetOrderedAttributes(entityType);
         if (names.Count == 0)
         {
-            // Type absent from the IFC4 schema: no ordered attribute list to map onto.
-            // Edges/inlines still come from reflection below.
+            // Type absent from the IFC4 schema: no properties; edges still come from reflection.
             Debug.WriteLine(
                 $"[EntityWalker] '{entityType}' not in IFC4 schema — no STEP-based properties.");
             return;
@@ -144,11 +120,7 @@ public static class EntityWalker
         }
     }
 
-    /// <summary>
-    /// Extracts outgoing edges and inline-node children for one attribute value via
-    /// reflection. Primitive scalars and primitive aggregates are ignored here — those
-    /// are node properties, emitted from the STEP line by <see cref="EmitPropertiesFromStepLine"/>.
-    /// </summary>
+    /// <summary>Outgoing edges and inline children for one attribute value; primitives are ignored (they are STEP-line properties).</summary>
     private static void EmitEdgesAndInlines(
         int sourceP21,
         string name,
@@ -163,14 +135,10 @@ public static class EntityWalker
         {
             if (refEntity.StepId > 0)
                 edges.Add(new EdgeData(sourceP21, name, 0, refEntity.StepId));
-            // StepId == 0 inline entities surface as IfcValue below (the common case:
-            // a property's NominalValue).
             return;
         }
 
-        // Inline value (IfcValue, e.g. IfcPropertySingleValue.NominalValue). Not a
-        // BaseClassIfc and has no StepId of its own → ConMan2 records it as an
-        // InlineNode connected by this attribute. Mirror that.
+        // Inline value (e.g. IfcPropertySingleValue.NominalValue) → InlineNode.
         if (value is IfcValue ifcValue)
         {
             inlines.Add(new InlineData(
@@ -181,10 +149,8 @@ public static class EntityWalker
         // String is IEnumerable<char>; it is a primitive property, not a collection.
         if (value is string) return;
 
-        // Dictionary (e.g. IfcPropertySet.HasProperties, keyed by property name).
-        // ggifc stores these as Dictionary<string, IfcProperty>; emit an edge to each
-        // value entity. MUST precede the IEnumerable branch (a Dictionary enumerates
-        // as KeyValuePair, which would otherwise be missed — the HasProperties edges).
+        // Dictionary (e.g. IfcPropertySet.HasProperties): edge per value. Must precede
+        // the IEnumerable branch.
         if (value is IDictionary dictionary)
         {
             var di = 0;
@@ -199,9 +165,7 @@ public static class EntityWalker
             return;
         }
 
-        // Collection of entities (edges) or inline values (inline nodes). Primitive
-        // aggregates (coordinate lists, direction ratios, …) are skipped — the STEP line
-        // carries them as a node property.
+        // Collection of entities (edges) or inline values (inline nodes).
         if (value is IEnumerable enumerable)
         {
             int idx = 0;
@@ -211,27 +175,20 @@ public static class EntityWalker
                 {
                     if (itemEntity.StepId > 0)
                         edges.Add(new EdgeData(sourceP21, name, idx, itemEntity.StepId));
-                    // else: inline BaseClassIfc — rare; not seen in current models
                 }
                 else if (item is IfcValue itemValue)
                 {
                     inlines.Add(new InlineData(
                         sourceP21, name, idx, itemValue.GetType().Name, WrappedValue(itemValue)));
                 }
-                // primitive item → ignored; STEP emits the primitive-list property.
                 idx++;
             }
             return;
         }
 
-        // Enum / DateTime / numeric / measure structs → primitive property, from STEP.
     }
 
-    /// <summary>
-    /// Extract the primitive wrapped value of an <see cref="IfcValue"/> for an
-    /// InlineNode's <c>wrappedValue</c>, matching ConMan2's encoding: bool/int/double
-    /// stay typed; logical/other enums become their uppercase name; null → "$".
-    /// </summary>
+    /// <summary>An <see cref="IfcValue"/>'s wrapped value in ConMan2's encoding: bool/int/double typed, enums uppercase, null → "$".</summary>
     private static object WrappedValue(IfcValue v)
     {
         var raw = v.Value;

@@ -5,23 +5,9 @@ using RevitGraphPlugin.Ifc.Geometry;
 namespace RevitGraphPlugin.Ifc.Converters;
 
 /// <summary>
-/// Roof → IfcRoof sub-graph (Tier 1 / BRep skeleton).
-///
-/// Mirrors <see cref="FloorConverter"/>'s proven shape: identity + placement +
-/// spatial containment + BRep body (shared <see cref="BRepBodyBuilder"/>) +
-/// Pset_RoofCommon. A roof is emitted here as a single IfcRoof carrying the BRep
-/// body directly.
-///
-/// DEFERRED to a later tier (native emits these, not required for a
-/// structurally-correct, Solibri-openable roof):
-///   - IfcRoof as an aggregate (IfcRelAggregates → child IfcSlab per roof face),
-///     which is how Revit's native exporter decomposes a multi-slope roof
-///   - IfcRoofType + IfcRelDefinesByType
-///   - IfcRelAssociatesMaterial (multi-layer constituent set)
-///   - IfcElementQuantity (area / volume)
-///   - native extrusion geometry instead of BRep
-///
-/// TODO markers flag the Revit-API specifics to verify against a real export.
+/// Roof → IfcRoof: placement + BRep body + Pset_RoofCommon + storey containment, as one
+/// IfcRoof carrying the body directly (native decomposes it into IfcSlab parts — a known
+/// convention difference). Not emitted: IfcRoofType, materials, quantities, extrusion geometry.
 /// </summary>
 public sealed class RoofConverter : IElementConverter
 {
@@ -31,9 +17,7 @@ public sealed class RoofConverter : IElementConverter
     {
         if (element is not RoofBase roof) return;
 
-        // Anchor to the storey built from the roof's base level (HostObject.LevelId);
-        // fall back to the roof base-level parameter if unset.
-        // Verified 2026-09-11 against native exports of a single- and a three-storey model (compare_psets.py --storeys). (footprint roof on Level 2)
+        // Storey from HostObject.LevelId, else the base-level parameter (matches native export).
         var levelId = roof.LevelId;
         if (levelId is null || levelId == ElementId.InvalidElementId)
             levelId = roof.get_Parameter(BuiltInParameter.ROOF_BASE_LEVEL_PARAM)?.AsElementId();
@@ -43,8 +27,7 @@ public sealed class RoofConverter : IElementConverter
 
         var db = ctx.Db;
 
-        // Placement origin: like floors, roofs have no LocationCurve, so use the
-        // element bounding-box min as the local origin (body vertices relative to it).
+        // Origin: bounding-box min; body vertices relative to it.
         var bbox = roof.get_BoundingBox(null);
         var origin = bbox?.Min ?? XYZ.Zero;
 
@@ -53,15 +36,11 @@ public sealed class RoofConverter : IElementConverter
             new IfcAxis2Placement3D(new IfcCartesianPoint(
                 db, BRepBodyBuilder.Mm(origin.X), BRepBodyBuilder.Mm(origin.Y), BRepBodyBuilder.Mm(origin.Z))));
 
-        // host = storey → ggifc creates the IfcRelContainedInSpatialStructure.
+        // host = storey → ggifc creates the containment rel.
         var ifcRoof = new IfcRoof(storey, placement, null);
         ifcRoof.GlobalId = IfcGuidConverter.ForElement(roof);
         StableIds.StampContainment(ifcRoof);   // storey containment rel: stable GlobalId
-        // IfcRoof.PredefinedType is read-only in ggifc 0.1.22 (internal mPredefinedType,
-        // defaults to NOTDEFINED). We carry the actual geometry as a BRep body rather
-        // than classifying the roof form, so NOTDEFINED matches native generic-roof
-        // export. Verified 2026-09-11: Pset_RoofCommon matches; Revit expresses the form by
-        // decomposing the roof into IfcSlab parts instead (open-questions §3, structural item).
+        // IfcRoof.PredefinedType is read-only in ggifc 0.1.22 (stays NOTDEFINED, as native).
 
         var roofType = roof.Document.GetElement(roof.GetTypeId()) as ElementType;
         var family = roofType?.FamilyName ?? "Roof";
@@ -70,7 +49,7 @@ public sealed class RoofConverter : IElementConverter
         ifcRoof.ObjectType = $"{family}:{typeName}";
         ifcRoof.Tag = roof.Id.Value.ToString();
 
-        // BRep body via the shared builder (vertices local to origin, in mm).
+        // BRep body, vertices local to the origin.
         var shape = BRepBodyBuilder.Build(db, ctx.BodyContext, roof, origin);
         if (shape is not null)
             ifcRoof.Representation = shape;
@@ -80,9 +59,7 @@ public sealed class RoofConverter : IElementConverter
 
     private static void AttachRoofCommonPset(DatabaseIfc db, IfcRoof ifcRoof)
     {
-        // Verified 2026-09-11 against a native export: Pset_RoofCommon.IsExternal = true,
-        // no LoadBearing. (The native export decomposes the roof into IfcSlab parts —
-        // a structural difference logged separately, not a Pset one.)
+        // IsExternal = true, no LoadBearing (matches native export).
         var isExternal = new IfcPropertySingleValue(db, "IsExternal",
             new IfcBoolean(true));
         StableIds.AttachPset(ifcRoof, "Pset_RoofCommon", isExternal);

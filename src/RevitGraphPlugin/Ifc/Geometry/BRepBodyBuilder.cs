@@ -4,16 +4,9 @@ using GeometryGym.Ifc;
 namespace RevitGraphPlugin.Ifc.Geometry;
 
 /// <summary>
-/// Shared BRep body-geometry builder: tessellates a Revit element's solid(s) into
-/// an <see cref="IfcPolygonalFaceSet"/> body representation. Extracted from
-/// WallConverter Step B so every element converter can reuse the same tessellation
-/// (the "dedicated library" the professor asked for — one geometry path, many
-/// element types).
-///
-/// Vertices are emitted in millimetres, local to a caller-supplied placement
-/// <c>origin</c> (so the IfcLocalPlacement carries the global position and the
-/// point list stays small / element-local). Returns null when the element has no
-/// usable solid geometry.
+/// Tessellates a Revit element's solids into an <see cref="IfcPolygonalFaceSet"/> body.
+/// Vertices are in millimetres, local to the caller's placement origin. Shared by every
+/// element converter.
 /// </summary>
 public static class BRepBodyBuilder
 {

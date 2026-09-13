@@ -6,11 +6,8 @@ using Xunit;
 namespace RevitGraphPlugin.Tests;
 
 /// <summary>
-/// The converters' synthetic IfcRoot entities (pset, RelDefines, containment,
-/// aggregation, voids / fills) must carry the SAME GlobalId every time the same owner is
-/// converted — the precondition Esser 2022 §3.3 / §5.2 puts on node matching, and the
-/// one <see cref="GgifcIdentityTests"/> shows ggifc does not meet on its own. Pure ggifc,
-/// no Neo4j, no Revit: the Revit-derived owner GlobalIds are literals here.
+/// Synthetic IfcRoot entities (pset, RelDefines, containment, aggregation, voids / fills)
+/// must get the same GlobalId every time the same owner is converted (Esser 2022 §3.3).
 /// </summary>
 public sealed class StableIdsTests
 {

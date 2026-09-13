@@ -3,10 +3,8 @@ using System.IO;
 namespace RevitGraphPlugin;
 
 /// <summary>
-/// Append-only diagnostic log for the live sync path, written to a stable file so the
-/// DocumentChanged flow can be traced without showing UI from an event context (Revit
-/// forbids TaskDialog inside DocumentChanged — a swallowed exception there looks exactly
-/// like "nothing happened"). Path: %TEMP%\RevitGraphPlugin\live.log.
+/// Append-only diagnostic log at %TEMP%\RevitGraphPlugin\live.log. Revit forbids UI
+/// inside DocumentChanged, so this is the only trace of the live path.
 /// </summary>
 internal static class LiveSyncLog
 {

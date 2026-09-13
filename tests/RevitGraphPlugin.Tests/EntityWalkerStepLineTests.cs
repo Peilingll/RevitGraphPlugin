@@ -6,12 +6,7 @@ using Xunit.Abstractions;
 
 namespace RevitGraphPlugin.Tests;
 
-/// <summary>
-/// End-to-end checks that <see cref="EntityWalker.Walk"/> sources node properties from
-/// real ggifc <c>entity.ToString()</c> Part-21 output through <see cref="StepLineParser"/>.
-/// Exercises the actual ggifc serialization (no Revit, no Neo4j) so a format mismatch
-/// surfaces here rather than only during a full round-trip.
-/// </summary>
+/// <summary><see cref="EntityWalker.Walk"/> sources node properties from real ggifc Part-21 output through <see cref="StepLineParser"/>.</summary>
 public class EntityWalkerStepLineTests
 {
     private readonly ITestOutputHelper _output;
@@ -51,8 +46,7 @@ public class EntityWalkerStepLineTests
         var data = EntityWalker.Walk(oh, "t");
         _output.WriteLine($"STEP: {oh}");
 
-        // The reconstruction-crash guard: the unset LastModifiedDate must serialize as "$",
-        // never as an int64 sentinel (that OverflowError killed graph_2_ifc).
+        // An unset LastModifiedDate must be "$", not an int64 sentinel (graph_2_ifc crashes otherwise).
         Assert.Equal("$", data.Properties["LastModifiedDate"]);
         Assert.Equal("$", data.Properties["State"]);              // ggifc default enum → unset
         Assert.Equal("$", data.Properties["LastModifyingUser"]);

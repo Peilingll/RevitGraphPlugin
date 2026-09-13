@@ -3,11 +3,7 @@ using Xunit;
 
 namespace RevitGraphPlugin.Tests;
 
-/// <summary>
-/// Unit tests (no Neo4j) for the portable context reference: its ConMan2-compatible
-/// serialization and the parse that reads it back. The string form is the reference's
-/// identity — it is what a stored rule will carry instead of a p21.
-/// </summary>
+/// <summary><see cref="ContextRef"/>: ConMan2-compatible serialization and parse; the string form is the reference's identity.</summary>
 public class ContextRefTests
 {
     [Fact]
@@ -20,8 +16,7 @@ public class ContextRefTests
         Assert.Equal("[primary_node=1a2b3c]", primary.Path);
     }
 
-    // ConMan2's DataHandler.path_to_string sorts the keys inside each segment, so
-    // EntityType / list_index / rel_type is the required order ('E' < 'l' < 'r' in ASCII).
+    // Key order inside a segment follows ConMan2's DataHandler.path_to_string.
     [Fact]
     public void Path_segments_use_ConMan2_key_order()
     {
@@ -52,8 +47,7 @@ public class ContextRefTests
         Assert.Equal(2, parsed.Steps[1].ListIndex);
     }
 
-    // Equality is over the serialized path: the record default compares Steps by
-    // reference, which would make two separately built but identical refs differ.
+    // Equality is over the serialized path.
     [Fact]
     public void Equality_is_by_path_not_by_list_reference()
     {
