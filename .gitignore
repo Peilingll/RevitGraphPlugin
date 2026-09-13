@@ -23,6 +23,9 @@ __pycache__/
 *.nupkg
 packages/
 
+# checkout.ps1 -Ifc exports
+data/out/
+
 # MSBuild logs / test output
 *.binlog
 TestResults/

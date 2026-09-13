@@ -98,11 +98,11 @@ $nodeCount = (Invoke-Cypher 'MATCH (n {timestamp: $t}) RETURN count(n)' @{ t = $
 Write-Host "checked out seq $targetSeq — '$Target' now holds $nodeCount nodes"
 
 # ── optional round trip ──────────────────────────────────────────────────────────
-# A bare filename lands in data\samples\ifc\DPO_test (the demo-output convention);
+# A bare filename lands in data\out (ignored by git) — pass a path to put it elsewhere;
 # an absolute or relative path is honored as given.
 if ($Ifc) {
     if (-not [System.IO.Path]::IsPathRooted($Ifc) -and $Ifc -notmatch '[\\/]') {
-        $outDir = Join-Path $repo 'data\samples\ifc\DPO_test'
+        $outDir = Join-Path $repo 'data\out'
         New-Item -ItemType Directory -Force $outDir | Out-Null
         $Ifc = Join-Path $outDir $Ifc
     }
