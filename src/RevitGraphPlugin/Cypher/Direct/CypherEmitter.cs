@@ -71,6 +71,44 @@ public static class CypherEmitter
         await using var session = driver.AsyncSession();
         return await session.ExecuteWriteAsync(async tx =>
         {
+            // A shared node the mirror still holds but the graph does not: a containment
+            // rel emptied earlier (dropped by SharedDelete) that an element now re-joins —
+            // ggifc reuses the object, so it is outside the watermark and arrives as a
+            // REFRESH. Refreshing would MERGE the node back silently, unrecorded; replay
+            // would then find nothing to glue to (seen 2026-09-11, seq 119 of a 139-rule
+            // chain). Treat it as inserted instead: it rides in the R graphlet and its copy.
+            // (A rel created INSIDE this rule's watermark — the storey's first element —
+            // is already in the graphlet as a rider; only a rel that is in neither the
+            // graph nor the graphlet is a revival.)
+            var revived = new List<EntityData>();
+            foreach (var shared in rule.SharedRefresh)
+                if (rule.Graphlet.All(d => d.P21 != shared.P21)
+                    && !await NodeExistsAsync(tx, rule.Timestamp, shared.P21))
+                    revived.Add(shared);
+            if (revived.Count > 0)
+                rule = rule with
+                {
+                    Graphlet = rule.Graphlet.Concat(revived).ToList(),
+                    SharedRefresh = rule.SharedRefresh.Except(revived).ToList(),
+                };
+
+            // The mirror image of the above: a memberless containment rel whose graph
+            // node is ALREADY gone (dropped by an earlier rule) keeps being reported for
+            // deletion by every later rule, because the ggifc object lingers with zero
+            // members. Deleting nothing is harmless, but a non-empty SharedDelete
+            // disqualifies a Replace from the aligned path — so every later property
+            // change stored as a full replace (seen 2026-09-11 after a roof rollback).
+            // Keep only the shared deletes the graph can actually perform.
+            if (rule.SharedDelete.Count > 0)
+            {
+                var stillThere = new List<string>();
+                foreach (var p21Id in rule.SharedDelete)
+                    if (P21Id.TryParse(p21Id, out var p21) && await NodeExistsAsync(tx, rule.Timestamp, p21))
+                        stillThere.Add(p21Id);
+                if (stillThere.Count != rule.SharedDelete.Count)
+                    rule = rule with { SharedDelete = stillThere };
+            }
+
             var applied = rule;
 
             if (rule.Op is RuleOp.Remove or RuleOp.Replace)
@@ -294,6 +332,14 @@ SET v.wrappedValue = $value",
                     "MATCH (n:GenericNode {timestamp: $ts, p21_id: $p21}) SET n += $props",
                     new { ts = timestamp, p21 = P21Id.Of(c.P21Before), props = new Dictionary<string, object?> { [c.Key] = c.After } });
         }
+    }
+
+    private static async Task<bool> NodeExistsAsync(IAsyncQueryRunner tx, string timestamp, int p21)
+    {
+        var rows = await (await tx.RunAsync(
+            "MATCH (n:GenericNode {timestamp: $ts, p21_id: $p21}) RETURN count(n) AS c",
+            new { ts = timestamp, p21 = P21Id.Of(p21) })).ToListAsync();
+        return rows.Single()["c"].As<int>() > 0;
     }
 
     /// <summary>Rename node ids in one atomic UNWIND (from/to ranges never overlap: ggifc never reuses a StepId).</summary>
