@@ -11,7 +11,7 @@ namespace RevitGraphPlugin.Tests;
 /// </summary>
 public class GraphRuleTests
 {
-    private static DatabaseIfc NewDb() => new(false, ReleaseVersion.IFC4);
+    private static DatabaseIfc NewDb() => new(ReleaseVersion.IFC4A2);
 
     private static (DatabaseIfc db, IfcBuildingStorey storey) NewStorey()
     {
@@ -62,25 +62,6 @@ public class GraphRuleTests
         var rel = Assert.Single(storey.ContainsElements);
         Assert.False(map.ContainsKey(rel.StepId));       // shared: untagged
         Assert.True(map.Count > 0);                      // the wall itself is tagged
-    }
-
-    [Fact]
-    public void NewEntities_filters_exactly_the_watermark_range()
-    {
-        var (db, storey) = NewStorey();
-        _ = new IfcWall(storey, null, null);
-
-        var before = StepIdWatermark.Current(db);
-        var w2 = new IfcWall(storey, null, null);
-        var after = StepIdWatermark.Current(db);
-
-        var walked = CypherEmitter.WalkAll(db, "t");
-        var fresh = GraphletExtractor.NewEntities(walked, before, after);
-
-        Assert.Contains(fresh, d => d.P21 == w2.StepId);
-        Assert.All(fresh, d => Assert.InRange(d.P21, before + 1, after));
-        // wall1's entities and the (pre-existing) containment rel are not in the range.
-        Assert.DoesNotContain(fresh, d => d.EntityType == nameof(IfcRelContainedInSpatialStructure));
     }
 
     [Fact]

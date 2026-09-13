@@ -11,7 +11,7 @@ namespace RevitGraphPlugin.Tests;
 /// </summary>
 public class OwnershipTaggingTests
 {
-    private static DatabaseIfc NewDb() => new(false, ReleaseVersion.IFC4);
+    private static DatabaseIfc NewDb() => new(ReleaseVersion.IFC4A2);
 
     // ggifc allocates StepIds monotonically: everything created between two watermark
     // reads lies in (before, after].

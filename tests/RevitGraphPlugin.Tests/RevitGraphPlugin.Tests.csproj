@@ -11,7 +11,7 @@
     <IsTestProject>true</IsTestProject>
     <!-- RevitAPI is referenced transitively by RevitGraphPlugin.csproj but is never
          loaded at test runtime; suppress the missing-reference warning. -->
-    <NoWarn>$(NoWarn);MSB3277</NoWarn>
+    <NoWarn>$(NoWarn);MSB3277;NU1701</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

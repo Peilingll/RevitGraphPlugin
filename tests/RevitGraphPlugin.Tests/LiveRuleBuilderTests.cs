@@ -10,7 +10,7 @@ public class LiveRuleBuilderTests
 {
     private static (DatabaseIfc db, IfcBuildingStorey storey) NewStorey()
     {
-        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var db = new DatabaseIfc(ReleaseVersion.IFC4A2);
         var building = new IfcBuilding(db, "B");
         var storey = new IfcBuildingStorey(building, "S", 0);
         return (db, storey);
@@ -140,7 +140,7 @@ public class LiveRuleBuilderTests
 
     private static (DatabaseIfc db, IfcBuilding building) NewBuilding()
     {
-        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var db = new DatabaseIfc(ReleaseVersion.IFC4A2);
         return (db, new IfcBuilding(db, "B"));
     }
 

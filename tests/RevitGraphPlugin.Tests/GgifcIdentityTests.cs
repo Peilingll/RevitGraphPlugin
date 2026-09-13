@@ -17,7 +17,7 @@ public sealed class GgifcIdentityTests
     private static (DatabaseIfc Db, IfcWall Wall, IfcRelContainedInSpatialStructure Rel,
                     IfcBuildingStorey Storey) Build()
     {
-        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var db = new DatabaseIfc(ReleaseVersion.IFC4A2);
         var building = new IfcBuilding(db, "B");
         var storey = new IfcBuildingStorey(building, "S", 0);
         var wall = new IfcWall(storey, null, null) { GlobalId = WallGid, Name = "W" };

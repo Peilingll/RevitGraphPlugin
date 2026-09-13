@@ -16,7 +16,7 @@ public class RevitOwnerHistoryTests
 
     private static IfcProject NewProject()
     {
-        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var db = new DatabaseIfc(ReleaseVersion.IFC4A2);
         return new IfcProject(db, "TestProject");
     }
 

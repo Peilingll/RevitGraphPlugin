@@ -12,7 +12,7 @@ public class EntityWalkerStepLineTests
     private readonly ITestOutputHelper _output;
     public EntityWalkerStepLineTests(ITestOutputHelper output) => _output = output;
 
-    private static DatabaseIfc NewDb() => new(false, ReleaseVersion.IFC4);
+    private static DatabaseIfc NewDb() => new(ReleaseVersion.IFC4A2);
 
     [Fact]
     public void CartesianPoint_coordinates_use_python_tuple_repr()

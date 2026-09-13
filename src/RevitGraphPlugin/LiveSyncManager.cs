@@ -16,8 +16,6 @@ public static class LiveSyncManager
     /// <summary>The ribbon toggle button; text is updated to reflect state.</summary>
     internal static PushButton? ToggleButton { get; set; }
 
-    public static bool IsActive => _session is not null;
-
     /// <summary>Enable (baseline snapshot) or disable live sync for <paramref name="doc"/>; returns a status message.</summary>
     public static string Toggle(Document doc)
     {

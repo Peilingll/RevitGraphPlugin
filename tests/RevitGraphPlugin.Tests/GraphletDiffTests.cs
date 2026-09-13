@@ -19,7 +19,7 @@ public sealed class GraphletDiffTests
     private static List<EntityData> BuildWallGraphlet(
         int prepad, string wallName, bool isExternal, bool secondProperty = false)
     {
-        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var db = new DatabaseIfc(ReleaseVersion.IFC4A2);
         var building = new IfcBuilding(db, "B");
         var storey = new IfcBuildingStorey(building, "S", 0);
         for (var i = 0; i < prepad; i++) _ = new IfcCartesianPoint(db, i, 0, 0);

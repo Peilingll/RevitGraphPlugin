@@ -107,15 +107,6 @@ public sealed record GraphRule(
 /// <summary>Builds <see cref="GraphRule"/> payload pieces from the ggifc database (Revit-free).</summary>
 public static class GraphletExtractor
 {
-    /// <summary>The entities of a full walk whose StepId lies in (<paramref name="watermarkBefore"/>, <paramref name="watermarkAfter"/>].</summary>
-    public static List<EntityData> NewEntities(
-        IEnumerable<EntityData> walked, int watermarkBefore, int watermarkAfter)
-    {
-        return walked
-            .Where(d => d.P21 > watermarkBefore && d.P21 <= watermarkAfter)
-            .ToList();
-    }
-
     /// <summary>Walk only the entities in (<paramref name="watermarkBefore"/>, <paramref name="watermarkAfter"/>] — the graphlet one conversion just created. O(graphlet).</summary>
     public static List<EntityData> WalkNew(
         DatabaseIfc db,

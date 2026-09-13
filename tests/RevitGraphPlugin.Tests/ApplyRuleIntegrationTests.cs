@@ -23,18 +23,7 @@ public sealed class ApplyRuleIntegrationTests : IDisposable
     public ApplyRuleIntegrationTests(ITestOutputHelper output)
     {
         _output = output;
-        var password = Environment.GetEnvironmentVariable("NEO4J_LOCAL_PASSWORD") ?? "password";
-        try
-        {
-            var d = GraphDatabase.Driver("bolt://127.0.0.1:7687", AuthTokens.Basic("neo4j", password));
-            d.VerifyConnectivityAsync().GetAwaiter().GetResult();
-            _driver = d;
-        }
-        catch (Exception ex)
-        {
-            _output.WriteLine($"Neo4j unreachable — skipping integration assertions: {ex.Message}");
-            _driver = null;
-        }
+        _driver = Neo4jTest.TryConnect(_output);
     }
 
     public void Dispose()
@@ -90,11 +79,11 @@ public sealed class ApplyRuleIntegrationTests : IDisposable
     [SkippableFact]
     public async Task Insert_then_remove_keeps_live_graph_equal_to_fresh_snapshot()
     {
-        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
+        Skip.If(_driver is null, Neo4jTest.SkipReason);
         await Cleanup();
 
         // Baseline model: storey + wall1 (id 101), full snapshot to TsLive.
-        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var db = new DatabaseIfc(ReleaseVersion.IFC4A2);
         var building = new IfcBuilding(db, "B");
         var storey = new IfcBuildingStorey(building, "S", 0);
         var owner = new Dictionary<int, long>();
@@ -111,11 +100,10 @@ public sealed class ApplyRuleIntegrationTests : IDisposable
         var w2 = StepIdWatermark.Current(db);
         TagRange(db, w1, w2, 102, owner);
 
-        var walked = CypherEmitter.WalkAll(db, TsLive, owner);
         var (insertRefresh, insertDelete) = GraphletExtractor.StoreyContainmentChanges(new[] { storey }, TsLive);
         var rule = new GraphRule(
             RuleOp.Insert, 102, TsLive,
-            Graphlet: GraphletExtractor.NewEntities(walked, w1, w2),
+            Graphlet: GraphletExtractor.WalkNew(db, owner, w1, w2, TsLive),
             SharedRefresh: insertRefresh,
             SharedDelete: insertDelete);
         await CypherEmitter.ApplyRuleAsync(_driver, rule);
@@ -163,10 +151,10 @@ public sealed class ApplyRuleIntegrationTests : IDisposable
     [SkippableFact]
     public async Task Removing_last_member_deletes_the_containment_rel_via_SharedDelete()
     {
-        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
+        Skip.If(_driver is null, Neo4jTest.SkipReason);
         await Cleanup();
 
-        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var db = new DatabaseIfc(ReleaseVersion.IFC4A2);
         var building = new IfcBuilding(db, "B");
         var storey = new IfcBuildingStorey(building, "S", 0);
         var owner = new Dictionary<int, long>();
@@ -204,10 +192,10 @@ public sealed class ApplyRuleIntegrationTests : IDisposable
     [SkippableFact]
     public async Task Remove_rule_captures_the_L_side_before_deleting_it()
     {
-        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
+        Skip.If(_driver is null, Neo4jTest.SkipReason);
         await Cleanup();
 
-        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var db = new DatabaseIfc(ReleaseVersion.IFC4A2);
         var building = new IfcBuilding(db, "B");
         var storey = new IfcBuildingStorey(building, "S", 0);
         var owner = new Dictionary<int, long>();
@@ -251,10 +239,10 @@ public sealed class ApplyRuleIntegrationTests : IDisposable
     [SkippableFact]
     public async Task Insert_captures_nothing_and_a_capture_can_be_re_applied()
     {
-        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
+        Skip.If(_driver is null, Neo4jTest.SkipReason);
         await Cleanup();
 
-        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var db = new DatabaseIfc(ReleaseVersion.IFC4A2);
         var building = new IfcBuilding(db, "B");
         var storey = new IfcBuildingStorey(building, "S", 0);
         var owner = new Dictionary<int, long>();
@@ -316,10 +304,10 @@ public sealed class ApplyRuleIntegrationTests : IDisposable
     [SkippableFact]
     public async Task Rule_names_every_external_reference_portably_and_they_resolve_back()
     {
-        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
+        Skip.If(_driver is null, Neo4jTest.SkipReason);
         await Cleanup();
 
-        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var db = new DatabaseIfc(ReleaseVersion.IFC4A2);
         var building = new IfcBuilding(db, "B");
         var storey = new IfcBuildingStorey(building, "S", 0);
         var owner = new Dictionary<int, long>();
@@ -371,10 +359,10 @@ public sealed class ApplyRuleIntegrationTests : IDisposable
     [SkippableFact]
     public async Task Remove_rule_names_its_incoming_glue_source_portably()
     {
-        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
+        Skip.If(_driver is null, Neo4jTest.SkipReason);
         await Cleanup();
 
-        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var db = new DatabaseIfc(ReleaseVersion.IFC4A2);
         var building = new IfcBuilding(db, "B");
         var storey = new IfcBuildingStorey(building, "S", 0);
         var owner = new Dictionary<int, long>();

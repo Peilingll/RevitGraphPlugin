@@ -9,7 +9,7 @@ public class ConvertedElementRegistrationTests
 {
     private static (DatabaseIfc db, IfcBuildingStorey storey) NewStorey()
     {
-        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var db = new DatabaseIfc(ReleaseVersion.IFC4A2);
         var building = new IfcBuilding(db, "B");
         return (db, new IfcBuildingStorey(building, "S", 0));
     }

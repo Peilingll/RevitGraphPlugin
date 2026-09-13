@@ -25,18 +25,7 @@ public sealed class RuleReplayTests : IDisposable
     public RuleReplayTests(ITestOutputHelper output)
     {
         _output = output;
-        var password = Environment.GetEnvironmentVariable("NEO4J_LOCAL_PASSWORD") ?? "password";
-        try
-        {
-            var d = GraphDatabase.Driver("bolt://127.0.0.1:7687", AuthTokens.Basic("neo4j", password));
-            d.VerifyConnectivityAsync().GetAwaiter().GetResult();
-            _driver = d;
-        }
-        catch (Exception ex)
-        {
-            _output.WriteLine($"Neo4j unreachable — skipping integration assertions: {ex.Message}");
-            _driver = null;
-        }
+        _driver = Neo4jTest.TryConnect(_output);
     }
 
     public void Dispose()
@@ -92,10 +81,10 @@ public sealed class RuleReplayTests : IDisposable
     [SkippableFact]
     public async Task Replay_reproduces_the_live_graph_and_undo_returns_it_to_baseline()
     {
-        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
+        Skip.If(_driver is null, Neo4jTest.SkipReason);
         await Cleanup();
 
-        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var db = new DatabaseIfc(ReleaseVersion.IFC4A2);
         var building = new IfcBuilding(db, "B");
         var storey = new IfcBuildingStorey(building, "S", 0);
         var owner = new Dictionary<int, long>();
@@ -150,10 +139,10 @@ public sealed class RuleReplayTests : IDisposable
     [SkippableFact]
     public async Task Shared_delete_survives_the_loop_in_both_directions()
     {
-        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
+        Skip.If(_driver is null, Neo4jTest.SkipReason);
         await Cleanup();
 
-        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var db = new DatabaseIfc(ReleaseVersion.IFC4A2);
         var building = new IfcBuilding(db, "B");
         var storey = new IfcBuildingStorey(building, "S", 0);
         var owner = new Dictionary<int, long>();
@@ -222,10 +211,10 @@ public sealed class RuleReplayTests : IDisposable
     [SkippableFact]
     public async Task Undo_stops_at_a_baseline_anchor()
     {
-        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
+        Skip.If(_driver is null, Neo4jTest.SkipReason);
         await Cleanup();
 
-        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var db = new DatabaseIfc(ReleaseVersion.IFC4A2);
         var building = new IfcBuilding(db, "B");
         var storey = new IfcBuildingStorey(building, "S", 0);
         var owner = new Dictionary<int, long>();

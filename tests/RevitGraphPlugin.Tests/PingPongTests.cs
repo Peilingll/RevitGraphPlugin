@@ -31,18 +31,7 @@ public sealed class PingPongTests : IDisposable
     public PingPongTests(ITestOutputHelper output)
     {
         _output = output;
-        var password = Environment.GetEnvironmentVariable("NEO4J_LOCAL_PASSWORD") ?? "password";
-        try
-        {
-            var d = GraphDatabase.Driver("bolt://127.0.0.1:7687", AuthTokens.Basic("neo4j", password));
-            d.VerifyConnectivityAsync().GetAwaiter().GetResult();
-            _driver = d;
-        }
-        catch (Exception ex)
-        {
-            _output.WriteLine($"Neo4j unreachable — skipping integration assertions: {ex.Message}");
-            _driver = null;
-        }
+        _driver = Neo4jTest.TryConnect(_output);
     }
 
     public void Dispose()
@@ -63,10 +52,10 @@ public sealed class PingPongTests : IDisposable
     [SkippableFact]
     public async Task Checkout_bounces_between_head_and_baseline_without_drift()
     {
-        Skip.If(_driver is null, "Neo4j not reachable at bolt://127.0.0.1:7687 (set NEO4J_LOCAL_PASSWORD, start the instance)");
+        Skip.If(_driver is null, Neo4jTest.SkipReason);
         await Cleanup();
 
-        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var db = new DatabaseIfc(ReleaseVersion.IFC4A2);
         var building = new IfcBuilding(db, "B");
         var storey = new IfcBuildingStorey(building, "S", 0);
         var owner = new Dictionary<int, long>();

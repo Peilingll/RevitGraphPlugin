@@ -17,7 +17,7 @@
     <!-- Revit 2025 DLLs reference dozens of in-process assemblies (CefSharp, Autodesk.UI.*) that Revit
          itself supplies at runtime. NETCore's reference resolver warns about every one (MSB3277).
          Suppress here; we already pin Private=false so nothing is copied. -->
-    <NoWarn>$(NoWarn);MSB3277</NoWarn>
+    <NoWarn>$(NoWarn);MSB3277;NU1701</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>

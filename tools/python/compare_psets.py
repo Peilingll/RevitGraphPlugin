@@ -9,8 +9,8 @@ values side by side — plus, with --storeys, the storey each product is contain
 revit_element_id on the graph side) and the IFC entity type. Exit code 1 when any
 value differs or exists on one side only — so it doubles as a check in scripts.
 
-This is the acceptance tool for the converter TODO(verify) items (open-questions §3):
-model every element type once, export natively, Live Sync the same model, run this.
+Acceptance check for the converters: model every element type once, export natively,
+Live Sync the same model, run this.
 
 Environment: NEO4J_LOCAL_PASSWORD (default "password"); the ConMan2 venv (ifcopenshell).
 """

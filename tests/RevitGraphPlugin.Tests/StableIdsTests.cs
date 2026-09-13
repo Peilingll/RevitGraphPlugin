@@ -18,7 +18,7 @@ public sealed class StableIdsTests
 
     private static (DatabaseIfc Db, IfcBuildingStorey Storey, IfcBuilding Building) Site()
     {
-        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var db = new DatabaseIfc(ReleaseVersion.IFC4A2);
         var building = new IfcBuilding(db, "B") { GlobalId = BuildingGid };
         var storey = new IfcBuildingStorey(building, "S", 0) { GlobalId = StoreyGid };
         return (db, storey, building);
