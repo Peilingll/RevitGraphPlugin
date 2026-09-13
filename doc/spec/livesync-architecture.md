@@ -95,17 +95,87 @@ Revit transaction commits
                │     ├─ DetachFromContainment           on modify/remove, detach old element from storey containment first
                │     └─ ForgetOwnership                 drop superseded entities' ownership so they are not re-walked
                │
-               └─ CypherEmitter.ApplyRuleAsync(rule)   apply the rule in ONE transaction (all-or-nothing)
-                     delete old nodes by {timestamp, revit_element_id} → MERGE graphlet → refresh shared containment
+               └─ CypherEmitter.ApplyRuleAsync(rule)   apply + persist in ONE transaction (all-or-nothing)
+                     capture L from the graph → GraphletDiff.Compare(L, R)
+                     ├─ aligned (NoChange / PropertyOnly / Partial): keep the interface I in place,
+                     │   delete pushout L, insert pushout R, SET changed values, renumber I to R's p21s
+                     └─ Structural (could not align): DETACH DELETE old nodes by {timestamp, revit_element_id}
+                         → MERGE the whole graphlet
+                     then refresh / drop shared containment + aggregation rels, RuleStore.PersistAsync
 ```
+
+See **Rule chain and version checkout** below for what gets stored and how it is replayed.
 
 ### Supporting files used along the way
 
 ```
 EntityWalker.cs      walk one ggifc entity into EntityData { properties, edges, inlines }
 NodeClassifier.cs    node kind (Primary / Connection / Secondary / Inline) + Neo4j label
-IfcModelContext.cs   the live in-memory mirror: Db, StoreyByLevel, ConvertedElements, OwnerByStepId
+IfcModelContext.cs   the live in-memory mirror: Db, Building, StoreyByLevel, ConvertedElements, OwnerByStepId
+StableIds.cs         deterministic GlobalIds for psets / rels / containment / aggregation / openings
 ```
+
+### Levels, undo, and what the router does after every event
+
+- **Levels** are elements too: `LevelConverter` (registered first) turns a level added
+  while live into an `IfcBuildingStorey` (Insert); a renamed / moved level updates the
+  storey in place (Modify); a deleted level is a Remove routed after the elements Revit
+  deletes with it. Baseline storeys, their pset and rel are tagged with the level id so
+  they can be found later; the shared pset values are not.
+- **Undo / rollback**: Revit reports `Operation = TransactionUndone / …RolledBack` with
+  empty id sets. After every event the session takes a roll call (`ReconcileVanished`:
+  tracked elements no longer in the document → Remove); when the operation is not a plain
+  commit it also re-converts every tracked element (`ReconcileAll`: the diff reports
+  NoChange for the untouched ones) and inserts supported elements it did not track.
+- A converter that produces no entities (e.g. an element on a level with no storey) is
+  logged loudly (`!! … produced no entities — not applied`) and stores nothing.
+
+---
+
+## Rule chain and version checkout
+
+The current-state graph (`timestamp = plugin-live`) is pure ConMan2 schema. Beside it,
+each applied rule is stored under its own namespace — `plugin-live-rule-<seq>` for the
+bookkeeping nodes, `-L` / `-R` for copies — with no edge between the two worlds. This is
+the plugin's extension of the schema; every name below is defined in
+`Cypher/Direct/RuleStore.cs`.
+
+```
+(:RuleChain {target_ts, checked_out_seq})-[:HEAD]->(newest member)
+(:Baseline {seq})-[:NEXT]->(:Rule {seq, op, revit_element_id, aligned, renumber_from/to})-[:NEXT]->…
+(:Rule)-[:DELETES]->(L \ I copies)      what the rule removed          ↔ ConMan2 Patch_Topo (init side)
+(:Rule)-[:INSERTS]->(R \ I copies)      what the rule added            ↔ Patch_Topo (updt side)
+(:Rule)-[:SETS]->(:Change {path, key, before, after})   value changes on I  ↔ Patch_Sema
+(:Rule)-[:GLUE]->(:Glue {context, rel_type, list_index, local_p21, side, direction})
+                                        edges crossing the pushout boundary; context named by
+                                        a GlobalId-anchored path (paper §3.4: secondary nodes
+                                        have no id and are addressed through a primary node)
+```
+
+| op | Revit event | stored |
+|---|---|---|
+| `Insert` | added | R copies + glue |
+| `Remove` | deleted | L copies + glue (+ shared rels dropped) |
+| `Modify` | modified, values only | `:Change` rows + renumber map |
+| `Replace` | modified, structure changed | pushout copies both sides + changes + glue + renumber map (`aligned: true`); or, when L and R cannot be aligned, both whole graphlets (`aligned: false`) |
+
+**Alignment (`GraphletDiff.cs`)** seeds on GlobalIds present on both sides (products from
+the Revit UniqueId via `ExportUtils`, psets / rels seeded by `StableIds`), propagates along
+edges whose `(rel_type, list_index)` is unique — list members pair by position, as
+ConMan2's `run_diff` does — and leaves whatever has no partner as pushout. Matched nodes
+form the interface I: they stay in the graph, their changed values are `SET`, and their
+`p21_id` is renumbered to the fresh conversion's ids (the mirror now holds those; p21 is a
+file-local number, not an identity — paper §3.6).
+
+**Checkout (`RuleReplayer.cs`, `checkout.ps1`)** walks the chain one step at a time from
+`checked_out_seq`, each step its own transaction: forward applies a rule (delete L pushout
+by copy p21s, merge R copies, glue, SET, renumber), backward inverts it. Below the newest
+`:Baseline` the graph was rebuilt, so checkout stops there. A shared rel the mirror still
+holds but the graph no longer does (a storey emptied and re-used) is recorded as inserted
+when it reappears; a shared delete of a node already gone is filtered out — both keep the
+chain replayable and the alignment intact.
+
+---
 
 ---
 
@@ -203,11 +273,14 @@ ownership tagging.
 ### Build the GraphRule (increment-only)
 
 **`Cypher/Direct/GraphRule.cs`** — rule types + extraction.
-- `enum RuleOp { Insert, Remove, Replace }`.
+- `enum RuleOp { Insert, Remove, Replace }` (`Modify` is a *stored* op: a Replace whose
+  diff was property-only).
 - `record GraphRule(Op, RevitElementId, Timestamp, Graphlet, SharedRefresh, SharedDelete)`
   — one Revit change = one graph transformation rule.
 - `SharedResourceTypes` — types that are shared context, never owned by one element
-  (`IfcRelContainedInSpatialStructure`); ownership tagging must skip them.
+  (`IfcRelContainedInSpatialStructure`, `IfcRelAggregates`); ownership tagging must skip them.
+- `GraphletExtractor.SpatialChanges(storeys, building, ts)` — containment rels plus the
+  building's aggregation rel (levels join and leave it).
 - `GraphletExtractor.WalkNew(db, owner, before, after, ts)` — walks **only** the
   watermark range (O(graphlet), not the whole db), via `CypherEmitter.WalkOwned`.
 - `GraphletExtractor.StoreyContainmentChanges(storeys, ts)` — produces the storey
@@ -240,11 +313,15 @@ ownership tagging.
   DELETE`, then `BulkMergeNodes` (Primary/Connection/Secondary) + `BulkMergeEdges` +
   `BulkCreateInlines`.
 - `ApplyRuleAsync(driver, rule)` — **increment, single all-or-nothing transaction**:
-  1. Remove/Replace → `DETACH DELETE` old nodes by `{timestamp, revit_element_id}`.
-  2. Insert/Replace → MERGE the graphlet's nodes/edges/inlines.
-  3. `SharedRefresh` → MERGE shared node props, replace its whole outgoing edge set
+  0. Revive shared rels the graph lost (record as inserted); drop shared deletes of
+     nodes already gone; capture L; `GraphletDiff.Compare(L, R)`.
+  1. Aligned → `ApplyAlignedAsync`: delete L pushout, merge R pushout, SET changes on
+     I, renumber I; not aligned → `DETACH DELETE` by `{timestamp, revit_element_id}`,
+     MERGE the whole graphlet.
+  2. `SharedRefresh` → MERGE shared node props, replace its whole outgoing edge set
      (list_index renumbers).
-  4. `SharedDelete` → drop shared nodes that became memberless.
+  3. `SharedDelete` → drop shared nodes that became memberless.
+  4. `RuleStore.PersistAsync` in the same transaction.
 - `WalkOwned(entity, ts, owner)` — walk one entity and stamp `revit_element_id` onto the
   node and its inlines (so graphlet deletion reaches inlines, no orphans).
 - `BulkMergeNodes / BulkMergeEdges / BulkCreateInlines` (private) — emit the
@@ -258,7 +335,8 @@ ownership tagging.
 - `LiveSyncToggleCommand.cs` — toggle button; calls `Toggle`, shows status.
 - `LiveSyncManager.cs` — static session holder; routes DocumentChanged into the session; fail loud.
 - `LiveSyncSession.cs` — per-document mirror; baseline snapshot + Insert/Replace/Remove.
-- `LiveSyncLog.cs` — append-only `%TEMP%` diagnostics (no UI allowed in events).
+- `LiveSyncLog.cs` — append-only diagnostics under Revit's per-session temp folder
+  (`%LOCALAPPDATA%\Temp\<session GUID>\RevitGraphPlugin\live.log`; no UI allowed in events).
 - `Neo4jConfig.cs` — resolves bolt URI + credentials from `NEO4J_LOCAL_*`.
 - `Ifc/ModelAssembler.cs` — Phase A: boilerplate + convert-all into the ggifc tree.
 - `Ifc/IfcModelContext.cs` — the in-memory mirror (`Db`, `OwnerByStepId`, `ConvertedElements`, storeys).
@@ -268,4 +346,11 @@ ownership tagging.
 - `Cypher/Direct/LiveRuleBuilder.cs` — one change → one `GraphRule`; ggifc-side detach/forget.
 - `Cypher/Direct/NodeClassifier.cs` — ConMan2 node-kind taxonomy + labels.
 - `Cypher/Direct/EntityWalker.cs` — ggifc entity → `EntityData` (node/edges/inlines).
+- `Cypher/Direct/GraphletDiff.cs` — align L and R: interface, pushout, value changes.
+- `Cypher/Direct/RuleStore.cs` — persist a rule into the `:Rule` chain.
+- `Cypher/Direct/RuleReplayer.cs` — replay / undo / checkout, one transaction per step.
+- `Cypher/Direct/GraphletReader.cs` / `ContextResolver.cs` / `ContextRef.cs` — L capture; portable names.
+- `Ifc/StableIds.cs` — deterministic GlobalIds for synthetic IfcRoot nodes.
+- `Ifc/Converters/LevelConverter.cs` — levels as storeys, live.
+- `Ifc/Converters/PsetSources.cs` — the Revit parameters behind IsExternal / LoadBearing.
 - `Cypher/Direct/CypherEmitter.cs` — Neo4j sink: `WriteAsync` (baseline) + `ApplyRuleAsync` (increment).
