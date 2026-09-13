@@ -1,356 +1,483 @@
 # Live Sync Architecture
 
-Live incremental sync mirrors one Revit document into Neo4j in real time. It is
-**pure C#** — it does **not** go through Python / ConMan2 / ifcopenshell. (Python is
-only used by the separate "Sync (bridge)" button.)
+RevitGraphPlugin writes a Revit document into Neo4j as an IFC property graph in the
+ConMan2 schema and keeps it up to date from Revit's `DocumentChanged` event. Every change
+is applied as a graph transformation rule and stored in a rule chain beside the graph.
+This document describes the pipeline, the graph schema, the rule storage, and the code.
 
-Live sync reuses the whole **direct-write** pipeline (`Revit → ggifc tree → Cypher →
-Neo4j`, no temp `.ifc`). It adds three things on top of it: an in-memory ggifc mirror
-kept alive after the baseline, a `DocumentChanged` event subscription, and an
-incremental rule engine (`GraphRule` + `CypherEmitter.ApplyRuleAsync`).
+Contents
 
----
-
-## Direct vs. Live Sync
-
-The baseline is almost identical to a one-shot direct sync; everything different is
-what happens *after* the baseline.
-
-| | Direct (`SyncDirectCommand`) | Live Sync |
-|---|---|---|
-| Trigger | one button click = one full write | ON writes a baseline, then follows every change automatically |
-| Phase A (build tree) | `ModelAssembler.Build` | `ModelAssembler.Build` (same) |
-| Phase B (write) | `CypherEmitter.WriteAsync` (full) | baseline also uses `WriteAsync` (same) |
-| After building | `IfcModelContext` is discarded | `IfcModelContext` **kept** as in-memory mirror + subscribes `DocumentChanged` |
-| On each later change | none (must re-click for a full rewrite) | `CypherEmitter.ApplyRuleAsync` (only the changed graphlet) |
-| Timestamp | `plugin-direct` | `plugin-live` |
-
-**Live Sync = Direct's full write as a baseline + keep `IfcModelContext` as a mirror +
-event-driven incremental updates.** The incremental machinery (`LiveRuleBuilder`,
-`GraphRule`, the StepId watermark, `ApplyRuleAsync`) is the part Direct does not have.
-
-- **Converters are shared.** Same `IElementConverter` set. Baseline runs
-  `ElementConverterRegistry.ConvertAll` (all elements); the increment runs
-  `TryConvertOne` (only the changed element). Same `ConvertOne` internals, incl.
-  ownership tagging.
-- **Cypher is shared.** Same `CypherEmitter` / `EntityWalker` / `NodeClassifier`.
-  Baseline calls `WriteAsync`; the increment calls `ApplyRuleAsync` — both go to Neo4j
-  over `Neo4j.Driver` (bolt) with the same node/edge shapes.
+1. [Overview](#1-overview)
+2. [Graph schema](#2-graph-schema)
+3. [Data flow](#3-data-flow)
+4. [Rules](#4-rules)
+5. [Version checkout](#5-version-checkout)
+6. [Levels, undo and reconciliation](#6-levels-undo-and-reconciliation)
+7. [Identity](#7-identity)
+8. [Coverage and limits](#8-coverage-and-limits)
+9. [Build and configuration](#9-build-and-configuration)
+10. [Diagnostics](#10-diagnostics)
+11. [Repository layout](#11-repository-layout)
+12. [Per-file reference](#12-per-file-reference)
 
 ---
 
-## Data flow (pure C#, no Python)
+## 1. Overview
 
-### Startup — build the baseline
+The ribbon has three buttons. All three build the same in-memory IFC model
+(GeometryGym.Ifc, "ggifc") from the Revit document; they differ in how it reaches Neo4j.
 
-```
-User clicks the ribbon "Live Sync" button
-│
-├─ RevitGraphApp.cs
-│     On app startup: builds the buttons and subscribes DocumentChanged / DocumentClosing
-│
-└─ LiveSyncToggleCommand.cs
-      Grabs ActiveUIDocument.Document, calls Toggle, shows ON/OFF via TaskDialog
-      │
-      └─ LiveSyncManager.Toggle(doc)
-            Static coordinator; no session → start one (baseline); else dispose. Updates button text
-            │
-            └─ LiveSyncSession.Start(doc)
-                  │
-                  ├─ ModelAssembler.Build(doc)          build the whole ggifc tree
-                  │     ├─ BoilerplateBuilder            skeleton (Project/Site/Building/Storey/units/contexts)
-                  │     └─ ElementConverterRegistry.ConvertAll
-                  │           convert every Revit element to an IFC product, filling
-                  │           OwnerByStepId (StepId→Revit id) and ConvertedElements (Revit id→IfcElement)
-                  │
-                  ├─ Neo4jConfig.Resolve()              bolt URI + credentials from NEO4J_LOCAL_*
-                  │
-                  └─ CypherEmitter.WriteAsync(...)      full wipe + rewrite into Neo4j (timestamp = plugin-live)
-                        (session keeps IfcModelContext alive as the in-memory mirror)
-```
+| Button            | Pipeline                                            | Trigger                            | Timestamp       |
+| ----------------- | --------------------------------------------------- | ---------------------------------- | --------------- |
+| **Live Sync**     | direct write, C# only                               | baseline on ON, then every change  | `plugin-live`   |
+| **Sync (direct)** | direct write, C# only                               | one click, one full write          | `plugin-direct` |
+| **Sync (bridge)** | temp `.ifc`, then ConMan2's Python importer         | one click, one full write          | `plugin-bridge` |
 
-### Increment — every committed Revit transaction
+Live Sync is the direct write used as a baseline, plus two things the one-click modes do
+not have: the ggifc model is kept alive as an in-memory mirror of the document, and a
+`DocumentChanged` subscription turns each committed transaction into a rule.
 
-```
-Revit transaction commits
-│
-└─ ControlledApplication.DocumentChanged
-   │
-   └─ LiveSyncManager.OnDocumentChanged(e)
-         Core router; filters by doc.Equals(session.Document) (NOT reference equality),
-         then dispatches in order: deletes → adds → modifies (hosts before hosted).
-         Any exception → dispose session, turn button off (fail loud, never desync silently).
-         Every decision is written to LiveSyncLog (TaskDialog is forbidden inside the event).
-         │
-         └─ LiveSyncSession.ApplyAdded / ApplyModified / ApplyRemoved
-               │
-               ├─ StepIdWatermark.Current(db)          record the highest StepId before converting
-               │
-               ├─ ElementConverterRegistry.TryConvertOne
-               │     convert only this element; the new entities land exactly in (before, after]
-               │
-               ├─ LiveRuleBuilder.BuildUpsert / BuildRemove
-               │     turn "one element change" into one GraphRule
-               │     ├─ GraphletExtractor.WalkNew       walk only the watermark range (O(graphlet), not whole db)
-               │     ├─ DetachFromContainment           on modify/remove, detach old element from storey containment first
-               │     └─ ForgetOwnership                 drop superseded entities' ownership so they are not re-walked
-               │
-               └─ CypherEmitter.ApplyRuleAsync(rule)   apply + persist in ONE transaction (all-or-nothing)
-                     capture L from the graph → GraphletDiff.Compare(L, R)
-                     ├─ aligned (NoChange / PropertyOnly / Partial): keep the interface I in place,
-                     │   delete pushout L, insert pushout R, SET changed values, renumber I to R's p21s
-                     └─ Structural (could not align): DETACH DELETE old nodes by {timestamp, revit_element_id}
-                         → MERGE the whole graphlet
-                     then refresh / drop shared containment + aggregation rels, RuleStore.PersistAsync
-```
-
-See **Rule chain and version checkout** below for what gets stored and how it is replayed.
-
-### Supporting files used along the way
-
-```
-EntityWalker.cs      walk one ggifc entity into EntityData { properties, edges, inlines }
-NodeClassifier.cs    node kind (Primary / Connection / Secondary / Inline) + Neo4j label
-IfcModelContext.cs   the live in-memory mirror: Db, Building, StoreyByLevel, ConvertedElements, OwnerByStepId
-StableIds.cs         deterministic GlobalIds for psets / rels / containment / aggregation / openings
-```
-
-### Levels, undo, and what the router does after every event
-
-- **Levels** are elements too: `LevelConverter` (registered first) turns a level added
-  while live into an `IfcBuildingStorey` (Insert); a renamed / moved level updates the
-  storey in place (Modify); a deleted level is a Remove routed after the elements Revit
-  deletes with it. Baseline storeys, their pset and rel are tagged with the level id so
-  they can be found later; the shared pset values are not.
-- **Undo / rollback**: Revit reports `Operation = TransactionUndone / …RolledBack` with
-  empty id sets. After every event the session takes a roll call (`ReconcileVanished`:
-  tracked elements no longer in the document → Remove); when the operation is not a plain
-  commit it also re-converts every tracked element (`ReconcileAll`: the diff reports
-  NoChange for the untouched ones) and inserts supported elements it did not track.
-- A converter that produces no entities (e.g. an element on a level with no storey) is
-  logged loudly (`!! … produced no entities — not applied`) and stores nothing.
+The bridge mode serialises the ggifc tree to a temp `.ifc` and hands it to ConMan2's own
+`ifc_2_graph` (`tools/python/snippet_to_cypher.py`, via ifcopenshell). It exists so the
+direct write can be compared against ConMan2's importer; it supports CREATE only.
 
 ---
 
-## Rule chain and version checkout
+## 2. Graph schema
 
-The current-state graph (`timestamp = plugin-live`) is pure ConMan2 schema. Beside it,
-each applied rule is stored under its own namespace — `plugin-live-rule-<seq>` for the
-bookkeeping nodes, `-L` / `-R` for copies — with no edge between the two worlds. This is
-the plugin's extension of the schema; every name below is defined in
-`Cypher/Direct/RuleStore.cs`.
+The current-state graph (`timestamp = plugin-live`) follows ConMan2's schema
+(`neo4j_core/neo4j_model.py`). The rule chain is an extension that lives under its own
+timestamps and never touches the current-state graph.
+
+| Layer               | Names                                                                                                                                                                                                       | Defined in                                                       |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Current-state graph | Labels `Node` > `GenericNode` > `PrimaryNode` / `ConnectionNode` / `SecondaryNode`, plus `InlineNode`. One edge type `rel {rel_type, list_index}`. Node properties are the IFC attributes (`$` = unset) plus `EntityType`, `p21_id`, `timestamp`. | ConMan2; plugin side `Cypher/Direct/NodeClassifier.cs`, `EntityWalker.cs` |
+| Ownership           | `revit_element_id` on every node an element's conversion created (inline nodes included). Shared context (containment and aggregation rels, boilerplate) carries none.                                    | `Ifc/Converters/ElementConverterRegistry.cs`                     |
+| Rule chain          | Labels `:RuleChain`, `:Baseline`, `:Rule`, `:Change`, `:Glue`. Edges `HEAD`, `NEXT`, `DELETES`, `INSERTS`, `SETS`, `GLUE`.                                                                                  | `Cypher/Direct/RuleStore.cs`                                     |
+| Operations          | `Insert`, `Remove`, `Modify`, `Replace`                                                                                                                                                                      | plugin names for Revit's added / deleted / modified              |
+
+Node kinds (ConMan2): `PrimaryNode` = `IfcObjectDefinition` or `IfcPropertyDefinition`,
+`ConnectionNode` = `IfcRelationship`, `SecondaryNode` = every other STEP entity,
+`InlineNode` = a wrapped value with no STEP id of its own (e.g. a property's
+`NominalValue`).
+
+The rule chain maps onto ConMan2's patch files: `DELETES` / `INSERTS` copies correspond to
+`Patch_Topo`, `SETS` rows to `Patch_Sema`, and `:Glue` rows to the unique-path context
+references of `GraphPatch`.
+
+---
+
+## 3. Data flow
+
+### Baseline (Live Sync ON, or Sync (direct))
 
 ```
-(:RuleChain {target_ts, checked_out_seq})-[:HEAD]->(newest member)
-(:Baseline {seq})-[:NEXT]->(:Rule {seq, op, revit_element_id, aligned, renumber_from/to})-[:NEXT]->…
-(:Rule)-[:DELETES]->(L \ I copies)      what the rule removed          ↔ ConMan2 Patch_Topo (init side)
-(:Rule)-[:INSERTS]->(R \ I copies)      what the rule added            ↔ Patch_Topo (updt side)
-(:Rule)-[:SETS]->(:Change {path, key, before, after})   value changes on I  ↔ Patch_Sema
-(:Rule)-[:GLUE]->(:Glue {context, rel_type, list_index, local_p21, side, direction})
-                                        edges crossing the pushout boundary; context named by
-                                        a GlobalId-anchored path (paper §3.4: secondary nodes
-                                        have no id and are addressed through a primary node)
+LiveSyncToggleCommand ─► LiveSyncManager.Toggle ─► LiveSyncSession.Start
+    ModelAssembler.Build(doc)                       build the whole ggifc tree
+        BoilerplateBuilder                          project, units, contexts, site, building, storeys, default psets
+        ElementConverterRegistry.ConvertAll         every supported element, ownership tagged
+    CypherEmitter.WriteAsync                        wipe the timestamp, write nodes, edges, inline nodes
+    RuleStore.RecordBaselineAsync                   (:Baseline) member appended to the chain
+    IfcModelContext kept as the mirror
 ```
 
-| op | Revit event | stored |
-|---|---|---|
-| `Insert` | added | R copies + glue |
-| `Remove` | deleted | L copies + glue (+ shared rels dropped) |
-| `Modify` | modified, values only | `:Change` rows + renumber map |
-| `Replace` | modified, structure changed | pushout copies both sides + changes + glue + renumber map (`aligned: true`); or, when L and R cannot be aligned, both whole graphlets (`aligned: false`) |
+### Increment (every committed transaction)
 
-**Alignment (`GraphletDiff.cs`)** seeds on GlobalIds present on both sides (products from
-the Revit UniqueId via `ExportUtils`, psets / rels seeded by `StableIds`), propagates along
-edges whose `(rel_type, list_index)` is unique — list members pair by position, as
-ConMan2's `run_diff` does — and leaves whatever has no partner as pushout. Matched nodes
-form the interface I: they stay in the graph, their changed values are `SET`, and their
-`p21_id` is renumbered to the fresh conversion's ids (the mirror now holds those; p21 is a
-file-local number, not an identity — paper §3.6).
+```
+ControlledApplication.DocumentChanged ─► LiveSyncManager.OnDocumentChanged
+    match the session's document (Document.Equals, not reference equality)
+    deletes (levels last) ─► adds ─► modifies (hosts before hosted; types expanded to instances)
+    each: LiveSyncSession.ApplyRemoved / ApplyAdded / ApplyModified
+        before = StepIdWatermark.Current
+        ElementConverterRegistry.TryConvertOne      re-convert only this element
+        after  = StepIdWatermark.Current
+        LiveRuleBuilder.BuildUpsert / BuildRemove   graphlet = entities in (before, after] + spatial rel refresh
+        CypherEmitter.ApplyRuleAsync                one transaction: capture L, diff, apply, persist
+    ReconcileVanished (every event), ReconcileAll (undo / redo / rollback)
+    any exception: session disposed, button OFF, reason in live.log
+```
 
-**Checkout (`RuleReplayer.cs`, `checkout.ps1`)** walks the chain one step at a time from
-`checked_out_seq`, each step its own transaction: forward applies a rule (delete L pushout
-by copy p21s, merge R copies, glue, SET, renumber), backward inverts it. Below the newest
-`:Baseline` the graph was rebuilt, so checkout stops there. A shared rel the mirror still
-holds but the graph no longer does (a storey emptied and re-used) is recorded as inserted
-when it reappears; a shared delete of a node already gone is filtered out — both keep the
-chain replayable and the alignment intact.
+`StepIdWatermark` is what makes the increment cheap: ggifc allocates STEP ids
+monotonically, so the entities one converter call created are exactly those in
+`(before, after]`, and only that range is walked.
 
 ---
 
----
+## 4. Rules
 
-## Per-file reference (what each `.cs` does + key methods)
+One Revit element change is one `GraphRule` (`Cypher/Direct/GraphRule.cs`):
 
-Ordered along the flow `rvt → DocumentChanged → converter → cypher → neo4j`.
+| Field           | Content                                                                                   |
+| --------------- | ----------------------------------------------------------------------------------------- |
+| `Op`            | `Insert`, `Remove`, `Replace`                                                              |
+| `RevitElementId`| ownership key                                                                              |
+| `Graphlet`      | walked entities to insert: the element's own plus any new shared context it created       |
+| `SharedRefresh` | containment / aggregation rels whose edge set is rewritten from a fresh walk              |
+| `SharedDelete`  | p21 ids of shared rels that became memberless (a fresh export would not contain them)     |
+| `BeforeGraphlet`| the L side, read from the graph inside the transaction before anything is deleted         |
+| `ContextRefs`   | portable names for every node the rule references but does not own                        |
+| `Diff`          | how L and R were aligned                                                                  |
 
-### Startup & event wiring
+### Apply
 
-**`RevitGraphApp.cs`** — `IExternalApplication` entry point.
-- `OnStartup` — builds the 3 ribbon buttons; subscribes
-  `ControlledApplication.DocumentChanged += LiveSyncManager.OnDocumentChanged` and
-  `DocumentClosing`. This wires live sync into Revit's global event stream.
-- `OnShutdown` — unsubscribes + `LiveSyncManager.Shutdown()`.
+`CypherEmitter.ApplyRuleAsync` runs everything in one Neo4j transaction:
 
-**`LiveSyncToggleCommand.cs`** — the toggle button (`IExternalCommand`,
-`[Transaction(ReadOnly)]`).
-- `Execute` — reads `ActiveUIDocument.Document`, calls `LiveSyncManager.Toggle(doc)`,
-  shows status via `TaskDialog`. The only place UI is shown (a click is not inside a
-  `DocumentChanged` context).
+1. Capture L (`GraphletReader.ReadOwnedAsync`): the owned nodes, their outgoing edges, and
+   the incoming glue from context.
+2. Align L and R (`GraphletDiff.Compare`). Matching seeds on GlobalIds present on both
+   sides and propagates along edges whose `(rel_type, list_index)` is unique; list members
+   pair by position, as in ConMan2's `run_diff`. Matched nodes form the interface I and stay
+   in the graph; the rest is the pushout.
+3. Aligned: delete the L pushout, merge the R pushout, SET the changed values on I,
+   renumber I's `p21_id` to the fresh conversion's ids (the mirror now holds those; p21 is
+   a file-local number, not an identity). Not aligned: delete the whole owned graphlet by
+   `revit_element_id`, merge the new one.
+4. Refresh `SharedRefresh` rels (edge set replaced, `list_index` renumbered), drop
+   `SharedDelete` nodes.
+5. `RuleStore.PersistAsync`.
 
-### Coordination & session
+### Storage
 
-**`LiveSyncManager.cs`** — static coordinator + event router; holds the single
-`LiveSyncSession? _session`.
-- `Toggle(doc)` — no session → `LiveSyncSession.Start` (baseline); else `Dispose`.
-  Updates button text.
-- `OnDocumentChanged(e)` — the core router, fires once per committed transaction:
-  filters with `doc.Equals(_session.Document)` (deliberately **not** `ReferenceEquals`;
-  Revit does not guarantee the same managed reference); dispatches **deletes →
-  adds → modifies**, adds/mods ordered by `SupportedByPriority` (hosts before hosted).
-  Any exception disposes the session and flips the button off (fail loud; never show UI
-  from the event).
-- `SupportedByPriority(doc, ids)` — filters supported elements, orders by `Priority`.
-- `OnDocumentClosing` — closing the mirrored document ends the session.
+Every stored node lives under a rule timestamp, so the current-state graph stays pure
+ConMan2 schema and a re-baseline wipe cannot reach the chain.
 
-**`LiveSyncSession.cs`** — baseline + increment core for one document.
-`const Timestamp = "plugin-live"`; holds `_driver`, `_ctx` (the mirror), `_registry`.
-- `Start(doc)` (static) — **baseline**: `ModelAssembler.Build` → `Neo4jConfig.Resolve`
-  → open driver → `CypherEmitter.WriteAsync`. Returns a live session keeping `_ctx`.
-- `ApplyAdded(el)` → `Upsert(el, Insert)`.
-- `ApplyModified(el)` — if previously converted (`ConvertedElements` has it):
-  `DetachFromContainment` + `ForgetOwnership`, then `Upsert(Replace)`; otherwise
-  falls back to `Insert`. Then `ResyncHostedInserts` re-attaches windows/doors to the
-  rebuilt host wall.
-- `ApplyRemoved(id)` — `DetachFromContainment` + `ForgetOwnership` + remove from
-  `ConvertedElements` → `LiveRuleBuilder.BuildRemove` → `Apply`.
-- `Upsert(el, op)` (private, **increment heart**) — read
-  `StepIdWatermark.Current` (before) → `_registry.TryConvertOne` → read (after) →
-  `LiveRuleBuilder.BuildUpsert` → `Apply`.
-- `Apply(rule)` — `Task.Run(() => CypherEmitter.ApplyRuleAsync(...)).GetAwaiter().GetResult()`
-  (blocking call to avoid the Revit UI-thread `SynchronizationContext` deadlock).
-- `Supports` / `Priority` — proxy the registry for the manager's filtering/ordering.
+```
+(:RuleChain {target_ts, next_seq, checked_out_seq}) -[:HEAD]-> newest member
+(:Baseline {seq}) -[:NEXT]-> (:Rule {seq, op, revit_element_id, aligned, renumber_from, renumber_to}) -[:NEXT]-> ...
+(:Rule) -[:DELETES]-> copies of L \ I      namespace "<target>-rule-<seq>-L"
+(:Rule) -[:INSERTS]-> copies of R \ I      namespace "<target>-rule-<seq>-R"
+(:Rule) -[:SETS]->    (:Change {path, path_after, key, list_index, before, after, inline})
+(:Rule) -[:GLUE]->    (:Glue {context, rel_type, list_index, local_p21, side, direction})
+```
 
-**`LiveSyncLog.cs`** — append-only diagnostics.
-- `Write(msg)` — writes to `%TEMP%\RevitGraphPlugin\live.log`. Exists because
-  `TaskDialog` is forbidden inside `DocumentChanged`; without a file, a swallowed
-  exception is invisible. Swallows its own errors (diagnostics must never break sync).
+| Stored op | Revit event                | Payload                                                                    |
+| --------- | -------------------------- | -------------------------------------------------------------------------- |
+| `Insert`  | added                      | R copies, glue                                                             |
+| `Remove`  | deleted                    | L copies, glue, shared rels dropped                                        |
+| `Modify`  | modified, values only      | `:Change` rows, renumber map                                               |
+| `Replace` | modified, structure changed| pushout copies on both sides, changes, glue, renumber map (`aligned: true`); or both whole graphlets when L and R could not be aligned (`aligned: false`) |
 
-**`Neo4jConfig.cs`** — connection settings.
-- `Resolve()` — builds `(bolt://host:port, user, password)` from `NEO4J_LOCAL_*` env
-  vars; forces `localhost → 127.0.0.1` (matches ConMan2). Shared by Direct and Live.
+A Replace whose diff is `NoChange` stores nothing (Revit reports modifies for changes the
+converters do not read).
 
-### Phase A — build tree / converters
+### Context references
 
-**`ModelAssembler.cs`** — Phase A assembly.
-- `Build(doc)` — `BoilerplateBuilder.Build` (skeleton) →
-  `ElementConverterRegistry().ConvertAll`. Shared by Direct and Live baseline.
-
-**`IfcModelContext.cs`** — the live in-memory mirror (the key Live state; kept alive
-after baseline so the model is remembered).
-- `Db` — the ggifc `DatabaseIfc` (the IFC tree itself).
-- `StoreyByLevel` — Revit Level → IfcBuildingStorey.
-- `ConvertedElements` (Revit ElementId → IfcElement) — lets modify/remove find the IFC
-  product, and lets hosted elements wire back to their host wall.
-- `OwnerByStepId` (ggifc StepId → Revit id) — later written as the Neo4j
-  `revit_element_id` property; the increment locates a graphlet by it.
-
-**`Ifc/Converters/ElementConverterRegistry.cs`** — element→converter dispatch +
-ownership tagging.
-- `ConvertAll(doc, ctx)` — baseline; runs every converter over all elements.
-- `TryConvertOne(el, ctx)` — the **increment entry point**; converts one element.
-- `ConvertOne` (private, shared) — reads a StepId watermark around the converter call,
-  tags every new StepId into `OwnerByStepId` (skipping `SharedResourceTypes`, e.g. a
-  shared containment rel), then registers the principal product into `ConvertedElements`
-  by GlobalId (without which a non-wall modify would duplicate instead of replace).
-- `ConversionPriority` / `Supports` — back the ordering/filtering.
-- `FindProduct` — the IfcElement in the watermark range whose GlobalId matches.
-
-**`Ifc/StepIdWatermark.cs`** — isolates one element's graphlet.
-- `Current(db)` — highest allocated StepId. ggifc allocates monotonically, so entities
-  created by one converter call are exactly those in `(before, after]`. This is the
-  mechanism that lets the increment touch only the changed graphlet.
-
-### Build the GraphRule (increment-only)
-
-**`Cypher/Direct/GraphRule.cs`** — rule types + extraction.
-- `enum RuleOp { Insert, Remove, Replace }` (`Modify` is a *stored* op: a Replace whose
-  diff was property-only).
-- `record GraphRule(Op, RevitElementId, Timestamp, Graphlet, SharedRefresh, SharedDelete)`
-  — one Revit change = one graph transformation rule.
-- `SharedResourceTypes` — types that are shared context, never owned by one element
-  (`IfcRelContainedInSpatialStructure`, `IfcRelAggregates`); ownership tagging must skip them.
-- `GraphletExtractor.SpatialChanges(storeys, building, ts)` — containment rels plus the
-  building's aggregation rel (levels join and leave it).
-- `GraphletExtractor.WalkNew(db, owner, before, after, ts)` — walks **only** the
-  watermark range (O(graphlet), not the whole db), via `CypherEmitter.WalkOwned`.
-- `GraphletExtractor.StoreyContainmentChanges(storeys, ts)` — produces the storey
-  containment (Refresh, Delete): rels with members are re-walked (list_index renumbered);
-  memberless rels go to Delete (ggifc refuses to serialize a memberless rel).
-
-**`Cypher/Direct/LiveRuleBuilder.cs`** — turns one change into a `GraphRule`
-(Revit-API-free, headless-testable).
-- `BuildUpsert(op, db, owner, storeys, elementId, before, after, ts)` — Insert/Replace:
-  `WalkNew` graphlet + `StoreyContainmentChanges` refresh/delete.
-- `BuildRemove(storeys, elementId, ts)` — Remove: empty graphlet, containment repair only.
-- `DetachFromContainment(element)` — in the ggifc mirror, remove the element from its
-  storey's shared containment rel (required before walking containment for Remove/Replace).
-- `ForgetOwnership(owner, elementId)` — drop the dead entities' ownership entries so
-  superseded entities are never re-walked.
-
-### Phase B — write to Neo4j
-
-**`Cypher/Direct/NodeClassifier.cs`** — ConMan2 node taxonomy (shared).
-- `Classify(entity)` — Primary / Connection / Secondary / Inline.
-- `LabelExpression(kind)` — the Neo4j label expression (e.g. `PrimaryNode:GenericNode:Node`).
-
-**`Cypher/Direct/EntityWalker.cs`** — one ggifc entity → `EntityData` (shared).
-- `Walk(entity, ts)` — produces `EntityData { Properties, Edges, Inlines }`. Properties
-  come from the Part-21 STEP line (lossless); edges/inlines from reflection.
-- Defines `record EntityData / EdgeData / InlineData`.
-
-**`Cypher/Direct/CypherEmitter.cs`** — the Neo4j sink (shared class for Direct + Live).
-- `WriteAsync(driver, db, ts, owner)` — **full baseline**: `MATCH {timestamp} DETACH
-  DELETE`, then `BulkMergeNodes` (Primary/Connection/Secondary) + `BulkMergeEdges` +
-  `BulkCreateInlines`.
-- `ApplyRuleAsync(driver, rule)` — **increment, single all-or-nothing transaction**:
-  0. Revive shared rels the graph lost (record as inserted); drop shared deletes of
-     nodes already gone; capture L; `GraphletDiff.Compare(L, R)`.
-  1. Aligned → `ApplyAlignedAsync`: delete L pushout, merge R pushout, SET changes on
-     I, renumber I; not aligned → `DETACH DELETE` by `{timestamp, revit_element_id}`,
-     MERGE the whole graphlet.
-  2. `SharedRefresh` → MERGE shared node props, replace its whole outgoing edge set
-     (list_index renumbers).
-  3. `SharedDelete` → drop shared nodes that became memberless.
-  4. `RuleStore.PersistAsync` in the same transaction.
-- `WalkOwned(entity, ts, owner)` — walk one entity and stamp `revit_element_id` onto the
-  node and its inlines (so graphlet deletion reaches inlines, no orphans).
-- `BulkMergeNodes / BulkMergeEdges / BulkCreateInlines` (private) — emit the
-  `UNWIND ... MERGE/CREATE` Cypher; called by both baseline and increment.
+A rule references nodes it does not own: the storey's containment rel, the host wall of a
+window, `IfcOwnerHistory`, placements. Inside the rule p21 is a local name; the stored rule
+names such nodes portably (`ContextRef`, ConMan2's `create_unique_path_mappings`): the
+GlobalId of an IfcRoot anchor plus the path from it, each step keyed by
+`rel_type / list_index / EntityType`. `ContextResolver` prefers anchors without
+`revit_element_id` (boilerplate, never re-converted) over nearer element-owned ones, so a
+name survives later edits of other elements.
 
 ---
 
-## One-line file roster
+## 5. Version checkout
 
-- `RevitGraphApp.cs` — app entry: ribbon + `DocumentChanged`/`DocumentClosing` subscriptions.
-- `LiveSyncToggleCommand.cs` — toggle button; calls `Toggle`, shows status.
-- `LiveSyncManager.cs` — static session holder; routes DocumentChanged into the session; fail loud.
-- `LiveSyncSession.cs` — per-document mirror; baseline snapshot + Insert/Replace/Remove.
-- `LiveSyncLog.cs` — append-only diagnostics under Revit's per-session temp folder
-  (`%LOCALAPPDATA%\Temp\<session GUID>\RevitGraphPlugin\live.log`; no UI allowed in events).
-- `Neo4jConfig.cs` — resolves bolt URI + credentials from `NEO4J_LOCAL_*`.
-- `Ifc/ModelAssembler.cs` — Phase A: boilerplate + convert-all into the ggifc tree.
-- `Ifc/IfcModelContext.cs` — the in-memory mirror (`Db`, `OwnerByStepId`, `ConvertedElements`, storeys).
-- `Ifc/Converters/ElementConverterRegistry.cs` — element→converter dispatch, ownership tagging, `TryConvertOne`.
-- `Ifc/StepIdWatermark.cs` — highest-StepId watermark isolating one element's graphlet.
-- `Cypher/Direct/GraphRule.cs` — `RuleOp`/`GraphRule` + `GraphletExtractor` (watermark walk, containment changes).
-- `Cypher/Direct/LiveRuleBuilder.cs` — one change → one `GraphRule`; ggifc-side detach/forget.
-- `Cypher/Direct/NodeClassifier.cs` — ConMan2 node-kind taxonomy + labels.
-- `Cypher/Direct/EntityWalker.cs` — ggifc entity → `EntityData` (node/edges/inlines).
-- `Cypher/Direct/GraphletDiff.cs` — align L and R: interface, pushout, value changes.
-- `Cypher/Direct/RuleStore.cs` — persist a rule into the `:Rule` chain.
-- `Cypher/Direct/RuleReplayer.cs` — replay / undo / checkout, one transaction per step.
-- `Cypher/Direct/GraphletReader.cs` / `ContextResolver.cs` / `ContextRef.cs` — L capture; portable names.
-- `Ifc/StableIds.cs` — deterministic GlobalIds for synthetic IfcRoot nodes.
-- `Ifc/Converters/LevelConverter.cs` — levels as storeys, live.
-- `Ifc/Converters/PsetSources.cs` — the Revit parameters behind IsExternal / LoadBearing.
-- `Cypher/Direct/CypherEmitter.cs` — Neo4j sink: `WriteAsync` (baseline) + `ApplyRuleAsync` (increment).
+`RuleReplayer` (`checkout.ps1`) walks the chain from `checked_out_seq` to the requested
+member, one rule per transaction: forwards applies a rule (delete L pushout by copy p21s,
+merge R copies, glue, SET, renumber), backwards inverts it. Each step commits together with
+the new `checked_out_seq`, so a failure leaves the graph at a real version. Below the newest
+`:Baseline` the graph was rebuilt, so checkout stops there.
+
+```powershell
+.\checkout.ps1                  # list the chain and the current position
+.\checkout.ps1 7                # move to the state after rule 7
+.\checkout.ps1 7 -Ifc v7.ifc    # ...and export that version as IFC (ConMan2 graph_2_ifc)
+.\checkout.ps1 head             # newest version
+```
+
+Run it with Live Sync OFF; turning Live Sync ON again re-baselines. Exports land in
+`data/out/`.
+
+---
+
+## 6. Levels, undo and reconciliation
+
+**Levels** are elements too. `LevelConverter` (registered first) turns a level added
+while live into an `IfcBuildingStorey` (Insert). A renamed or moved level updates the
+storey in place (Modify): a storey is never rebuilt, because its containment rel and every
+element on it point at it. A deleted level is a Remove routed after the elements Revit
+deletes with it. Storey, pset and rel are tagged with the level id; the shared pset values
+are not.
+
+**Element types**: a modified `ElementType` is reported without its instances, so
+`LiveSyncManager` replaces each type id by the instances using it.
+
+**Undo, redo, rollback**: Revit reports these with empty id sets. After every event the
+session removes tracked elements that no longer exist (`ReconcileVanished`); when the
+operation is not a plain commit it also re-converts every tracked element (unchanged ones
+diff to `NoChange` and store nothing) and inserts supported elements it does not track
+(`ReconcileAll`).
+
+**Shared rel revival**: a containment rel dropped when its storey emptied is re-joined by
+the next element placed there (ggifc reuses the object). It arrives as a refresh of a node
+the graph no longer holds and is recorded as inserted, so the chain can rebuild it.
+
+---
+
+## 7. Identity
+
+| Entity                                                        | GlobalId                                                        |
+| ------------------------------------------------------------- | --------------------------------------------------------------- |
+| Product (wall, window, storey, ...)                           | Revit's own export GUID (`ExportUtils.GetExportId`), equal to the element's IfcGUID parameter |
+| Pset, `IfcRelDefinesByProperties`, containment, aggregation, void / fill, opening | deterministic, seeded from the owner's GlobalId plus a role (`Ifc/StableIds.cs`) |
+| Site, Building                                                | seeded from the project                                         |
+| Everything else (placements, geometry, `IfcOwnerHistory`)     | none; reached by a path from an anchor                          |
+
+`p21_id` is renumbered on every re-conversion and is masked by the diff. GlobalIds and
+paths are what identify a node across versions.
+
+---
+
+## 8. Coverage and limits
+
+Supported elements: Level, Wall, Floor, Column, Beam, Ceiling, Roof, Door, Window,
+including the opening chain of hosted inserts (`IfcOpeningElement`, `IfcRelVoidsElement`,
+`IfcRelFillsElement`). Each converter writes the product, its placement, a tessellated
+BRep body, the `Pset_*Common` and storey containment. Property set sources
+(`IsExternal`, `LoadBearing`) and storey containment match Revit's native IFC export
+(`tools/python/compare_psets.py`).
+
+Not emitted: element types (`IfcWallType` etc.), materials, quantities, native extrusion
+geometry, surface styles.
+
+Known limits:
+
+- STEP string escapes (`\X2\ ... \X0\`, non-ASCII names) are not parsed;
+  `StepLineParser` throws.
+- `ReconcileAll` re-converts every tracked element on each undo / rollback.
+- Elevation is stored in the element placement (native: in the storey placement); a roof
+  is one BRep (native: `IfcRoof` aggregating `IfcSlab` parts). Same world coordinates,
+  different IFC structure.
+- A hosted insert carries its full family geometry, copied on every Insert and Remove.
+- The first geometry-bearing element's `IfcGeometricRepresentationSubContext` glue is a
+  raw p21, valid in the same database only.
+- The bridge mode supports CREATE only.
+
+---
+
+## 9. Build and configuration
+
+### Revit version
+
+`RevitVersion` (default `2025`) selects the Revit API assemblies and the deploy folder:
+
+```powershell
+dotnet build RevitGraphPlugin.sln -c Debug -p:RevitVersion=2026
+```
+
+Assemblies are resolved in order: `RevitInstallPath`, `D:\Autodesk\Revit <version>\`,
+`%ProgramFiles%\Autodesk\Revit <version>\`, then the
+[Nice3point.Revit.Api](https://github.com/Nice3point/RevitApi) NuGet packages, so any
+machine can compile for any version. A Debug build copies the DLL and `.addin` to
+`%AppData%\Autodesk\Revit\Addins\<version>\`.
+
+### Packaging
+
+```powershell
+.\package.ps1 -RevitVersion 2026     # dist\RevitGraphPlugin-2026.zip
+```
+
+The zip holds the built DLLs, `.addin`, `install.ps1`, `INSTALL.md`, `checkout.ps1` and
+`graph2ifc.py`. The target machine needs Neo4j; ConMan2 only for `-Ifc`.
+
+### Environment variables
+
+| Variable                                       | Default                                     | Read by                     |
+| ---------------------------------------------- | ------------------------------------------- | --------------------------- |
+| `NEO4J_LOCAL_PASSWORD`                         | (required)                                  | C# (direct / live), Python  |
+| `NEO4J_LOCAL_USERNAME` / `_HOSTNAME` / `_PORT` | `neo4j` / `localhost` / `7687`              | C# (direct / live), Python  |
+| `CONMAN2_PATH`                                 | `<repo>/../ConMan2/src`                     | Python (bridge, graph2ifc)  |
+| `PLUGIN_PYTHON`                                | `<repo>/../ConMan2/venv/Scripts/python.exe` | C# (bridge)                 |
+| `PLUGIN_SNIPPET_SCRIPT`                        | `<repo>/tools/python/snippet_to_cypher.py`  | C# (bridge)                 |
+| `RevitVersion` / `RevitInstallPath`            | `2025` / auto-resolved                      | MSBuild                     |
+
+`Neo4jConfig.Resolve()` builds the bolt URI from `NEO4J_LOCAL_*` and maps `localhost` to
+`127.0.0.1`, as ConMan2 does. Set the password at User scope so Revit inherits it.
+`dotnet run --project tools/Neo4jSmokeTest` checks the connection.
+
+---
+
+## 10. Diagnostics
+
+Revit forbids UI inside `DocumentChanged`, so the live path writes an append-only log:
+`%LOCALAPPDATA%\Temp\<session GUID>\RevitGraphPlugin\live.log` (Revit runs with a
+per-session TEMP; take the newest folder). It records every routed change, every stored
+rule, and any exception that turned Live Sync off.
+
+Node counts should track the model while Live Sync is ON:
+
+```cypher
+MATCH (n {timestamp: 'plugin-live'}) RETURN n.EntityType AS entity, count(*) AS n ORDER BY n DESC;
+```
+
+| Symptom                                    | Cause                                                                                              |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| Build cannot find `RevitAPI.dll`           | No local Revit and no NuGet access. Set `RevitInstallPath` or restore NuGet once.                  |
+| Ribbon tab missing                         | Debug build not deployed (Release does not deploy). Check the Addins folder.                       |
+| Live Sync turns itself OFF                 | An exception in the event path. Read the newest `live.log`.                                         |
+| Neo4j auth error                           | `NEO4J_LOCAL_PASSWORD` wrong or unset. Verify with `tools/Neo4jSmokeTest`.                         |
+| "Python interpreter / ConMan2 not found"   | Bridge or `-Ifc` only. ConMan2 is not a sibling clone; set `PLUGIN_PYTHON` / `CONMAN2_PATH`.       |
+
+Tests: `dotnet test tests\RevitGraphPlugin.Tests`. Pure tests (converters, parsers, diff)
+always run; graph tests need Neo4j at `bolt://127.0.0.1:7687` and are reported as skipped
+without it. `ManualChainTools` drives `RuleReplayer` against a real chain when
+`CHAIN_TOOL` is set (`undo | replay | checkout | pingpong`).
+
+---
+
+## 11. Repository layout
+
+```
+src/RevitGraphPlugin/
+├── RevitGraphApp.cs             ribbon, DocumentChanged / DocumentClosing subscriptions
+├── LiveSyncToggleCommand.cs     Live Sync button
+├── LiveSyncManager.cs           session holder, event routing
+├── LiveSyncSession.cs           baseline, increment, levels, reconciliation
+├── LiveSyncLog.cs               live.log
+├── SyncDirectCommand.cs         Sync (direct) button
+├── SyncCommand.cs               Sync (bridge) button
+├── Neo4jConfig.cs               NEO4J_LOCAL_* to bolt URI
+├── Ifc/                         Revit to ggifc
+│   ├── ModelAssembler.cs        boilerplate + every element
+│   ├── BoilerplateBuilder.cs    project, units, contexts, site, building, storeys, default psets
+│   ├── IfcModelContext.cs       the ggifc database and the ownership map (the mirror)
+│   ├── StepIdWatermark.cs       (before, after] range of one conversion
+│   ├── IfcGuidConverter.cs      Revit export GUID; seeded GlobalIds
+│   ├── StableIds.cs             deterministic GlobalIds for synthetic IfcRoot entities
+│   ├── RevitOwnerHistory.cs     OwnerHistory as Revit's exporter writes it
+│   ├── Ifc4Schema.cs            IFC4 attribute order per entity (from data/schema)
+│   ├── Converters/              one per element category, ElementConverterRegistry, PsetSources
+│   ├── Geometry/                BRepBodyBuilder
+│   └── Hosting/                 OpeningBuilder
+├── Cypher/
+│   ├── IfcSnippetSink.cs        bridge: temp .ifc, Python
+│   └── Direct/                  ggifc to Neo4j, rule engine
+│       ├── EntityWalker.cs, NodeClassifier.cs, StepLineParser.cs, P21Id.cs
+│       ├── CypherEmitter.cs     WriteAsync (snapshot), ApplyRuleAsync (rule)
+│       ├── GraphRule.cs, LiveRuleBuilder.cs
+│       ├── GraphletReader.cs, GraphletDiff.cs
+│       ├── ContextRef.cs, ContextResolver.cs
+│       ├── RuleStore.cs         rule chain persistence
+│       └── RuleReplayer.cs      replay, undo, checkout
+├── RevitGraphPlugin.addin
+└── RevitGraphPlugin.csproj
+tests/RevitGraphPlugin.Tests/    xUnit
+tools/python/                    compare_psets.py, graph2ifc.py, ifc_roundtrip_check.py, snippet_to_cypher.py, compare_ifc.py, compare_neo4j.py
+tools/Neo4jSmokeTest/            connection check
+data/schema/ifc4_attributes.json IFC4 attribute order, embedded at build time
+checkout.ps1, package.ps1, deploy/   version checkout; distribution zip and installer
+RevitGraphPlugin.sln, global.json     solution (plugin, tests, Neo4jSmokeTest); .NET SDK 8.0.403
+```
+
+---
+
+## 12. Per-file reference
+
+### Startup and session
+
+**`RevitGraphApp.cs`**: `IExternalApplication`. `OnStartup` builds the three buttons and
+subscribes `DocumentChanged` / `DocumentClosing` to `LiveSyncManager`.
+
+**`LiveSyncToggleCommand.cs`**: the button. Calls `LiveSyncManager.Toggle` and shows the
+result; the only place UI is shown.
+
+**`LiveSyncManager.cs`**: static holder of the single `LiveSyncSession`.
+`OnDocumentChanged` matches the document with `Equals` (Revit does not guarantee the same
+managed reference), routes deletes (levels last), adds, modifies (hosts before hosted,
+types expanded to instances), then reconciles. Any exception disposes the session and
+turns the button OFF.
+
+**`LiveSyncSession.cs`**: one per document. `Start` = `ModelAssembler.Build`,
+`CypherEmitter.WriteAsync`, `RuleStore.RecordBaselineAsync`; keeps `IfcModelContext`.
+`ApplyAdded` / `ApplyModified` / `ApplyRemoved` build and apply one rule each;
+`ApplyModified` also re-syncs hosted inserts of a re-converted host. `ModifyLevel` /
+`RemoveLevel` handle storeys in place. `ReconcileVanished` / `ReconcileAll` handle events
+without ids. Neo4j calls block through `Task.Run` (a direct await on Revit's UI thread
+deadlocks).
+
+**`LiveSyncLog.cs`**: append-only log, never throws.
+
+**`Neo4jConfig.cs`**: `Resolve()` returns `(bolt URI, user, password)`.
+
+### Revit to ggifc
+
+**`Ifc/ModelAssembler.cs`**: `Build(doc)` = `BoilerplateBuilder.Build` +
+`ElementConverterRegistry.ConvertAll`.
+
+**`Ifc/BoilerplateBuilder.cs`**: the empty-project skeleton laid out like Revit's native
+export; storeys, their pset and rel are tagged with the level id.
+
+**`Ifc/IfcModelContext.cs`**: `Db`, `Building`, `BodyContext`, `StoreyByLevel`,
+`ConvertedElements` (Revit id to principal `IfcElement`), `OwnerByStepId` (STEP id to
+Revit id).
+
+**`Ifc/StepIdWatermark.cs`**: `Current(db)` = highest allocated STEP id.
+
+**`Ifc/Converters/ElementConverterRegistry.cs`**: converter list in priority order
+(Level first, hosts before hosted). `ConvertAll`, `TryConvertOne`; `ConvertOne` tags every
+new STEP id with the element (skipping `GraphRule.SharedResourceTypes`) and registers the
+principal product in `ConvertedElements`.
+
+**`Ifc/Converters/*Converter.cs`**: one per category. Each writes placement, BRep body,
+`Pset_*Common`, storey containment, and stamps stable GlobalIds. `WindowConverter` /
+`DoorConverter` add the opening chain through `Hosting/OpeningBuilder.cs`.
+`LevelConverter` builds storeys for levels added live and updates them in place.
+`PsetSources.cs` holds the Revit parameters behind `IsExternal` / `LoadBearing`.
+
+**`Ifc/Geometry/BRepBodyBuilder.cs`**: solids to `IfcPolygonalFaceSet`, vertices in mm
+relative to the element's placement origin.
+
+**`Ifc/IfcGuidConverter.cs`**: `ForElement` (Revit's export GUID), `FromRevitUniqueId`
+(string re-implementation for code without a `Document`), `FromSeed`.
+
+**`Ifc/StableIds.cs`**: seeded GlobalIds for psets, `RelDefines`, containment,
+aggregation, void / fill.
+
+**`Ifc/RevitOwnerHistory.cs`**: overwrites ggifc's OwnerHistory defaults with the values
+Revit's exporter writes (sources cited per constant from Autodesk/revit-ifc).
+
+**`Ifc/Ifc4Schema.cs`**: IFC4 forward attributes per entity in EXPRESS order, from the
+embedded `data/schema/ifc4_attributes.json`.
+
+### ggifc to Neo4j
+
+**`Cypher/Direct/EntityWalker.cs`**: one entity to `EntityData` (properties from the
+STEP line, edges and inline children by reflection). **`StepLineParser.cs`**: Part 21
+tokenizer and Python-compatible value formatting. **`NodeClassifier.cs`**: node kind and
+label expression. **`P21Id.cs`**: `#123` conversions.
+
+**`Cypher/Direct/CypherEmitter.cs`**: `WriteAsync` (wipe + snapshot), `ApplyRuleAsync`
+(section 4), `WalkAll` / `WalkOwned`, and the `UNWIND ... MERGE / CREATE` writers shared
+by snapshot, rule apply, rule storage and replay.
+
+### Rule engine
+
+**`Cypher/Direct/GraphRule.cs`**: `RuleOp`, `GraphRule`, `SharedResourceTypes`,
+`GraphletExtractor` (`WalkNew`, `SpatialChanges`).
+
+**`Cypher/Direct/LiveRuleBuilder.cs`**: `BuildUpsert`, `BuildLevelModify`, `BuildRemove`,
+and the mirror-side `DetachFromContainment`, `DetachStorey`, `ForgetOwnership`. Revit-free.
+
+**`Cypher/Direct/GraphletReader.cs`**: `GraphletCapture` (nodes, incoming glue, shared
+deleted) read from the graph by `revit_element_id`, by p21, or by timestamp.
+
+**`Cypher/Direct/GraphletDiff.cs`**: `Compare(L, R)` to `GraphletDiffOutcome` (`NoChange`,
+`PropertyOnly`, `Partial`, `Structural`; match, pushouts, `PropertyChange` rows named on
+both sides).
+
+**`Cypher/Direct/ContextRef.cs`**, **`ContextResolver.cs`**: portable names in ConMan2's
+path format; `ResolveAsync` (p21 to name, before the rule mutates anything) and
+`FindAsync` (name to p21 in any graph).
+
+**`Cypher/Direct/RuleStore.cs`**: `PersistAsync` (section 4, storage), `RecordBaselineAsync`,
+the chain node and its counter.
+
+**`Cypher/Direct/RuleReplayer.cs`**: `ReplayAsync`, `UndoAsync`, `CheckoutAsync`; one
+transaction per rule; context resolved through the stored names.
+
+### Bridge
+
+**`Cypher/IfcSnippetSink.cs`**: writes the ggifc tree to a temp `.ifc` and runs
+`tools/python/snippet_to_cypher.py` (ifcopenshell, ConMan2 `IfcGraphInterface`).
