@@ -61,7 +61,8 @@ undo backwards, replay forwards. Turn Live Sync OFF first, then from this folder
 .\checkout.ps1 head       # back to the newest version
 ```
 
-This needs only the running Neo4j — no Python.
+This needs only the running Neo4j and the .NET 8 runtime (installed with Revit); the
+`rulechain\` folder holds the CLI that `checkout.ps1` calls.
 
 ### IFC round-trip (optional, needs ConMan2)
 

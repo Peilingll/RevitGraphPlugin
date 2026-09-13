@@ -6,18 +6,15 @@ using Xunit;
 namespace RevitGraphPlugin.Tests;
 
 /// <summary>
-/// Verifies the ownership-tagging mechanics of step 1 (live incremental sync plan)
-/// without Revit: the StepId-watermark assumption on ggifc's DatabaseIfc, and
-/// <see cref="CypherEmitter.WalkAll"/> injecting <c>revit_element_id</c> only into
-/// entities listed in the ownership map.
+/// Ownership tagging without Revit: the StepId-watermark assumption on ggifc, and
+/// <see cref="CypherEmitter.WalkAll"/> stamping <c>revit_element_id</c> only on mapped entities.
 /// </summary>
 public class OwnershipTaggingTests
 {
-    private static DatabaseIfc NewDb() => new(false, ReleaseVersion.IFC4);
+    private static DatabaseIfc NewDb() => new(ReleaseVersion.IFC4A2);
 
-    // The watermark pattern (ElementConverterRegistry.ConvertOne) relies on ggifc
-    // allocating StepIds monotonically: everything created between two
-    // StepIdWatermark.Current reads lies in the range (before, after].
+    // ggifc allocates StepIds monotonically: everything created between two watermark
+    // reads lies in (before, after].
     [Fact]
     public void Watermark_captures_exactly_the_entities_created_between_reads()
     {
@@ -36,8 +33,7 @@ public class OwnershipTaggingTests
         Assert.InRange(dir.StepId, before + 1, after);
         Assert.True(project.StepId <= before);
 
-        // The range contains no foreign entities: every existing id in it belongs
-        // to what the "converter" just created (monotonic allocation, no interleaving).
+        // No foreign entities in the range.
         var created = new HashSet<int> { point.StepId, dir.StepId };
         for (var id = before + 1; id <= after; id++)
         {

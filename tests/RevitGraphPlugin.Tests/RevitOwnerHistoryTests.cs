@@ -16,7 +16,7 @@ public class RevitOwnerHistoryTests
 
     private static IfcProject NewProject()
     {
-        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var db = new DatabaseIfc(ReleaseVersion.IFC4A2);
         return new IfcProject(db, "TestProject");
     }
 
@@ -84,10 +84,8 @@ public class RevitOwnerHistoryTests
             $"Expected user org Description to be null or empty, got '{userOrg.Description}'");
     }
 
-    // Regression: Revit's ProjectInfo.OrganizationName returns "" (not null) when
-    // the field is blank. ggifc's IfcOrganization setter substitutes "UNKNOWN"
-    // for empty input, which diverges from the ConMan2 baseline ($). The helper
-    // must treat "" the same as null and bypass the setter via the backing field.
+    // Revit returns "" (not null) for a blank OrganizationName; ggifc's setter would
+    // substitute "UNKNOWN", so "" must be treated as null.
     [Fact]
     public void User_Organization_empty_string_does_not_become_UNKNOWN()
     {
@@ -138,9 +136,7 @@ public class RevitOwnerHistoryTests
         Assert.NotNull(lmdField);
         Assert.Equal(int.MinValue, lmdField!.GetValue(oh));
 
-        // STEP serialisation: attrs 5/6/7 (LastModifiedDate / LastModifyingUser /
-        // LastModifyingApplication) must all be $ — i.e. 3 consecutive $ between
-        // .NOCHANGE. and the CreationDate integer.
+        // STEP: LastModifiedDate / User / Application must all be $.
         var step = oh.ToString();
         _output.WriteLine($"STEP: {step}");
         Assert.Contains(".NOCHANGE.,$,$,$,", step);
@@ -182,12 +178,11 @@ public class RevitOwnerHistoryTests
 
         if (cleared)
         {
-            // Option A succeeded. The backing field is null; the property may still expose
-            // a non-null default enum value depending on ggifc's getter, which is fine.
+            // Backing field cleared; the getter may still expose a default enum value.
         }
         else
         {
-            // Option C: ggifc's default value remained.
+            // Fallback: ggifc's default value remained.
             Assert.Equal(IfcStateEnum.NOTDEFINED, state);
         }
     }

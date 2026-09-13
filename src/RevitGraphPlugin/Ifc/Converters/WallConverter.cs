@@ -5,12 +5,9 @@ using RevitGraphPlugin.Ifc.Geometry;
 namespace RevitGraphPlugin.Ifc.Converters;
 
 /// <summary>
-/// Wall → IfcWall sub-graph.
-///
-/// Step A (this file): identity + placement + spatial containment + Pset_WallCommon.
-/// Step B will add BRep body geometry (IfcPolygonalFaceSet) to the wall's
-/// representation. Geometry is intentionally a separate step so the wall node /
-/// containment can be verified in the graph first.
+/// Wall → IfcWall sub-graph: identity + placement + spatial containment +
+/// Pset_WallCommon + BRep body geometry (IfcPolygonalFaceSet via the shared
+/// <see cref="BRepBodyBuilder"/>). The template every other element converter follows.
 /// </summary>
 public sealed class WallConverter : IElementConverter
 {
@@ -35,9 +32,8 @@ public sealed class WallConverter : IElementConverter
                 db, BRepBodyBuilder.Mm(origin.X), BRepBodyBuilder.Mm(origin.Y), BRepBodyBuilder.Mm(origin.Z))));
 
         // host = storey → ggifc creates the IfcRelContainedInSpatialStructure.
-        // Step A: no representation yet (added in Step B).
         var ifcWall = new IfcWall(storey, placement, null);
-        ifcWall.GlobalId = IfcGuidConverter.FromRevitUniqueId(wall.UniqueId);
+        ifcWall.GlobalId = IfcGuidConverter.ForElement(wall);
         StableIds.StampContainment(ifcWall);   // storey containment rel: stable GlobalId
 
         var family = wall.WallType?.FamilyName ?? "Basic Wall";
@@ -47,14 +43,12 @@ public sealed class WallConverter : IElementConverter
         ifcWall.Tag = wall.Id.Value.ToString();
         ifcWall.PredefinedType = IfcWallTypeEnum.NOTDEFINED;
 
-        // Step B: BRep body geometry, vertices local to the wall origin (shared builder).
+        // BRep body, vertices local to the wall origin.
         var shape = BRepBodyBuilder.Build(db, ctx.BodyContext, wall, origin);
         if (shape is not null)
             ifcWall.Representation = shape;
 
         AttachWallCommonPset(db, ifcWall, wall);
-        // ConvertedElements registration (for hosted-element host lookup + live modify/
-        // remove) is done uniformly by ElementConverterRegistry.ConvertOne.
     }
 
     private static void AttachWallCommonPset(DatabaseIfc db, IfcWall ifcWall, Wall wall)
@@ -67,15 +61,7 @@ public sealed class WallConverter : IElementConverter
     }
 
     /// <summary>Exterior walls (WallType Function = Exterior) map to IsExternal = true.</summary>
-    private static bool IsExternal(Wall wall)
-    {
-        var p = wall.WallType?.get_Parameter(BuiltInParameter.FUNCTION_PARAM);
-        return p is not null && p.AsInteger() == (int)WallFunction.Exterior;
-    }
+    private static bool IsExternal(Wall wall) => PsetSources.IsExternal(wall);
 
-    private static bool IsLoadBearing(Wall wall)
-    {
-        var p = wall.get_Parameter(BuiltInParameter.WALL_STRUCTURAL_SIGNIFICANT);
-        return p is not null && p.AsInteger() == 1;
-    }
+    private static bool IsLoadBearing(Wall wall) => PsetSources.IsLoadBearing(wall);
 }

@@ -5,7 +5,7 @@ namespace RevitGraphPlugin;
 /// (NEO4J_LOCAL_*) so every sink — bridge, direct snapshot, live incremental — hits
 /// the same database with the same credentials.
 /// </summary>
-internal static class Neo4jConfig
+public static class Neo4jConfig
 {
     public static (string uri, string user, string password) Resolve()
     {

@@ -1,233 +1,100 @@
 # RevitGraphPlugin
 
-A Revit add-in (2025/2026, .NET 8) that mirrors a Revit document into a Neo4j property graph — in real
-time — as IFC entities following the [ConMan2](https://github.com/seb-esser/ConMan2/)
-schema, for change-tracking and version-diff workflows.
+A Revit add-in (2025 / 2026, .NET 8) that writes the open Revit document into Neo4j as an
+IFC property graph in the [ConMan2](https://github.com/seb-esser/ConMan2) schema. It
+tracks document changes as they are committed and records each one as a graph
+transformation rule, so any recorded version can be restored and exported as IFC.
 
-**Current state:** **live incremental sync** is the primary mode. Turning it on writes a
-full baseline snapshot, then follows every committed Revit transaction (add / modify /
-delete) and updates only the affected graphlet in Neo4j. The empty-project boilerplate
-(spatial breakdown, units, geometric contexts, OwnerHistory chain, default property sets)
-plus per-element subgraphs for Wall, Window, Door, Floor, Ceiling, Roof, Beam and Column
-are written and matched against the ConMan2 baseline.
+## Architecture
 
-## Sync modes
-
-The ribbon exposes three buttons; they share the converters and the graph schema, and
-each writes under its own timestamp so they don't collide in Neo4j.
-
-| Ribbon button     | Pipeline                                | Trigger                           | Timestamp       |
-| ----------------- | --------------------------------------- | --------------------------------- | --------------- |
-| **Live Sync**     | direct-write, pure C# (**primary**)     | baseline on ON, then every change | `plugin-live`   |
-| **Sync (direct)** | direct-write, pure C#                   | one click = one full write        | `plugin-direct` |
-| **Sync (bridge)** | temp`.ifc` → ConMan2 Python (reference) | one click = one full write        | `plugin-bridge` |
-
-**Live Sync = the direct-write full snapshot as a baseline + keep the ggifc model as an
-in-memory mirror + event-driven incremental updates.** See
-[`doc/spec/livesync-architecture.md`](doc/spec/livesync-architecture.md) for the complete
-per-file walkthrough.
-
-## Architecture — live sync (C#)
-
-Live sync does **not** go through Python / ConMan2 / ifcopenshell. It reuses the
-direct-write pipeline (`Revit → ggifc tree → Cypher → Neo4j`, no temp `.ifc`) and adds
-three things on top: an in-memory ggifc mirror kept alive after the baseline, a
-`DocumentChanged` subscription, and an incremental rule engine.
+Live Sync writes a full snapshot of the document, keeps the converted IFC model in memory,
+and then handles Revit's `DocumentChanged` event:
 
 ```
-C# (in the Revit process) — no Python, no temp .ifc
-
-  Baseline (on ON)
-    ModelAssembler.Build ──► ggifc tree ──► CypherEmitter.WriteAsync ──► Neo4j
-                                 │
-                                 └─ kept alive as the in-memory mirror
-
-  Increment (per committed transaction)
-    DocumentChanged
-      └─ LiveSyncManager routes deletes → adds → modifies (hosts before hosted)
-           └─ TryConvertOne ──► LiveRuleBuilder ──► GraphRule
-                └─ CypherEmitter.ApplyRuleAsync ──► Neo4j   (only the graphlet)
+Revit transaction ──► added / modified / deleted element ids
+    └─► re-convert the element (GeometryGym.Ifc) ──► one GraphRule
+          └─► apply to the current-state graph + store in the :Rule chain   (one Neo4j transaction)
 ```
 
-- **Baseline** — `ModelAssembler.Build` (boilerplate + convert every element) →
-  `CypherEmitter.WriteAsync` (full wipe + rewrite). Identical to a one-shot **Sync
-  (direct)**; the only difference is the `IfcModelContext` is _kept_ as the mirror.
-- **Increment** — a `StepIdWatermark` isolates exactly the entities one element's
-  conversion created (ggifc allocates StepIds monotonically), so the increment walks only
-  that graphlet — O(graphlet), not O(whole model). One Revit change becomes one
-  `GraphRule`, applied by `CypherEmitter.ApplyRuleAsync` in a single all-or-nothing
-  transaction.
-- **Fail loud** — any exception in the event path disposes the session and flips the
-  button OFF rather than desyncing silently. Diagnostics go to
-  `%TEMP%\RevitGraphPlugin\live.log` (`TaskDialog` is forbidden inside `DocumentChanged`).
+- **Baseline**: every element through its converter, written as a full snapshot.
+- **Increment**: only the changed element's subgraph is rebuilt. Nodes that did not change
+  stay in place; only the difference is applied and stored.
+- **Rule chain**: `:Baseline` and `:Rule` nodes linked in order. Each rule holds copies of
+  what it deleted and inserted, the value changes, and portable names for its context.
+- **Checkout**: `checkout.ps1` (over the `rulechain` CLI) walks the chain forwards
+  (replay) or backwards (undo), one transaction per step.
 
-### The bridge mode (reference)
+Schema, rule storage layout, configuration and a per-file reference:
+[`doc/spec/livesync-architecture.md`](doc/spec/livesync-architecture.md).
 
-**Sync (bridge)** is the original path and is kept for cross-checking: it serialises the
-ggifc tree to a temp `.ifc` and hands it to ConMan2's own importer, so the graph schema
-matches the ConMan2 baseline with zero drift.
+## Installation
 
-```
-ggifc tree → db.WriteFile() → temp .ifc (STEP) → python snippet_to_cypher.py
-                                                    → ifcopenshell parse
-                                                    → ConMan2 IfcGraphInterface → Neo4j
-```
-
-Reusing ConMan2's importer is what originally validated the direct-write output. The
-direct/live pipeline now emits the same node/edge shapes without the Python round-trip.
-The bridge supports **CREATE only**: `snippet_to_cypher.py` raises `NotImplementedError`
-for `DELETE` / `UPDATE`, so incremental changes go through the live pipeline.
-
-## Quick start
-
-Prerequisites: Revit (2025 by default — see *Building for another Revit version*),
-.NET 8 SDK (8.0.403, pinned by `global.json`), a running Neo4j instance. The Python
-environment is only needed for the **Sync (bridge)** button.
-
-**Clone ConMan2 as a sibling of this repo** — paths are then resolved relatively, no
-configuration needed (required only for the bridge button, but the schema reference is
-useful either way):
-
-```
-<parent>/
-├── RevitGraphPlugin/   (this repo)
-└── ConMan2/            git clone https://github.com/seb-esser/ConMan2
-```
+Requirements: Revit 2025 (2026: `-p:RevitVersion=2026`), .NET SDK 8.0.403 (pinned by
+`global.json`), a local Neo4j instance.
 
 ```powershell
-# 1. ConMan2 (sibling clone) + its Python environment — only for the bridge button.
-git clone https://github.com/seb-esser/ConMan2 ..\ConMan2
-py -m venv ..\ConMan2\venv
-..\ConMan2\venv\Scripts\pip install -r ..\ConMan2\src\requirements.txt
+# Neo4j password, User scope so Revit inherits it
+[Environment]::SetEnvironmentVariable("NEO4J_LOCAL_PASSWORD", "<password>", "User")
 
-# 2. Neo4j password (User scope, so Revit inherits it).
-[Environment]::SetEnvironmentVariable("NEO4J_LOCAL_PASSWORD", "<your-password>", "User")
-
-# 3. Build (Debug auto-deploys DLL + .addin to %AppData%\Autodesk\Revit\Addins\<version>\).
+# Build; Debug deploys the add-in to %AppData%\Autodesk\Revit\Addins\2025\
 dotnet build RevitGraphPlugin.sln -c Debug
 ```
 
-Then start a Neo4j instance, launch Revit, open/create an Architectural project, and click
-**Live Sync** on the `RevitGraphPlugin` ribbon. The button flips to **ON**, the baseline is
-written, and every subsequent change flows through automatically. Click again to turn it
-OFF (disposes the session; the graph is left as-is).
-
-## Building for another Revit version
-
-The target version is an MSBuild property (`RevitVersion`, default `2025`) that drives
-both the `RevitAPI.dll` lookup and the Addins deploy folder:
+ConMan2 is only needed for IFC export from the graph (`checkout.ps1 -Ifc`) and for the
+bridge sync mode. Clone it beside this repo and create its environment:
 
 ```powershell
-dotnet build RevitGraphPlugin.sln -c Debug -p:RevitVersion=2026
+git clone https://github.com/seb-esser/ConMan2 ..\ConMan2
+py -m venv ..\ConMan2\venv
+..\ConMan2\venv\Scripts\pip install -r ..\ConMan2\src\requirements.txt
 ```
 
-The API assemblies are resolved in order: `RevitInstallPath` (explicit override) →
-`RevitInstallPath2025` (legacy name) → `D:\Autodesk\Revit <version>\` →
-`%ProgramFiles%\Autodesk\Revit <version>\` → the
-[Nice3point.Revit.Api](https://github.com/Nice3point/RevitApi) NuGet packages. The NuGet
-fallback means any machine can compile for any version without Revit installed — only
-running the add-in requires the real Revit.
+`package.ps1` builds a zip for machines without the SDK (see `deploy/INSTALL.md`).
 
-## Packaging for distribution
+## Usage
 
-`package.ps1` produces a self-contained zip so the target machine needs neither the
-.NET SDK nor this repo:
+The `RevitGraphPlugin` ribbon tab has three buttons. Each writes under its own
+`timestamp`, so they do not interfere with each other in Neo4j.
+
+| Button            | What it does                                                | Timestamp       |
+| ----------------- | ----------------------------------------------------------- | --------------- |
+| **Live Sync**     | baseline on ON, then every committed change; rules stored   | `plugin-live`   |
+| **Sync (direct)** | one full write of the current model                         | `plugin-direct` |
+| **Sync (bridge)** | one full write through a temp `.ifc` and ConMan2's importer | `plugin-bridge` |
+
+Start Neo4j, open a project in Revit, click **Live Sync**. The button shows **ON** once the
+baseline is written; every change is now mirrored. Click again to stop.
+
+Versions recorded while Live Sync was ON (turn it OFF first):
 
 ```powershell
-.\package.ps1 -RevitVersion 2026     # → dist\RevitGraphPlugin-2026.zip
+.\checkout.ps1                  # list the chain and the current position
+.\checkout.ps1 7                # move the graph to the state after rule 7
+.\checkout.ps1 7 -Ifc v7.ifc    # ...and export that version as IFC
+.\checkout.ps1 head             # back to the newest version
 ```
 
-The zip contains the pre-built DLLs + `.addin`, `install.ps1`, `INSTALL.md`, and the
-version-checkout tooling (`checkout.ps1` + `graph2ifc.py`). On the target machine:
-unzip, run `install.ps1` (per-user, no admin), start a local Neo4j, launch Revit —
-full steps in [deploy/INSTALL.md](deploy/INSTALL.md). Checkout/undo/replay works with
-just Neo4j; only the optional `-Ifc` round-trip needs a ConMan2 clone.
+## Tests
 
-## Environment variables
-
-Path variables default to the sibling-clone layout (resolved relatively); set them only if
-ConMan2 lives elsewhere. `NEO4J_LOCAL_PASSWORD` is the only one required for direct/live
-sync.
-
-| Variable                                       | Default                                     | Read by                   |
-| ---------------------------------------------- | ------------------------------------------- | ------------------------- |
-| `NEO4J_LOCAL_PASSWORD`                         | — (**required**)                            | C# (direct/live) + Python |
-| `NEO4J_LOCAL_USERNAME` / `_HOSTNAME` / `_PORT` | `neo4j` / `localhost` / `7687`              | C# (direct/live) + Python |
-| `CONMAN2_PATH`                                 | `<repo>/../ConMan2/src`                     | Python (bridge only)      |
-| `PLUGIN_PYTHON`                                | `<repo>/../ConMan2/venv/Scripts/python.exe` | C# (bridge only)          |
-| `PLUGIN_SNIPPET_SCRIPT`                        | `<repo>/tools/python/snippet_to_cypher.py`  | C# (bridge only)          |
-| `RevitVersion` / `RevitInstallPath`            | `2025` / auto-resolved (see above)          | MSBuild (build time only) |
-
-`Neo4jConfig.Resolve()` builds the bolt URI + credentials from `NEO4J_LOCAL_*` and forces
-`localhost → 127.0.0.1` to match ConMan2. `tools/Neo4jSmokeTest` reads the same names
-(falling back to legacy `NEO4J_*`) to verify connectivity:
-`dotnet run --project tools/Neo4jSmokeTest`.
-
-## Repository layout
-
-```
-src/RevitGraphPlugin/
-├── RevitGraphApp.cs             # IExternalApplication: ribbon + DocumentChanged/Closing subscriptions
-├── LiveSyncToggleCommand.cs     # Live Sync button → LiveSyncManager.Toggle
-├── LiveSyncManager.cs           # static session holder; routes DocumentChanged; fail loud
-├── LiveSyncSession.cs           # per-document mirror: baseline + Insert/Replace/Remove
-├── LiveSyncLog.cs               # append-only %TEMP% diagnostics (no UI allowed in events)
-├── Neo4jConfig.cs               # resolves bolt URI + credentials from NEO4J_LOCAL_*
-├── SyncDirectCommand.cs         # Sync (direct) button → full direct write
-├── SyncCommand.cs               # Sync (bridge) button → temp IFC → Python
-├── Ifc/
-│   ├── ModelAssembler.cs        # Phase A: boilerplate + convert-all → ggifc tree
-│   ├── IfcModelContext.cs       # the live in-memory mirror (Db, OwnerByStepId, ConvertedElements)
-│   ├── StepIdWatermark.cs       # highest-StepId watermark isolating one element's graphlet
-│   ├── BoilerplateBuilder.cs    # Revit Document → IFC4 boilerplate skeleton
-│   ├── Converters/              # per-element: Wall, Window, Door, Floor, Ceiling, Roof, Beam, Column
-│   ├── Geometry/ · Hosting/     # B-rep bodies · openings (windows/doors in host walls)
-│   ├── RevitOwnerHistory.cs     # OwnerHistory matching Revit's IFC exporter
-│   └── IfcGuidConverter.cs      # Revit UniqueId → IFC GlobalId
-├── Cypher/
-│   ├── Direct/                  # pure-C# pipeline: EntityWalker, NodeClassifier, StepLineParser,
-│   │                            #   GraphRule, LiveRuleBuilder, CypherEmitter (WriteAsync + ApplyRuleAsync)
-│   └── IfcSnippetSink.cs        # bridge: STEP → spawns Python
-├── RevitGraphPlugin.addin       # Revit add-in manifest
-└── RevitGraphPlugin.csproj      # .NET 8 / x64; Revit API + GeometryGymIFC + Neo4j.Driver
-tools/
-├── python/snippet_to_cypher.py  # bridge: STEP → ifcopenshell → ConMan2 → Neo4j
-└── Neo4jSmokeTest/              # standalone Neo4j connectivity check
-tests/RevitGraphPlugin.Tests/    # xUnit: watermark/ownership, rule builder, ApplyRule integration, STEP parsing
-data/samples/                    # IFC + Cypher baseline dataset
-doc/spec/livesync-architecture.md # full per-file live-sync walkthrough
-doc/log/                         # English research logs
+```powershell
+dotnet test tests\RevitGraphPlugin.Tests
 ```
 
-## Verify
+Pure tests (converters, parsers, graphlet diff) always run. Graph tests (rule apply, store,
+replay, checkout round trips) need Neo4j at `bolt://127.0.0.1:7687` and are reported as
+skipped without it.
 
-With **Live Sync** ON, make a change in Revit (draw a wall, delete a window) and re-run in
-Neo4j Browser — the counts should track the model live:
+## Dependencies
 
-```cypher
-MATCH (n {timestamp: 'plugin-live'}) RETURN n.EntityType AS entity, count(*) AS n ORDER BY n DESC;
-```
-
-The live diagnostics log at `%TEMP%\RevitGraphPlugin\live.log` records every routed change
-(deletes → adds → modifies) and any swallowed error.
-
-## Troubleshooting
-
-| Symptom                                   | Likely cause                                                                                    |
-| ----------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Build fails finding`RevitAPI.dll`         | No local Revit and no NuGet access — set `RevitInstallPath`, or restore NuGet online once.      |
-| Ribbon tab missing after launch           | Debug build not deployed (Release skips it) — check`%AppData%\Autodesk\Revit\Addins\<version>\`. |
-| Live Sync flips itself OFF after a change | An exception fired in the event path (fail loud) — read`%TEMP%\RevitGraphPlugin\live.log`.      |
-| Neo4j auth error on sync                  | `NEO4J_LOCAL_PASSWORD` wrong/unset — verify with `dotnet run --project tools/Neo4jSmokeTest`.   |
-| "Python interpreter / ConMan2 not found"  | Bridge button only — ConMan2 not a sibling clone; set`PLUGIN_PYTHON` / `CONMAN2_PATH`, restart. |
-
-## Branches
-
-`feat/dev` active development · `archive/v1-mvp` preserved pure-C# v1 (reference only) ·
-`main` milestones via PR.
+| Package                                                                     | License        |
+| --------------------------------------------------------------------------- | -------------- |
+| [GeometryGymIFC](https://github.com/GeometryGym/GeometryGymIFC) 0.1.22      | MIT            |
+| [Neo4j.Driver](https://github.com/neo4j/neo4j-dotnet-driver) 5.26           | Apache-2.0     |
+| [Nice3point.Revit.Api](https://github.com/Nice3point/RevitApi) (build only) | MIT            |
+| [xunit](https://github.com/xunit/xunit), Xunit.SkippableFact (tests)        | Apache-2.0     |
+| [ConMan2](https://github.com/seb-esser/ConMan2) + IfcOpenShell (optional)   | MIT / LGPL-3.0 |
 
 ## Acknowledgements
 
-Builds on **ConMan2** (Sebastian Esser, reused as the Python importer / schema baseline),
-**SpaceTracker** (Sebastian Esser, `DocumentChanged` pattern), and **IfcInfraToolKit**
-(TUM CMS, IFC geometry export). Student project (TUM Hiwi); not for commercial use.
+Builds on **ConMan2** and **SpaceTracker** (Sebastian Esser) and **IfcInfraToolKit**
+(TUM CMS). Student project at TUM; not for commercial use.

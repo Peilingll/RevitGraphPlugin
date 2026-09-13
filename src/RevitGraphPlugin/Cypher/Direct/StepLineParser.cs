@@ -2,14 +2,11 @@ using System.Globalization;
 using System.Text;
 
 // ── Pipeline: DIRECT-WRITE (Revit → ggifc tree → Cypher → Neo4j; no temp IFC) ──
-// Lossless STEP-line source for node properties. See
-// doc_process/2026-07-12-plan-stepline-entitywalker.md (option B).
+// Lossless STEP-line source for node properties: ggifc's property getters collapse the
+// unset / derived / empty-string distinctions that its Part-21 output preserves.
 namespace RevitGraphPlugin.Cypher;
 
-/// <summary>
-/// A single parsed parameter of a STEP (Part 21) line. The concrete subtypes cover
-/// every token shape ggifc's <c>entity.ToString()</c> can emit for an attribute slot.
-/// </summary>
+/// <summary>One parsed parameter of a STEP (Part 21) line.</summary>
 public abstract record StepToken
 {
     /// <summary><c>$</c> — an unset optional attribute.</summary>
@@ -39,11 +36,7 @@ public abstract record StepToken
     /// <summary>A parenthesised aggregate; items may be primitives, references, or nested lists.</summary>
     public sealed record List(IReadOnlyList<StepToken> Items) : StepToken;
 
-    /// <summary>
-    /// A typed value such as <c>IFCBOOLEAN(.T.)</c> or <c>IFCLABEL('x')</c> — a keyword
-    /// followed by parenthesised arguments. ConMan2 records these as inline nodes, so the
-    /// STEP source treats them as skipped slots (reflection emits the inline).
-    /// </summary>
+    /// <summary>A typed value such as <c>IFCLABEL('x')</c>; becomes an inline node via reflection, not a property.</summary>
     public sealed record Typed(string Keyword, IReadOnlyList<StepToken> Args) : StepToken;
 }
 
@@ -51,18 +44,12 @@ public abstract record StepToken
 public sealed record StepLine(int Id, string Keyword, IReadOnlyList<StepToken> Arguments);
 
 /// <summary>
-/// Parses a ggifc STEP (Part 21) line into ordered <see cref="StepToken"/>s and maps a
-/// primitive token to the exact property value ConMan2 stores (matching Python's
-/// <c>str()</c> / <c>str(tuple)</c> formatting), so the direct pipeline's node properties
-/// are byte-identical to the temp-IFC bridge graph.
+/// Parses a STEP (Part 21) line into <see cref="StepToken"/>s and maps primitive tokens to
+/// the property values ConMan2 stores (Python <c>str()</c> formatting).
 /// </summary>
 public static class StepLineParser
 {
-    /// <summary>
-    /// Parse a full STEP line — e.g. <c>#4=IFCWALL('guid',#325,'Name',$,…);</c> — into its
-    /// id, class keyword, and top-level argument tokens. Lenient about a missing <c>#id=</c>
-    /// prefix or trailing <c>;</c> so a bare <c>IFCCLASS(...)</c> also parses.
-    /// </summary>
+    /// <summary>Parse a STEP line (<c>#4=IFCWALL('guid',#325,…);</c>) into id, class keyword and argument tokens; <c>#id=</c> and <c>;</c> are optional.</summary>
     public static StepLine ParseLine(string line)
     {
         if (string.IsNullOrWhiteSpace(line))
@@ -178,8 +165,8 @@ public static class StepLineParser
         };
     }
 
-    // 'text' with '' as an escaped single quote. Backslash escapes (\X\, \X2\, \S\)
-    // are not yet implemented — fail loud rather than silently corrupt (see plan risks).
+    // 'text' with '' as an escaped quote. Backslash escapes (\X\, \X2\, \S\) are not
+    // implemented: fail loud (known gap, hit by the first non-ASCII name).
     private static string ParseString(string s, ref int i, string line)
     {
         i++; // opening quote
@@ -246,13 +233,7 @@ public static class StepLineParser
 
     // ── Token → property value ───────────────────────────────────────────────────
 
-    /// <summary>
-    /// Converts a primitive attribute slot to the value ConMan2 stores. Returns
-    /// <c>false</c> for slots the reflection layer owns instead — entity references,
-    /// typed inline values, and aggregates thereof (they become edges / inline nodes,
-    /// not node properties). On <c>true</c>, <paramref name="value"/> is a string,
-    /// long, double, or bool matching the bridge graph exactly.
-    /// </summary>
+    /// <summary>Primitive slot → the value ConMan2 stores (string / long / double / bool). False for slots that become edges or inline nodes.</summary>
     public static bool TryToPropertyValue(StepToken token, out object value)
     {
         switch (token)
@@ -293,8 +274,7 @@ public static class StepLineParser
             value = null!;
             return false;
         }
-        // Empty present aggregate: fold to "$" (the unset/empty convention the old
-        // emitter used; STEP writes unset aggregates as $, so () is not expected here).
+        // Empty aggregate folds to "$".
         value = list.Items.Count == 0 ? "$" : PyReprList(list);
         return true;
     }
@@ -311,8 +291,7 @@ public static class StepLineParser
 
     // ── Python str()/repr() formatting ───────────────────────────────────────────
 
-    // str(tuple) of a primitive aggregate: ", "-joined, single-element gets a trailing
-    // comma, wrapped in parentheses. Matches ConMan2's ast.literal_eval round-trip source.
+    // Python str(tuple): ", "-joined, trailing comma for a single element.
     private static string PyReprList(StepToken.List list)
     {
         var sb = new StringBuilder("(");
@@ -350,13 +329,7 @@ public static class StepLineParser
         return sb.ToString();
     }
 
-    /// <summary>
-    /// Formats a finite double exactly as CPython's <c>repr(float)</c> does: shortest
-    /// round-tripping digits, a mandatory decimal point or exponent, lowercase <c>e</c>
-    /// with a signed ≥2-digit exponent, and the fixed/scientific switch at
-    /// <c>decpt &lt;= -4 || decpt &gt; 16</c>. This is what ConMan2 stored via Python
-    /// <c>str(float)</c>, so the direct graph's list strings match the bridge byte-for-byte.
-    /// </summary>
+    /// <summary>Format a double exactly as CPython's <c>repr(float)</c> (shortest round-trip digits, scientific when <c>decpt &lt;= -4 || decpt &gt; 16</c>).</summary>
     public static string PyRepr(double value)
     {
         if (value == 0.0)

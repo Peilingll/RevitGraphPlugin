@@ -10,26 +10,15 @@ namespace RevitGraphPlugin.Ifc;
 /// auto-creates with values that match Revit's own IFC exporter output.
 ///
 /// All hard-coded values are sourced from Autodesk/revit-ifc
-/// (<see href="https://github.com/Autodesk/revit-ifc"/>) master branch.
-/// See <c>doc_process/2026-05-20-revit-ifc-source-survey.md</c> for the
-/// permalinks and the rationale for every constant in this file.
+/// (<see href="https://github.com/Autodesk/revit-ifc"/>) master branch; each constant
+/// below names the file and line it was taken from.
 /// </summary>
 public static class RevitOwnerHistory
 {
-    /// <summary>
-    /// IfcApplication.ApplicationIdentifier — the IFC "identifier token" Revit
-    /// stamps onto every exported IFC application entity.
-    ///
-    /// Source: revit-ifc <c>Exporter.cs</c> L2882
-    /// (<c>string productIdentifier = "Revit";</c>).
-    /// Re-verify against a fresh baseline if Revit's IFC exporter is upgraded.
-    /// </summary>
+    /// <summary>IfcApplication.ApplicationIdentifier (revit-ifc Exporter.cs L2882).</summary>
     private const string ApplicationIdentifierToken = "Revit";
 
-    /// <summary>
-    /// POCO with the Revit-derived strings needed to override the chain.
-    /// Lets the helper be unit-tested without a live <see cref="Document"/>.
-    /// </summary>
+    /// <summary>The Revit-derived strings needed to override the chain (testable without a <see cref="Document"/>).</summary>
     /// <param name="ProductFullName">
     /// e.g. <c>"Autodesk Revit 2025 (ENG)"</c>. Built from
     /// <c>Application.VersionName + GetLanguageExtension(LanguageType)</c>
@@ -55,24 +44,18 @@ public static class RevitOwnerHistory
         string? OrganizationName,
         string? OrganizationDescription);
 
-    /// <summary>
-    /// Revit-side entry point. Builds a <see cref="Source"/> from the live
-    /// document and delegates to the testable overload.
-    /// </summary>
+    /// <summary>Build a <see cref="Source"/> from the document and override the chain.</summary>
     public static void Override(IfcProject project, Document doc)
     {
         var app = doc.Application;
         var projInfo = doc.ProjectInformation;
 
-        // Author resolution mirrors revit-ifc Exporter.cs L3175-3191:
-        // projectInfo.Author first, falling back to Application.Username.
+        // revit-ifc Exporter.cs L3175-3191: projectInfo.Author, else Application.Username.
         var author = projInfo?.Author;
         if (string.IsNullOrEmpty(author))
             author = app.Username ?? string.Empty;
 
-        // ApplicationFullName template — revit-ifc Exporter.cs L2880.
-        // VersionName already contains "Autodesk Revit 2025"; we only append the
-        // language extension.
+        // revit-ifc Exporter.cs L2880: VersionName + language extension.
         var productFullName = app.VersionName + GetLanguageExtension(app.Language);
 
         var source = new Source(
@@ -85,10 +68,7 @@ public static class RevitOwnerHistory
         Override(project, source);
     }
 
-    /// <summary>
-    /// Testable overload. Walks the ggifc OwnerHistory chain and writes the
-    /// values from <paramref name="src"/> onto the existing entities.
-    /// </summary>
+    /// <summary>Write the values from <paramref name="src"/> onto the existing OwnerHistory chain.</summary>
     public static void Override(IfcProject project, Source src)
     {
         var ownerHistory = project.OwnerHistory
@@ -98,33 +78,25 @@ public static class RevitOwnerHistory
         // ChangeAction — revit-ifc Exporter.cs L3245 (IFCChangeAction.NoChange).
         ownerHistory.ChangeAction = IfcChangeActionEnum.NOCHANGE;
 
-        // State — Revit passes null literal to CreateOwnerHistory (Exporter.cs L3244).
-        // ggifc exposes State as a non-nullable IfcStateEnum, so try reflection to
-        // clear the backing field. Fallback (kept = NOTDEFINED) is captured in the
-        // log; not a blocking issue for the rest of the chain.
+        // State — Revit passes null (Exporter.cs L3244); ggifc's enum is non-nullable, so
+        // clear the backing field via reflection (fallback: NOTDEFINED).
         StateWasClearedToNull = TrySetStateNull(ownerHistory);
 
-        // LastModifiedDate / LastModifyingUser / LastModifyingApplication — Revit's
-        // first export leaves all three null (Exporter.cs L3244 passes nulls for the
-        // modification trio). ggifc auto-fills LastModifiedDate with CreationDate's
-        // timestamp; clear via the backing field so STEP emits $ instead of an int.
+        // LastModifiedDate / User / Application — null in Revit's export (Exporter.cs L3244);
+        // ggifc auto-fills LastModifiedDate, so clear the backing field.
         ClearBackingField(ownerHistory, "LastModifiedDate");
         ClearBackingField(ownerHistory, "LastModifyingUser");
         ClearBackingField(ownerHistory, "LastModifyingApplication");
 
-        // Person — revit-ifc Exporter.cs L3231. Identification = null, FamilyName +
-        // GivenName parsed from author string.
+        // Person — Exporter.cs L3231: FamilyName + GivenName parsed from the author string.
         var person = ownerHistory.OwningUser.ThePerson;
         var (familyName, givenName) = ParseAuthor(src.Author);
         person.GivenName = givenName;
         person.FamilyName = familyName;
         SetNullableString(person, "Identification", null);
 
-        // User Organization — revit-ifc Exporter.cs L3233. Name and Description are
-        // null for an Architectural template with no OrganizationName configured.
-        // ggifc rejects null on these fields and substitutes "UNKNOWN"; we bypass
-        // its validator by writing the backing field directly when the source value
-        // is null (see SetNullableString below).
+        // User Organization — Exporter.cs L3233. ggifc substitutes "UNKNOWN" for null,
+        // so null is written to the backing field directly (SetNullableString).
         var userOrg = ownerHistory.OwningUser.TheOrganization;
         SetNullableString(userOrg, "Name", src.OrganizationName);
         SetNullableString(userOrg, "Description", src.OrganizationDescription);
@@ -135,20 +107,12 @@ public static class RevitOwnerHistory
         application.ApplicationIdentifier = ApplicationIdentifierToken;
         application.Version = src.ProductVersion;
 
-        // Developer Organization (attached to the Application) — Exporter.cs L2884.
-        // CreateOrganization(file, null, productFullName, null, null, null): only Name
-        // is set, every other field is null.
+        // Developer Organization — Exporter.cs L2884: only Name is set.
         var developerOrg = application.ApplicationDeveloper;
         developerOrg.Name = src.ProductFullName;
     }
 
-    /// <summary>
-    /// True when <see cref="Override(IfcProject, Source)"/> last succeeded in
-    /// clearing <c>IfcOwnerHistory.State</c> via reflection (option A); false
-    /// when ggifc forced the fallback path (option C, state stays NOTDEFINED).
-    /// Diagnostic only — exposed so the step's research log can record which
-    /// path was taken on a given ggifc build.
-    /// </summary>
+    /// <summary>Diagnostic: whether the last <see cref="Override(IfcProject, Source)"/> managed to clear <c>IfcOwnerHistory.State</c>.</summary>
     public static bool StateWasClearedToNull { get; private set; }
 
     /// <summary>
@@ -197,7 +161,7 @@ public static class RevitOwnerHistory
     /// <summary>
     /// Try to clear <c>IfcOwnerHistory.State</c> by writing null to its non-public
     /// backing field. Returns true on success, false if ggifc's representation is
-    /// a non-nullable value-type field that rejects null (option C fallback).
+    /// a non-nullable value-type field that rejects null (the fallback path).
     /// </summary>
     private static bool TrySetStateNull(IfcOwnerHistory history)
     {

@@ -4,12 +4,8 @@ using RevitGraphPlugin.Ifc.Converters;
 namespace RevitGraphPlugin.Ifc;
 
 /// <summary>
-/// Phase A of a sync: assemble the in-memory IFC model (ggifc entity tree) from the
-/// Revit document — boilerplate skeleton (stage 1) then per-element converters
-/// (stage 2). Shared by BOTH sinks so the IFC tree is built identically regardless
-/// of how it is later written to Neo4j:
-///   - <see cref="SyncCommand"/>       → temp-IFC bridge (Cypher/IfcSnippetSink)
-///   - <see cref="SyncDirectCommand"/> → direct write   (Cypher/Direct/CypherEmitter)
+/// Phase A of every sync: build the in-memory ggifc tree from the Revit document —
+/// boilerplate skeleton, then every element through its converter.
 /// </summary>
 public static class ModelAssembler
 {

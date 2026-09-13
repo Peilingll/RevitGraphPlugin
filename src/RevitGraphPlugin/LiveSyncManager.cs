@@ -5,11 +5,9 @@ using Autodesk.Revit.UI;
 namespace RevitGraphPlugin;
 
 /// <summary>
-/// Holds the (single) active <see cref="LiveSyncSession"/> and routes Revit events
-/// into it (plan step 4). DocumentChanged fires once per committed transaction with
-/// the added / deleted / modified element ids; each supported element becomes one
-/// GraphRule applied to the live graph. On any failure the session is disposed and
-/// live sync turns itself off (fail loud + stop writing rather than desync silently).
+/// Holds the single active <see cref="LiveSyncSession"/> and routes DocumentChanged
+/// into it. Any failure disposes the session and turns live sync off: stop writing
+/// rather than desync silently.
 /// </summary>
 public static class LiveSyncManager
 {
@@ -18,13 +16,7 @@ public static class LiveSyncManager
     /// <summary>The ribbon toggle button; text is updated to reflect state.</summary>
     internal static PushButton? ToggleButton { get; set; }
 
-    public static bool IsActive => _session is not null;
-
-    /// <summary>
-    /// Flip live sync for <paramref name="doc"/>. Enabling runs the baseline snapshot
-    /// (wipe + rewrite of <see cref="LiveSyncSession.Timestamp"/>); disabling disposes
-    /// the session. Returns a user-facing status message.
-    /// </summary>
+    /// <summary>Enable (baseline snapshot) or disable live sync for <paramref name="doc"/>; returns a status message.</summary>
     public static string Toggle(Document doc)
     {
         if (_session is not null)
@@ -59,7 +51,7 @@ public static class LiveSyncManager
         var deleted = e.GetDeletedElementIds();
         var modified = e.GetModifiedElementIds();
         LiveSyncLog.Write(
-            $"DocumentChanged: doc='{doc.Title}' refMatch={ReferenceEquals(doc, _session.Document)} "
+            $"DocumentChanged: doc='{doc.Title}' op={e.Operation} refMatch={ReferenceEquals(doc, _session.Document)} "
             + $"eqMatch={doc.Equals(_session.Document)} "
             + $"added={added.Count} deleted={deleted.Count} modified={modified.Count}");
 
@@ -73,14 +65,12 @@ public static class LiveSyncManager
 
         try
         {
-            // Deletions first: a delete+re-add of the same element id within one
-            // transaction must not remove the fresh graphlet. Bodies are gone, so
-            // ids are all we get — and all the session needs.
-            foreach (var id in deleted)
+            // Deletes first (a delete + re-add of the same id in one transaction must keep
+            // the fresh graphlet); levels last (Revit deletes a level's elements with it).
+            foreach (var id in deleted.OrderBy(id => _session.IsLevel(id) ? 1 : 0))
                 LiveSyncLog.Write($"  remove {id.Value}: applied={_session.ApplyRemoved(id)}");
 
-            // Log every added element (category + supported) so an unsupported filter is
-            // distinguishable from a supported-but-failed apply.
+            // Log every candidate so "unsupported" is distinguishable from "failed".
             foreach (var el in added.Select(doc.GetElement).Where(el => el is not null))
                 LiveSyncLog.Write($"  added candidate {el.Id.Value}: category='{el.Category?.Name}' "
                     + $"builtin={(el.Category is null ? "null" : el.Category.BuiltInCategory.ToString())} "
@@ -90,17 +80,26 @@ public static class LiveSyncManager
                 LiveSyncLog.Write(
                     $"  add {element.Id.Value} ({element.Category?.Name}): applied={_session.ApplyAdded(element)}");
 
-            // Hosts before hosted (walls before their windows/doors): when a moved
-            // wall drags its windows along, the wall's graphlet must be rebuilt
-            // before the window converter wires the opening back into it.
+            // Hosts before hosted: a window's converter wires its opening into the host
+            // wall's (rebuilt) graphlet.
             foreach (var element in SupportedByPriority(doc, ExpandTypesToInstances(doc, modified)))
                 LiveSyncLog.Write(
                     $"  modify {element.Id.Value} ({element.Category?.Name}): applied={_session.ApplyModified(element)}");
+
+            // Undo / redo / rollback carry no ids: roll-call on every event, full
+            // re-conversion only when the operation was not a plain commit.
+            var gone = _session.ReconcileVanished();
+            if (gone.Count > 0)
+                LiveSyncLog.Write($"  reconcile: {gone.Count} tracked element(s) no longer in the document, removed: {string.Join(",", gone.Select(id => id.Value))}");
+            if (e.Operation != UndoOperation.TransactionCommitted)
+            {
+                var (modified2, inserted) = _session.ReconcileAll();
+                LiveSyncLog.Write($"  reconcile after {e.Operation}: re-converted {modified2}, inserted {inserted}");
+            }
         }
         catch (Exception ex)
         {
-            // Never show UI from a DocumentChanged handler (Revit forbids it). Log the
-            // failure, disable live sync (the graph may now be stale), flip the button.
+            // Revit forbids UI inside DocumentChanged: log, disable live sync, flip the button.
             LiveSyncLog.Write($"  !! FAILED: {ex}");
             _session.Dispose();
             _session = null;
@@ -124,14 +123,9 @@ public static class LiveSyncManager
     }
 
     /// <summary>
-    /// A modified ElementType means "every instance using it changed": editing a type
-    /// parameter (WallType Function → IsExternal, a type rename, a type thickness)
-    /// reports only the TYPE as modified — the instances whose converted output depends
-    /// on it are never mentioned, so without expansion the graph keeps their stale
-    /// values. Each type in <paramref name="ids"/> is therefore replaced by the
-    /// instances using it (the type itself is filtered out of conversion by
-    /// <see cref="SupportedByPriority"/>). A set, because one transaction can report a
-    /// type and some of its instances together — each instance must re-sync once.
+    /// A modified ElementType is reported without its instances, yet their converted
+    /// output depends on it (e.g. WallType Function → IsExternal). Replace each type in
+    /// <paramref name="ids"/> by the instances using it; the type itself never converts.
     /// </summary>
     private static ICollection<ElementId> ExpandTypesToInstances(Document doc, ICollection<ElementId> ids)
     {
@@ -153,8 +147,7 @@ public static class LiveSyncManager
 
     private static IEnumerable<Element> SupportedByPriority(Document doc, ICollection<ElementId> ids)
     {
-        // Types never convert: a type reaching a converter would apply an empty rule
-        // (the converter's instance-cast early-returns) and log a bogus success.
+        // Types never convert (a converter's instance cast would early-return and log a bogus success).
         return ids
             .Select(doc.GetElement)
             .Where(el => el is not null and not ElementType && _session!.Supports(el))

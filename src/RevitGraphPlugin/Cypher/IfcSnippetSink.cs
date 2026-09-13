@@ -4,43 +4,23 @@ using System.Text;
 using GeometryGym.Ifc;
 
 // ── Pipeline: TEMP-IFC BRIDGE (ggifc tree → .ifc → ConMan2 ifc_2_graph) ──
-// Default sink. Alternative: direct-write (Cypher/Direct/).
+// Reference path behind the "Sync (bridge)" button; Live Sync and "Sync (direct)"
+// use the direct-write pipeline (Cypher/Direct/) instead.
 namespace RevitGraphPlugin.Cypher;
 
 /// <summary>
-/// Bridge between the C# plugin and the Python <c>snippet_to_cypher.py</c> script.
-///
-/// Workflow:
-/// <list type="number">
-/// <item>Serialise the supplied <see cref="DatabaseIfc"/> to a temp .ifc file</item>
-/// <item>Spawn python.exe with the script + temp path + action + timestamp</item>
-/// <item>Capture stdout/stderr; raise on non-zero exit</item>
-/// <item>Leave the temp .ifc on disk after success so it can be inspected</item>
-/// </list>
-///
-/// Paths default to a "sibling clone" layout (ConMan2 cloned next to this repo)
-/// derived relative to the built DLL, and are overridable via environment variables:
-/// <list type="bullet">
-/// <item><c>PLUGIN_SNIPPET_SCRIPT</c> — defaults to <c>&lt;repo&gt;/tools/python/snippet_to_cypher.py</c></item>
-/// <item><c>PLUGIN_PYTHON</c> — defaults to <c>&lt;repo&gt;/../ConMan2/venv/Scripts/python.exe</c></item>
-/// </list>
-///
-/// Neo4j credentials (<c>NEO4J_LOCAL_PASSWORD</c> etc.) are inherited via the
-/// process env block — the user must set them before launching Revit.
-///
-/// See <c>doc_process/2026-05-29-architecture-revisit-ifc-snippets.md</c>.
+/// Bridge to the Python <c>snippet_to_cypher.py</c> script: write the ggifc tree to a
+/// temp .ifc, run the script, capture its output; the temp file is kept for inspection.
+/// Paths assume ConMan2 is cloned beside this repo; override with <c>PLUGIN_PYTHON</c> /
+/// <c>PLUGIN_SNIPPET_SCRIPT</c>. Neo4j credentials (<c>NEO4J_LOCAL_*</c>) are inherited
+/// from the Revit process environment.
 /// </summary>
 public static class IfcSnippetSink
 {
     private const string TempIfcName = "RevitGraphPlugin_last_sync.ifc";
     private const int    TimeoutMs   = 60_000;
 
-    /// <summary>
-    /// Repo root, derived from the executing assembly. The DLL builds to
-    /// <c>&lt;repo&gt;/src/RevitGraphPlugin/bin/&lt;Config&gt;/</c> (the csproj sets
-    /// AppendTargetFrameworkToOutputPath=false, so there is no extra TFM folder),
-    /// i.e. four levels above the assembly.
-    /// </summary>
+    /// <summary>Repo root: the DLL builds to <c>&lt;repo&gt;/src/RevitGraphPlugin/bin/&lt;Config&gt;/</c>, four levels down.</summary>
     private static string RepoRoot
     {
         get

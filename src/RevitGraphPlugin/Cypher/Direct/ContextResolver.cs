@@ -1,32 +1,20 @@
 using Neo4j.Driver;
 
 // ── Pipeline: DIRECT-WRITE, live incremental sync ──
-// Rule persistence step 2: turn the p21s a rule references-but-does-not-own into
-// portable ContextRefs, and back again. Measured against a real plugin-live graph
-// (2026-08-02), a rule's context is only ever:
-//   IfcRelContainedInSpatialStructure / IfcRelVoidsElement / a host IfcWall  → IfcRoot,
-//       so the GlobalId anchors it directly, no walk needed;
-//   IfcOwnerHistory / IfcLocalPlacement / IfcGeometricRepresentationSubContext → shared
-//       boilerplate with no GlobalId, reachable in 1–3 hops from a permanent anchor.
-// Hence the modest depth bound below: it covers everything observed, with headroom.
+// Resolve the p21s a rule references but does not own into portable ContextRefs, and
+// back. IfcRoot context anchors directly on its GlobalId; shared boilerplate without a
+// GlobalId (OwnerHistory, placements, contexts) is reached in a few hops from one.
 namespace RevitGraphPlugin.Cypher;
 
 public static class ContextResolver
 {
-    /// <summary>
-    /// How far to walk from an anchor when the target carries no GlobalId of its own.
-    /// Deeper paths are more fragile (every hop is another thing that can shift between
-    /// versions), so an unresolvable reference is reported rather than chased.
-    /// </summary>
+    /// <summary>Max hops from an anchor to a target without a GlobalId; deeper paths are too fragile.</summary>
     public const int MaxPathDepth = 4;
 
     /// <summary>
-    /// Name each of <paramref name="targets"/> portably. Must run BEFORE the rule mutates
-    /// anything — every node a rule references from outside its own graphlet exists at
-    /// transaction start, and some (the <c>SharedDelete</c> ones) will not exist after.
-    /// <paramref name="exclude"/> is the rule's own graphlet: neither the anchor nor any
-    /// hop may route through nodes the rule is about to delete or has yet to create.
-    /// Unresolvable targets are simply absent from the result.
+    /// Name each of <paramref name="targets"/> portably. Must run before the rule mutates
+    /// anything; paths never route through <paramref name="exclude"/> (the rule's own
+    /// graphlet). Unresolvable targets are absent from the result.
     /// </summary>
     public static async Task<IReadOnlyDictionary<int, ContextRef>> ResolveAsync(
         IAsyncQueryRunner tx,
@@ -37,7 +25,7 @@ public static class ContextResolver
         var resolved = new Dictionary<int, ContextRef>();
         if (targets.Count == 0) return resolved;
 
-        // Pass 1 (one query): anything that is itself an IfcRoot anchors directly.
+        // Pass 1: IfcRoot targets anchor directly.
         var needsPath = new List<int>();
         var rows = await (await tx.RunAsync(
             @"UNWIND $p21s AS p
@@ -57,7 +45,7 @@ public static class ContextResolver
                 needsPath.Add(p21);
         }
 
-        // Pass 2 (one query each — a handful per rule): walk in from the nearest anchor.
+        // Pass 2: walk in from the best anchor.
         var excluded = exclude.Select(P21Id.Of).ToList();
         foreach (var p21 in needsPath)
         {
@@ -68,13 +56,7 @@ public static class ContextResolver
         return resolved;
     }
 
-    /// <summary>
-    /// Find the node a stored <see cref="ContextRef"/> names in <paramref name="timestamp"/>'s
-    /// graph, or null if the path does not resolve there. Mirrors ConMan2's
-    /// <c>GraphPatch.find_node_from_unique_path</c>: look the anchor up by GlobalId, then
-    /// walk one keyed hop at a time. This is what makes a stored rule applicable to a host
-    /// graph whose p21 numbering differs from the one it was recorded against.
-    /// </summary>
+    /// <summary>Find the node a <see cref="ContextRef"/> names in <paramref name="timestamp"/>'s graph (ConMan2's <c>find_node_from_unique_path</c>), or null.</summary>
     public static async Task<int?> FindAsync(
         IAsyncQueryRunner tx, string timestamp, ContextRef contextRef)
     {
@@ -110,45 +92,30 @@ public static class ContextResolver
     private static async Task<ContextRef?> ShortestAnchoredPathAsync(
         IAsyncQueryRunner tx, string timestamp, int p21, IReadOnlyList<string> excluded)
     {
-        // A heavily shared node has MANY equally short paths — measured on a real
-        // plugin-live graph, IfcOwnerHistory had 32 (every IfcRoot points at it), and that
-        // grows with the model. So the ORDER BY must be a TOTAL order and the LIMIT 1 must
-        // do the picking: truncating first and choosing afterwards could discard the very
-        // candidate that should win. Ordering by the step lists (Cypher compares lists
-        // element-wise) makes the choice reproducible without restating the serialization
-        // format here. MaxPathDepth is inlined — Cypher rejects a parameter as a
+        // The anchor and every node the path passes through must be unowned (no
+        // revit_element_id): project / site / building / storey, containment rels,
+        // contexts are built once per session and never re-converted, so such a name
+        // survives later edits. A path through an element-owned node breaks as soon as
+        // that element is re-converted (its list_index or p21 changes), so no name is
+        // better than a fragile one: the caller then stores the raw p21, which is stable
+        // within one database. ORDER BY must be a total order (a shared node like
+        // IfcOwnerHistory has dozens of equally short paths) so LIMIT 1 picks the same
+        // candidate every time. MaxPathDepth is inlined: Cypher rejects a parameter as a
         // var-length bound.
-        //
-        // Anchors are ranked by STABILITY first, depth second — a durable name three hops
-        // out beats a fragile one next door. Only ggifc products carry a GlobalId derived
-        // from something permanent (the Revit UniqueId); for every other IfcRoot — property
-        // sets, IfcRelVoids/Fills/DefinesByProperties — ggifc mints a FRESH RANDOM GlobalId
-        // on each conversion. So an anchor on an element-owned node dies the moment that
-        // element is edited again: the node is deleted and re-created wearing a new id, and
-        // the stored reference resolves to nothing.
-        //
-        // `revit_element_id IS NULL` is exactly the durable set: spatial boilerplate
-        // (project/site/building/storey), the shared containment rel, contexts — all built
-        // once per session and never re-converted. Preferring them makes a stored reference
-        // survive arbitrary later edits to other elements.
-        //
-        // Found the hard way (2026-08-13): a 19-rule live chain with hosted elements broke
-        // replay because references had been anchored on another element's property set.
-        // The four-rule single-wall demo never exercised it.
         var cypher = $@"
 MATCH path = allShortestPaths(
         (a:GenericNode {{timestamp: $ts}})-[:rel*1..{MaxPathDepth}]->(x:GenericNode {{timestamp: $ts, p21_id: $p21}}))
 WHERE (a:PrimaryNode OR a:ConnectionNode) AND a.GlobalId IS NOT NULL
   AND NONE(n IN nodes(path) WHERE n.p21_id IN $excluded)
+  AND NONE(n IN nodes(path)[0..-1] WHERE n.revit_element_id IS NOT NULL)
 WITH a.GlobalId AS gid,
-     CASE WHEN a.revit_element_id IS NULL THEN 0 ELSE 1 END AS stability_rank,
      CASE WHEN a:PrimaryNode THEN 0 ELSE 1 END AS kind_rank,
      labels(a) AS anchor_labels,
      [r IN relationships(path) | r.rel_type]   AS rel_types,
      [r IN relationships(path) | r.list_index] AS list_indexes,
      [n IN tail(nodes(path)) | n.EntityType]   AS entity_types,
      length(path) AS depth
-ORDER BY stability_rank, depth, kind_rank, gid, rel_types, list_indexes, entity_types
+ORDER BY depth, kind_rank, gid, rel_types, list_indexes, entity_types
 LIMIT 1
 RETURN gid, anchor_labels, rel_types, list_indexes, entity_types";
 

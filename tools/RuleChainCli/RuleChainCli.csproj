@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <PlatformTarget>x64</PlatformTarget>
+    <Platforms>x64</Platforms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>RevitGraphPlugin.Tools.RuleChainCli</RootNamespace>
+    <AssemblyName>rulechain</AssemblyName>
+    <!-- RevitAPI is referenced by RevitGraphPlugin.csproj but never loaded here:
+         the CLI only uses the rule chain classes, which have no Revit dependency. -->
+    <NoWarn>$(NoWarn);MSB3277;NU1701</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\RevitGraphPlugin\RevitGraphPlugin.csproj" />
+  </ItemGroup>
+
+</Project>

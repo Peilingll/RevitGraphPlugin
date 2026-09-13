@@ -1,10 +1,18 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.0.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevitGraphPlugin", "src\RevitGraphPlugin\RevitGraphPlugin.csproj", "{8A1B2C3D-4E5F-6A7B-8C9D-0E1F2A3B4C5D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neo4jSmokeTest", "tools\Neo4jSmokeTest\Neo4jSmokeTest.csproj", "{1F2E3D4C-5B6A-7988-A9B8-C7D6E5F4A3B2}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{72FF499E-1096-4655-8EC9-0185EF9CC201}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevitGraphPlugin.Tests", "tests\RevitGraphPlugin.Tests\RevitGraphPlugin.Tests.csproj", "{020F87C0-FDCA-4016-88C1-AC39BE1C56C1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{EC04C94D-9B49-4294-8615-843675E98EE6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RuleChainCli", "tools\RuleChainCli\RuleChainCli.csproj", "{891ABD5D-DDBC-44F0-8AD7-8298A8989766}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neo4jSmokeTest", "tools\Neo4jSmokeTest\Neo4jSmokeTest.csproj", "{822C6313-157D-4578-9AF1-9A4DC021DB8C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,16 +30,37 @@ Global
 		{8A1B2C3D-4E5F-6A7B-8C9D-0E1F2A3B4C5D}.Release|Any CPU.Build.0 = Release|x64
 		{8A1B2C3D-4E5F-6A7B-8C9D-0E1F2A3B4C5D}.Release|x64.ActiveCfg = Release|x64
 		{8A1B2C3D-4E5F-6A7B-8C9D-0E1F2A3B4C5D}.Release|x64.Build.0 = Release|x64
-		{1F2E3D4C-5B6A-7988-A9B8-C7D6E5F4A3B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1F2E3D4C-5B6A-7988-A9B8-C7D6E5F4A3B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1F2E3D4C-5B6A-7988-A9B8-C7D6E5F4A3B2}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{1F2E3D4C-5B6A-7988-A9B8-C7D6E5F4A3B2}.Debug|x64.Build.0 = Debug|Any CPU
-		{1F2E3D4C-5B6A-7988-A9B8-C7D6E5F4A3B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1F2E3D4C-5B6A-7988-A9B8-C7D6E5F4A3B2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1F2E3D4C-5B6A-7988-A9B8-C7D6E5F4A3B2}.Release|x64.ActiveCfg = Release|Any CPU
-		{1F2E3D4C-5B6A-7988-A9B8-C7D6E5F4A3B2}.Release|x64.Build.0 = Release|Any CPU
+		{020F87C0-FDCA-4016-88C1-AC39BE1C56C1}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{020F87C0-FDCA-4016-88C1-AC39BE1C56C1}.Debug|Any CPU.Build.0 = Debug|x64
+		{020F87C0-FDCA-4016-88C1-AC39BE1C56C1}.Debug|x64.ActiveCfg = Debug|x64
+		{020F87C0-FDCA-4016-88C1-AC39BE1C56C1}.Debug|x64.Build.0 = Debug|x64
+		{020F87C0-FDCA-4016-88C1-AC39BE1C56C1}.Release|Any CPU.ActiveCfg = Release|x64
+		{020F87C0-FDCA-4016-88C1-AC39BE1C56C1}.Release|Any CPU.Build.0 = Release|x64
+		{020F87C0-FDCA-4016-88C1-AC39BE1C56C1}.Release|x64.ActiveCfg = Release|x64
+		{020F87C0-FDCA-4016-88C1-AC39BE1C56C1}.Release|x64.Build.0 = Release|x64
+		{891ABD5D-DDBC-44F0-8AD7-8298A8989766}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{891ABD5D-DDBC-44F0-8AD7-8298A8989766}.Debug|Any CPU.Build.0 = Debug|x64
+		{891ABD5D-DDBC-44F0-8AD7-8298A8989766}.Debug|x64.ActiveCfg = Debug|x64
+		{891ABD5D-DDBC-44F0-8AD7-8298A8989766}.Debug|x64.Build.0 = Debug|x64
+		{891ABD5D-DDBC-44F0-8AD7-8298A8989766}.Release|Any CPU.ActiveCfg = Release|x64
+		{891ABD5D-DDBC-44F0-8AD7-8298A8989766}.Release|Any CPU.Build.0 = Release|x64
+		{891ABD5D-DDBC-44F0-8AD7-8298A8989766}.Release|x64.ActiveCfg = Release|x64
+		{891ABD5D-DDBC-44F0-8AD7-8298A8989766}.Release|x64.Build.0 = Release|x64
+		{822C6313-157D-4578-9AF1-9A4DC021DB8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{822C6313-157D-4578-9AF1-9A4DC021DB8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{822C6313-157D-4578-9AF1-9A4DC021DB8C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{822C6313-157D-4578-9AF1-9A4DC021DB8C}.Debug|x64.Build.0 = Debug|Any CPU
+		{822C6313-157D-4578-9AF1-9A4DC021DB8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{822C6313-157D-4578-9AF1-9A4DC021DB8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{822C6313-157D-4578-9AF1-9A4DC021DB8C}.Release|x64.ActiveCfg = Release|Any CPU
+		{822C6313-157D-4578-9AF1-9A4DC021DB8C}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{020F87C0-FDCA-4016-88C1-AC39BE1C56C1} = {72FF499E-1096-4655-8EC9-0185EF9CC201}
+		{891ABD5D-DDBC-44F0-8AD7-8298A8989766} = {EC04C94D-9B49-4294-8615-843675E98EE6}
+		{822C6313-157D-4578-9AF1-9A4DC021DB8C} = {EC04C94D-9B49-4294-8615-843675E98EE6}
 	EndGlobalSection
 EndGlobal

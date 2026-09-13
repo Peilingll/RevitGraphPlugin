@@ -4,10 +4,8 @@ using Xunit;
 namespace RevitGraphPlugin.Tests;
 
 /// <summary>
-/// Guards the Revit UniqueId → IFC GlobalId conversion, in particular the uniqueness
-/// property that a whole-model round-trip depends on (IfcRoot.UR1). Regression for the
-/// collision found 2026-07-19: two walls in one document shared one GlobalId because
-/// only the document-wide episode GUID prefix was used.
+/// Revit UniqueId → IFC GlobalId: distinct elements must get distinct ids (IfcRoot.UR1;
+/// the episode GUID prefix alone is shared by the whole document).
 /// </summary>
 public class IfcGuidConverterTests
 {
@@ -29,6 +27,32 @@ public class IfcGuidConverterTests
         Assert.Equal(
             IfcGuidConverter.FromRevitUniqueId(uid),
             IfcGuidConverter.FromRevitUniqueId(uid));
+    }
+
+    /// <summary>
+    /// Pinned against a real Revit 2025 element (UniqueId from live.log, IfcGUID from its
+    /// IFC parameters): the XOR is big-endian, most significant byte in GUID byte 12.
+    /// </summary>
+    [Fact]
+    public void Matches_the_IfcGUID_revit_shows_for_a_real_element()
+    {
+        var uid = "37aa155a-26ad-4e1d-9d57-d9ca5d731856-0004cbde";
+        Assert.Equal("0tgXLQ9grE7PrNsSfTTzE8", IfcGuidConverter.FromRevitUniqueId(uid));
+    }
+
+    [Fact]
+    public void Element_id_is_folded_into_the_guid_tail_big_endian()
+    {
+        static byte[] Bytes(string suffix) =>
+            GeometryGym.Ifc.ParserIfc.DecodeGlobalID(
+                IfcGuidConverter.FromRevitUniqueId($"{Episode}-{suffix}")).ToByteArray();
+
+        var zero = Bytes("00000000");
+        Assert.Equal(zero[15] ^ 0x01, Bytes("00000001")[15]);   // least significant → byte 15
+        Assert.Equal(zero[14] ^ 0x01, Bytes("00000100")[14]);
+        Assert.Equal(zero[13] ^ 0x01, Bytes("00010000")[13]);
+        Assert.Equal(zero[12] ^ 0x01, Bytes("01000000")[12]);   // most significant → byte 12
+        Assert.Equal(zero[..12], Bytes("ffffffff")[..12]);       // the first 12 bytes never move
     }
 
     [Fact]

@@ -1,7 +1,6 @@
 using GeometryGym.Ifc;
 
 // ── Pipeline: DIRECT-WRITE (Revit → ggifc tree → Cypher → Neo4j; no temp IFC) ──
-// Opt-in. Default sink is the temp-IFC bridge (Cypher/IfcSnippetSink.cs).
 namespace RevitGraphPlugin.Cypher;
 
 /// <summary>

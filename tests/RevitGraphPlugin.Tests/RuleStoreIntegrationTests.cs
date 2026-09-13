@@ -8,12 +8,9 @@ using Xunit.Abstractions;
 namespace RevitGraphPlugin.Tests;
 
 /// <summary>
-/// Rule persistence step 3b: <see cref="RuleStore.PersistAsync"/>, running inside
-/// <see cref="CypherEmitter.ApplyRuleAsync"/>'s transaction. Asserts the frozen schema
-/// (op-dependent payload: copies for Insert/Remove/Replace, Change rows for Modify,
-/// nothing for a provably-empty Replace) and the zero-pollution invariant: persisting
-/// never adds a node to the current-state timestamp, and a re-baseline wipe never
-/// removes one from the chain. Same local-Neo4j convention as ApplyRuleIntegrationTests.
+/// <see cref="RuleStore.PersistAsync"/>: the per-op storage shape (copies, Change rows,
+/// nothing for an empty Replace) and the isolation invariant — persisting never touches
+/// the current-state timestamp, a re-baseline wipe never touches the chain.
 /// </summary>
 public sealed class RuleStoreIntegrationTests : IDisposable
 {
@@ -26,18 +23,7 @@ public sealed class RuleStoreIntegrationTests : IDisposable
     public RuleStoreIntegrationTests(ITestOutputHelper output)
     {
         _output = output;
-        var password = Environment.GetEnvironmentVariable("NEO4J_LOCAL_PASSWORD") ?? "password";
-        try
-        {
-            var d = GraphDatabase.Driver("bolt://127.0.0.1:7687", AuthTokens.Basic("neo4j", password));
-            d.VerifyConnectivityAsync().GetAwaiter().GetResult();
-            _driver = d;
-        }
-        catch (Exception ex)
-        {
-            _output.WriteLine($"Neo4j unreachable — skipping integration assertions: {ex.Message}");
-            _driver = null;
-        }
+        _driver = Neo4jTest.TryConnect(_output);
     }
 
     public void Dispose()
@@ -68,20 +54,18 @@ public sealed class RuleStoreIntegrationTests : IDisposable
         => Count("MATCH (r:Rule {target_ts: $ts}) RETURN count(*)", new { ts = TsLive });
 
     /// <summary>The full lifecycle: Insert → property-only Replace → no-op Replace → Remove.</summary>
-    [Fact]
+    [SkippableFact]
     public async Task Chain_stores_the_op_dependent_payload_and_never_touches_the_live_graph()
     {
-        if (_driver is null) return;
+        Skip.If(_driver is null, Neo4jTest.SkipReason);
         await Cleanup();
 
-        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var db = new DatabaseIfc(ReleaseVersion.IFC4A2);
         var building = new IfcBuilding(db, "B");
         var storey = new IfcBuildingStorey(building, "S", 0);
         var owner = new Dictionary<int, long>();
 
-        // A baseline wall keeps the containment rel alive and EXTERNAL to the rules
-        // under test — the second member's containment membership is genuine in-glue
-        // (the first member carries the freshly created rel inside its own graphlet).
+        // A baseline wall keeps the containment rel external to the rules under test.
         var b0 = StepIdWatermark.Current(db);
         _ = new IfcWall(storey, null, null);
         var b1 = StepIdWatermark.Current(db);
@@ -113,16 +97,14 @@ public sealed class RuleStoreIntegrationTests : IDisposable
             "MATCH (:Rule {timestamp: $ts})-[:DELETES]->(n) RETURN count(n)",
             new { ts = inserted.Stored.RuleTimestamp }));
 
-        // Glue: outgoing (owner history …) and incoming (containment membership), all
-        // with a parseable portable context.
+        // Glue: outgoing (owner history …) and incoming (containment), all portably named.
         var glueRows = await GlueContexts(inserted.Stored.RuleTimestamp);
         Assert.Contains(glueRows, g => g.Direction == "out");
         Assert.Contains(glueRows, g => g.Direction == "in" && g.RelType == "RelatedElements");
         Assert.All(glueRows, g => Assert.True(ContextRef.TryParse(g.Context, out _),
             $"unparseable glue context: {g.Context}"));
 
-        // Persisting polluted nothing: the live graph grew by exactly the applied
-        // graphlet (+ its inline children), same as before rule persistence existed.
+        // The live graph grew by exactly the applied graphlet (+ inline children).
         var liveAfterInsert = await NodesAt(TsLive);
         var inlineCount = graphlet.Sum(d => d.Inlines.Count);
         Assert.Equal(liveBefore + graphlet.Count + inlineCount, liveAfterInsert);
@@ -209,13 +191,13 @@ public sealed class RuleStoreIntegrationTests : IDisposable
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Baseline_anchors_join_the_chain_and_survive_rebaselines()
     {
-        if (_driver is null) return;
+        Skip.If(_driver is null, Neo4jTest.SkipReason);
         await Cleanup();
 
-        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var db = new DatabaseIfc(ReleaseVersion.IFC4A2);
         var building = new IfcBuilding(db, "B");
         var storey = new IfcBuildingStorey(building, "S", 0);
         var owner = new Dictionary<int, long>();

@@ -8,11 +8,8 @@ using RevitGraphPlugin.Ifc;
 namespace RevitGraphPlugin;
 
 /// <summary>
-/// Sync via the DIRECT-WRITE pipeline: build the ggifc tree (Phase A, shared with
-/// <see cref="SyncCommand"/>) then walk it straight into Neo4j with
-/// <see cref="CypherEmitter"/> — no temp IFC, no Python. Counterpart to the
-/// temp-IFC bridge; both write the same ConMan2-shaped graph, under DISTINCT
-/// timestamps so the two can be diffed in ConMan2 to prove equivalence.
+/// One-click full write through the direct pipeline: build the ggifc tree, walk it into
+/// Neo4j with <see cref="CypherEmitter"/>. No temp IFC, no Python.
 /// </summary>
 [Transaction(TransactionMode.ReadOnly)]
 public class SyncDirectCommand : IExternalCommand
@@ -47,9 +44,8 @@ public class SyncDirectCommand : IExternalCommand
         {
             var (uri, user, password) = Neo4jConfig.Resolve();
             using var driver = GraphDatabase.Driver(uri, AuthTokens.Basic(user, password));
-            // Run on a thread-pool thread: blocking on the async write directly from
-            // Revit's UI thread (which carries a SynchronizationContext) deadlocks the
-            // library's awaiting continuations. Task.Run gives them a context-free thread.
+            // Task.Run: blocking on the async write from Revit's UI thread (which has a
+            // SynchronizationContext) would deadlock the driver's continuations.
             stats = Task.Run(() => CypherEmitter.WriteAsync(
                             driver, ctx.Db, Timestamp, ctx.OwnerByStepId))
                         .GetAwaiter().GetResult();

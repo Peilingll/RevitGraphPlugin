@@ -5,7 +5,7 @@ namespace RevitGraphPlugin.Ifc.Converters;
 /// <summary>
 /// Converts one Revit element category into its IFC sub-graph, added to the
 /// shared <see cref="IfcModelContext.Db"/>. Add a new implementation per element
-/// type to extend coverage — the "dedicated library" 
+/// type to extend coverage.
 /// </summary>
 public interface IElementConverter
 {

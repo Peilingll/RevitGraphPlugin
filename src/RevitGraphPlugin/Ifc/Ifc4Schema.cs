@@ -2,8 +2,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
 
-// ── Pipeline: DIRECT-WRITE only (IFC4 attribute whitelist for Cypher/Direct/EntityWalker). ──
-// The temp-IFC bridge does not use this.
+// ── Pipeline: DIRECT-WRITE (IFC4 attribute whitelist for EntityWalker) ──
 namespace RevitGraphPlugin.Ifc;
 
 /// <summary>
@@ -14,11 +13,7 @@ public static class Ifc4Schema
 {
     private const string ResourceName = "RevitGraphPlugin.Schema.ifc4_attributes.json";
 
-    /// <summary>
-    /// Loaded schema: per entity type, the forward attributes in EXPRESS declaration
-    /// order (<see cref="Ordered"/>, for positional STEP-line mapping) plus the same
-    /// names as an O(1) lookup set (<see cref="Sets"/>, for whitelist checks).
-    /// </summary>
+    /// <summary>Per entity type: forward attributes in EXPRESS order (<see cref="Ordered"/>) and as a lookup set (<see cref="Sets"/>).</summary>
     private sealed record SchemaData(
         IReadOnlyDictionary<string, IReadOnlyList<string>> Ordered,
         IReadOnlyDictionary<string, HashSet<string>> Sets);
@@ -26,12 +21,7 @@ public static class Ifc4Schema
     private static readonly Lazy<SchemaData> _schema =
         new(Load, LazyThreadSafetyMode.ExecutionAndPublication);
 
-    /// <summary>
-    /// Returns true if <paramref name="attributeName"/> is a forward attribute
-    /// declared on <paramref name="entityType"/> in the IFC4 schema. Unknown
-    /// entity types fall back to <c>true</c> so that ggifc-only classes
-    /// (which have no IFC4 declaration) are not silently filtered out.
-    /// </summary>
+    /// <summary>True if <paramref name="attributeName"/> is a forward attribute of <paramref name="entityType"/>. Unknown types return true (ggifc-only classes are not filtered).</summary>
     public static bool IsSchemaAttribute(string entityType, string attributeName)
     {
         if (_schema.Value.Sets.TryGetValue(entityType, out var attrs))
@@ -42,13 +32,7 @@ public static class Ifc4Schema
         return true;
     }
 
-    /// <summary>
-    /// Returns the forward attributes of <paramref name="entityType"/> in EXPRESS
-    /// declaration order — i.e. the positional order of the parameters in that
-    /// entity's STEP (Part 21) line, so the STEP-line parser can zip parameter N to
-    /// its attribute name. Unknown entity types return an empty list (the caller
-    /// decides how to handle a type absent from the IFC4 schema).
-    /// </summary>
+    /// <summary>Forward attributes of <paramref name="entityType"/> in EXPRESS order (= STEP-line parameter order). Empty for unknown types.</summary>
     public static IReadOnlyList<string> GetOrderedAttributes(string entityType)
     {
         return _schema.Value.Ordered.TryGetValue(entityType, out var attrs)

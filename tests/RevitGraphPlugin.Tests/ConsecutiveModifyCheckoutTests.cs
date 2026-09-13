@@ -8,15 +8,9 @@ using Xunit.Abstractions;
 namespace RevitGraphPlugin.Tests;
 
 /// <summary>
-/// Acceptance test for stable GlobalIds on pset / rel nodes (2026-09-11 finding).
 /// Two consecutive property-only modifies on the same element, then checkout below the
-/// second one. Under the shallow apply every re-conversion rebuilds the pset with fresh
-/// p21s; before StableIds it also got a fresh ggifc-random GlobalId, so the FIRST
-/// Modify's three names (L path, R path, R p21) all pointed at nodes the SECOND rebuild
-/// had already replaced — undo of seq 3 threw <c>context not found</c>. A change on the
-/// product itself (its Name) never tripped this: the product's GlobalId is Revit-derived.
-/// With the pset GlobalId seeded from the wall, the L / R paths are the same name and
-/// resolve in every graph state.
+/// second: the first Modify's names must still resolve. Requires the pset GlobalId to be
+/// stable across re-conversions (StableIds).
 /// </summary>
 public sealed class ConsecutiveModifyCheckoutTests : IDisposable
 {
@@ -28,18 +22,7 @@ public sealed class ConsecutiveModifyCheckoutTests : IDisposable
     public ConsecutiveModifyCheckoutTests(ITestOutputHelper output)
     {
         _output = output;
-        var password = Environment.GetEnvironmentVariable("NEO4J_LOCAL_PASSWORD") ?? "password";
-        try
-        {
-            var d = GraphDatabase.Driver("bolt://127.0.0.1:7687", AuthTokens.Basic("neo4j", password));
-            d.VerifyConnectivityAsync().GetAwaiter().GetResult();
-            _driver = d;
-        }
-        catch (Exception ex)
-        {
-            _output.WriteLine($"Neo4j unreachable: {ex.Message}");
-            _driver = null;
-        }
+        _driver = Neo4jTest.TryConnect(_output);
     }
 
     public void Dispose()
@@ -55,13 +38,13 @@ public sealed class ConsecutiveModifyCheckoutTests : IDisposable
         await session.RunAsync("MATCH (n) WHERE n.timestamp STARTS WITH $ts DETACH DELETE n", new { ts = Ts });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Two_consecutive_modifies_then_checkout_to_baseline_and_back()
     {
-        if (_driver is null) return;
+        Skip.If(_driver is null, Neo4jTest.SkipReason);
         await Cleanup();
 
-        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var db = new DatabaseIfc(ReleaseVersion.IFC4A2);
         var building = new IfcBuilding(db, "B");
         var storey = new IfcBuildingStorey(building, "S", 0);
         var owner = new Dictionary<int, long>();
@@ -103,13 +86,7 @@ public sealed class ConsecutiveModifyCheckoutTests : IDisposable
         return string.Join(" | ", rows.Select(r => $"wall@{r["wp"]} pset={r["pg"]} IsExternal={r["val"]}@{r["vp"]}"));
     }
 
-    /// <summary>
-    /// The converter shape: wall + Pset_WallCommon(IsExternal), pset / rel / containment
-    /// GlobalIds seeded through StableIds exactly as WallConverter does. (With raw ggifc
-    /// psets — random GlobalIds per build — this test's checkout to seq 1 throws
-    /// <c>context not found</c> on undoing seq 3; that run is recorded in
-    /// doc/log/2026-09-11.)
-    /// </summary>
+    /// <summary>Wall + Pset_WallCommon(IsExternal), GlobalIds seeded through StableIds as WallConverter does.</summary>
     private static void BuildWall(DatabaseIfc db, IfcBuildingStorey storey, bool isExternal)
     {
         var wall = new IfcWall(storey, null, null) { GlobalId = Gid1, Name = "A" };

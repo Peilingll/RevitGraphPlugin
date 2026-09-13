@@ -4,17 +4,12 @@ using Xunit;
 
 namespace RevitGraphPlugin.Tests;
 
-/// <summary>
-/// Guards the registry's principal-product lookup (ElementConverterRegistry.FindProduct),
-/// the mechanism that populates ConvertedElements for EVERY converter. Regression for the
-/// bug found 2026-07-20: only WallConverter registered its product, so a live modify of any
-/// other element type fell back to Insert and duplicated the graphlet instead of replacing.
-/// </summary>
+/// <summary>ElementConverterRegistry.FindProduct, which populates ConvertedElements for every converter (a missing registration turns a live modify into a duplicate insert).</summary>
 public class ConvertedElementRegistrationTests
 {
     private static (DatabaseIfc db, IfcBuildingStorey storey) NewStorey()
     {
-        var db = new DatabaseIfc(false, ReleaseVersion.IFC4);
+        var db = new DatabaseIfc(ReleaseVersion.IFC4A2);
         var building = new IfcBuilding(db, "B");
         return (db, new IfcBuildingStorey(building, "S", 0));
     }

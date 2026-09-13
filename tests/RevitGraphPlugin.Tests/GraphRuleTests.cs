@@ -6,13 +6,12 @@ using Xunit;
 namespace RevitGraphPlugin.Tests;
 
 /// <summary>
-/// Unit tests (no Neo4j, no Revit) for the incremental-sync building blocks:
-/// the ggifc shared-containment-rel premise behind issue A, watermark-based graphlet
-/// extraction, and containment-rel walking with list_index renumbering.
+/// Incremental-sync building blocks (pure ggifc): one shared containment rel per storey,
+/// watermark-based graphlet extraction, containment walking with list_index renumbering.
 /// </summary>
 public class GraphRuleTests
 {
-    private static DatabaseIfc NewDb() => new(false, ReleaseVersion.IFC4);
+    private static DatabaseIfc NewDb() => new(ReleaseVersion.IFC4A2);
 
     private static (DatabaseIfc db, IfcBuildingStorey storey) NewStorey()
     {
@@ -34,8 +33,7 @@ public class GraphRuleTests
         }
     }
 
-    // The premise of issue A, verified against real ggifc: elements on the same storey
-    // share ONE containment rel, created during the FIRST element's conversion.
+    // Elements on the same storey share one containment rel, created with the first element.
     [Fact]
     public void ggifc_shares_one_containment_rel_per_storey()
     {
@@ -67,25 +65,6 @@ public class GraphRuleTests
     }
 
     [Fact]
-    public void NewEntities_filters_exactly_the_watermark_range()
-    {
-        var (db, storey) = NewStorey();
-        _ = new IfcWall(storey, null, null);
-
-        var before = StepIdWatermark.Current(db);
-        var w2 = new IfcWall(storey, null, null);
-        var after = StepIdWatermark.Current(db);
-
-        var walked = CypherEmitter.WalkAll(db, "t");
-        var fresh = GraphletExtractor.NewEntities(walked, before, after);
-
-        Assert.Contains(fresh, d => d.P21 == w2.StepId);
-        Assert.All(fresh, d => Assert.InRange(d.P21, before + 1, after));
-        // wall1's entities and the (pre-existing) containment rel are not in the range.
-        Assert.DoesNotContain(fresh, d => d.EntityType == nameof(IfcRelContainedInSpatialStructure));
-    }
-
-    [Fact]
     public void WalkStoreyContainmentRels_renumbers_after_ggifc_member_removal()
     {
         var (db, storey) = NewStorey();
@@ -108,8 +87,7 @@ public class GraphRuleTests
         Assert.Equal(0, member.ListIndex);
         Assert.Equal(w2.StepId, member.TargetP21);
 
-        // Detach the last member too: the rel is no longer walkable (ggifc refuses to
-        // serialize a memberless rel) — it must surface as a deletion instead.
+        // Detach the last member: a memberless rel must surface as a deletion.
         rel.RelatedElements.Remove(w2);
         var (finalRefresh, finalDelete) = GraphletExtractor.StoreyContainmentChanges(new[] { storey }, "t");
         Assert.Empty(finalRefresh);

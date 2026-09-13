@@ -30,10 +30,15 @@ Copy-Item "$out\*.dll" $dist
 Copy-Item "$out\RevitGraphPlugin.addin" $dist
 Copy-Item (Join-Path $repo 'deploy\install.ps1') $dist
 Copy-Item (Join-Path $repo 'deploy\INSTALL.md') $dist
-# Version-checkout tooling: checkout/undo/replay needs only Neo4j; the optional
-# -Ifc round-trip additionally needs a ConMan2 clone (see INSTALL.md).
+# Version-checkout tooling: checkout.ps1 + the rulechain CLI need only Neo4j; the
+# optional -Ifc round-trip additionally needs a ConMan2 clone (see INSTALL.md).
 Copy-Item (Join-Path $repo 'checkout.ps1') $dist
 Copy-Item (Join-Path $repo 'tools\python\graph2ifc.py') $dist
+dotnet publish (Join-Path $repo 'tools\RuleChainCli\RuleChainCli.csproj') `
+    -c $Configuration -p:Platform=x64 -p:RevitVersion=$RevitVersion --nologo -v q `
+    -o (Join-Path $dist 'rulechain')
+if ($LASTEXITCODE -ne 0) { throw "rulechain publish failed" }
+Get-ChildItem (Join-Path $dist 'rulechain') -Filter 'RevitAPI*.dll' | Remove-Item -Force
 Set-Content (Join-Path $dist 'revit-version.txt') $RevitVersion
 
 # Safety net: the Revit API is provided by Revit at runtime and must never ship.
