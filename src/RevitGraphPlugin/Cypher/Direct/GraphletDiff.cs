@@ -1,43 +1,38 @@
 // ── Pipeline: DIRECT-WRITE, live incremental sync ──
-// Align the L side (from the graph) with the R side (the fresh re-conversion) of one
-// element and split it as Esser 2022 §3.4 splits a rule: the interface I (matched nodes,
-// kept in place, changed values SET) and the pushout (unmatched nodes, deleted / inserted).
-// Matching seeds on stable GlobalIds and propagates along (rel_type, list_index) edges;
-// anything undecidable → Structural, and the caller applies a full Replace.
+// Align one element's L side (from the graph) with its R side (the fresh re-conversion),
+// Esser 2022 §3.4: matched nodes are the interface I (kept, values SET), the rest is the
+// pushout (deleted / inserted). Matching seeds on GlobalIds and propagates along
+// (rel_type, list_index) edges; anything undecidable → Structural, a full Replace.
 namespace RevitGraphPlugin.Cypher;
 
 public enum GraphletDiffKind
 {
-    /// <summary>Semantically identical — nothing worth storing (a noisy Revit modify).</summary>
+    /// <summary>Identical: store nothing (a noisy Revit modify).</summary>
     NoChange,
-    /// <summary>Same structure, only property / inline values differ: store a Modify.</summary>
+    /// <summary>Same structure, values differ: store a Modify.</summary>
     PropertyOnly,
-    /// <summary>
-    /// Part of the graphlet aligned (the interface I, kept in place, values SET), the rest
-    /// is pushout: L nodes to delete, R nodes to insert. Stored as a Replace that copies
-    /// only the pushout.
-    /// </summary>
+    /// <summary>Interface plus pushout: store a Replace that copies only the pushout.</summary>
     Partial,
-    /// <summary>Could not align safely: store the full Replace (both graphlets copied).</summary>
+    /// <summary>Could not align: store a full Replace (both graphlets copied).</summary>
     Structural,
 }
 
-/// <summary>
-/// One value difference on a matched node. <paramref name="Node"/> names it on the L side,
-/// <paramref name="NodeAfter"/> on the R side (identical with StableIds; both kept for
-/// older chains). <paramref name="Inline"/>: an inline child's wrappedValue (key = rel_type
-/// at <paramref name="ListIndex"/>) rather than a node property.
-/// </summary>
-/// <param name="P21Before">Local ids on each side: same-database fallback when neither portable name resolves (a rule is always applied to the state it was recorded against).</param>
+/// <summary>One value difference on a matched node.</summary>
+/// <param name="Node">Portable name on the L side.</param>
+/// <param name="NodeAfter">Portable name on the R side; equal to <paramref name="Node"/> with StableIds, kept for older chains.</param>
+/// <param name="Key">Property name, or the inline child's rel_type when <paramref name="Inline"/>.</param>
+/// <param name="ListIndex">The inline child's list_index; null for a property.</param>
+/// <param name="Inline">True when the change is an inline child's wrappedValue, not a node property.</param>
+/// <param name="P21Before">Local id on the L side: same-database fallback when no portable name resolves.</param>
+/// <param name="P21After">Local id on the R side, same fallback.</param>
 public sealed record PropertyChange(
     ContextRef Node, ContextRef NodeAfter, string Key, int? ListIndex,
     object? Before, object? After, bool Inline, int P21Before = 0, int P21After = 0);
 
-/// <summary>
-/// The diff of one element's graphlet across a re-conversion: <paramref name="Match"/> is
-/// the interface (L p21 → R p21), <paramref name="PushoutL"/> / <paramref name="PushoutR"/>
-/// the nodes to delete / insert. All empty for Structural.
-/// </summary>
+/// <summary>The diff of one element's graphlet across a re-conversion. All empty for Structural.</summary>
+/// <param name="Match">The interface I: L p21 → R p21.</param>
+/// <param name="PushoutL">L nodes to delete.</param>
+/// <param name="PushoutR">R nodes to insert.</param>
 public sealed record GraphletDiffOutcome(
     GraphletDiffKind Kind,
     IReadOnlyList<PropertyChange> Changes,
