@@ -257,8 +257,6 @@ geometry, surface styles.
 
 Known limits:
 
-- STEP string escapes (`\X2\ ... \X0\`, non-ASCII names) are not parsed;
-  `StepLineParser` throws.
 - `ReconcileAll` re-converts every tracked element on each undo / rollback.
 - Elevation is stored in the element placement (native: in the storey placement); a roof
   is one BRep (native: `IfcRoof` aggregating `IfcSlab` parts). Same world coordinates,
