@@ -37,6 +37,11 @@
          fall back to the Nice3point NuGet packages, which are verbatim copies of the
          Revit API assemblies. Compile-time only — Revit supplies the real DLLs at runtime. -->
     <RevitApiFromNuGet Condition="'$(RevitApiFromNuGet)' == '' And !Exists('$(RevitInstallPath)RevitAPI.dll')">true</RevitApiFromNuGet>
+    <!-- Revit 2026.5+ (and 2025 once Autodesk migrates it) ships on .NET 10; those
+         assemblies cannot be referenced from a net8.0 project (CS1705). Compile against
+         the NuGet copy of the .NET 8 API instead — Autodesk keeps loading .NET 8 add-ins. -->
+    <RevitApiRuntimeConfig>$(RevitInstallPath)RevitAPI.runtimeconfig.json</RevitApiRuntimeConfig>
+    <RevitApiFromNuGet Condition="'$(RevitApiFromNuGet)' == '' And Exists('$(RevitApiRuntimeConfig)') And $([System.IO.File]::ReadAllText('$(RevitApiRuntimeConfig)').Contains('&quot;tfm&quot;: &quot;net10.0&quot;'))">true</RevitApiFromNuGet>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(RevitApiFromNuGet)' != 'true'">

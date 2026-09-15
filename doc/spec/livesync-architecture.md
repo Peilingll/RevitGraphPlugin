@@ -282,8 +282,12 @@ dotnet build RevitGraphPlugin.sln -c Debug -p:RevitVersion=2026
 Assemblies are resolved in order: `RevitInstallPath`, `D:\Autodesk\Revit <version>\`,
 `%ProgramFiles%\Autodesk\Revit <version>\`, then the
 [Nice3point.Revit.Api](https://github.com/Nice3point/RevitApi) NuGet packages, so any
-machine can compile for any version. A Debug build copies the DLL and `.addin` to
-`%AppData%\Autodesk\Revit\Addins\<version>\`.
+machine can compile for any version. A local install whose `RevitAPI.runtimeconfig.json`
+says `net10.0` (Revit 2026.5 and later; 2025 once Autodesk migrates it) is skipped in
+favour of the NuGet packages: its assemblies reference `System.Runtime 10.0` and cannot be
+compiled against from a `net8.0` project, while the resulting .NET 8 add-in still loads in
+that Revit. `-p:RevitApiFromNuGet=true` forces the NuGet path. A Debug build copies the
+DLL and `.addin` to `%AppData%\Autodesk\Revit\Addins\<version>\`.
 
 ### Packaging
 
