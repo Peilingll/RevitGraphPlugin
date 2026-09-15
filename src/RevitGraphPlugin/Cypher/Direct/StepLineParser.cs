@@ -165,8 +165,12 @@ public static class StepLineParser
         };
     }
 
-    // 'text' with '' as an escaped quote. Backslash escapes (\X\, \X2\, \S\) are not
-    // implemented: fail loud (known gap, hit by the first non-ASCII name).
+    // 'text' with '' as an escaped quote and the ISO 10303-21 backslash escapes decoded
+    // to the characters they encode (what ifcopenshell hands ConMan2):
+    //   \\       backslash          \X\HH       one ISO 8859-1 byte
+    //   \S\c     c + 0x80           \X2\…\X0\   UTF-16BE, 4 hex digits per unit
+    //   \N\      newline            \X4\…\X0\   UTF-32BE, 8 hex digits per code point
+    //   \P?\     code page directive, ignored (Revit never emits one)
     private static string ParseString(string s, ref int i, string line)
     {
         i++; // opening quote
@@ -181,12 +185,70 @@ public static class StepLineParser
                 return sb.ToString();
             }
             if (c == '\\')
-                throw new NotSupportedException(
-                    $"STEP backslash escape not supported yet (near index {i}) in line: {line}");
+            {
+                i = ParseEscape(s, i, sb, line);
+                continue;
+            }
             sb.Append(c);
             i++;
         }
         throw new FormatException($"Unterminated string in STEP line: {line}");
+    }
+
+    /// <summary>Decode one backslash escape starting at <paramref name="i"/>; returns the index after it.</summary>
+    private static int ParseEscape(string s, int i, StringBuilder sb, string line)
+    {
+        static FormatException Bad(int at, string line) =>
+            new($"Malformed STEP escape (near index {at}) in line: {line}");
+
+        if (i + 1 >= s.Length) throw Bad(i, line);
+        switch (s[i + 1])
+        {
+            case '\\':
+                sb.Append('\\');
+                return i + 2;
+
+            case 'N' when i + 2 < s.Length && s[i + 2] == '\\':
+                sb.Append('\n');
+                return i + 3;
+
+            case 'S' when i + 3 < s.Length && s[i + 2] == '\\':
+                sb.Append((char)(s[i + 3] + 0x80));
+                return i + 4;
+
+            case 'P' when i + 3 < s.Length && s[i + 3] == '\\':
+                return i + 4;
+
+            case 'X' when i + 2 < s.Length && s[i + 2] == '\\':
+                sb.Append((char)ParseHex(s, i + 3, 2, line));
+                return i + 5;
+
+            case 'X' when i + 3 < s.Length && s[i + 2] is '2' or '4' && s[i + 3] == '\\':
+            {
+                var width = s[i + 2] == '2' ? 4 : 8;
+                var j = i + 4;
+                var end = s.IndexOf(@"\X0\", j, StringComparison.Ordinal);
+                if (end < 0 || (end - j) % width != 0) throw Bad(i, line);
+                for (; j < end; j += width)
+                {
+                    var code = ParseHex(s, j, width, line);
+                    if (width == 4) sb.Append((char)code);
+                    else sb.Append(char.ConvertFromUtf32(code));
+                }
+                return end + 4;
+            }
+
+            default:
+                throw Bad(i, line);
+        }
+    }
+
+    private static int ParseHex(string s, int start, int length, string line)
+    {
+        if (start + length > s.Length
+            || !int.TryParse(s.AsSpan(start, length), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var value))
+            throw new FormatException($"Malformed STEP hex escape (near index {start}) in line: {line}");
+        return value;
     }
 
     private static StepToken ParseNumber(string s, ref int i)
@@ -322,8 +384,15 @@ public static class StepLineParser
         var sb = new StringBuilder("'");
         foreach (var c in s)
         {
-            if (c == '\\' || c == '\'') sb.Append('\\');
-            sb.Append(c);
+            switch (c)
+            {
+                case '\\': sb.Append(@"\\"); break;
+                case '\'': sb.Append(@"\'"); break;
+                case '\n': sb.Append(@"\n"); break;   // a multi-line address line
+                case '\r': sb.Append(@"\r"); break;
+                case '\t': sb.Append(@"\t"); break;
+                default: sb.Append(c); break;
+            }
         }
         sb.Append('\'');
         return sb.ToString();

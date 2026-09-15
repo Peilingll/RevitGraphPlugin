@@ -29,8 +29,9 @@ Schema, rule storage layout, configuration and a per-file reference:
 
 ## Installation
 
-Requirements: Revit 2025 (2026: `-p:RevitVersion=2026`), .NET SDK 8.0.403 (pinned by
-`global.json`), a local Neo4j instance.
+Requirements: Revit 2025 or 2026 (2026: `-p:RevitVersion=2026`), .NET SDK 8.0.403 (pinned
+by `global.json`), a local Neo4j instance. Revit 2026.5+ runs on .NET 10; the build detects
+that and compiles against the NuGet copy of the .NET 8 API, which Revit still loads.
 
 ```powershell
 # Neo4j password, User scope so Revit inherits it

@@ -195,10 +195,44 @@ public class StepLineParserTests
         Assert.Equal("$", p["Unit"]);                // unset $ → "$"
     }
 
-    [Fact]
-    public void Backslash_escape_fails_loud()
+    // ── ISO 10303-21 string escapes ─────────────────────────────────────────────
+
+    private static string Text(string stepLine)
     {
-        Assert.Throws<NotSupportedException>(
-            () => StepLineParser.ParseArguments(@"#1=IFCLABEL('a\X2\00E9\X0\b');"));
+        var token = Assert.IsType<StepToken.Text>(Assert.Single(StepLineParser.ParseArguments(stepLine)));
+        return token.Value;
+    }
+
+    [Theory]
+    [InlineData(@"#1=IFCLABEL('a\\b');", "a\\b")]
+    [InlineData(@"#1=IFCLABEL('a\N\b');", "a\nb")]
+    [InlineData(@"#1=IFCLABEL('caf\X\E9');", "café")]
+    [InlineData(@"#1=IFCLABEL('caf\S\i');", "café")]
+    [InlineData(@"#1=IFCLABEL('\PA\caf\S\i');", "café")]
+    [InlineData(@"#1=IFCLABEL('a\X2\00E9\X0\b');", "aéb")]
+    [InlineData(@"#1=IFCLABEL('\X2\58C1\X0\');", "壁")]
+    [InlineData(@"#1=IFCLABEL('\X2\00E900E8\X0\');", "éè")]
+    [InlineData(@"#1=IFCLABEL('\X4\0001F3E0\X0\');", "🏠")]
+    public void Backslash_escapes_decode(string stepLine, string expected) =>
+        Assert.Equal(expected, Text(stepLine));
+
+    [Theory]
+    [InlineData(@"#1=IFCLABEL('a\Q\b');")]
+    [InlineData(@"#1=IFCLABEL('a\X2\00E9b');")]
+    [InlineData(@"#1=IFCLABEL('a\X2\00E\X0\b');")]
+    [InlineData(@"#1=IFCLABEL('a\X\ZZb');")]
+    public void Malformed_escape_fails_loud(string stepLine) =>
+        Assert.Throws<FormatException>(() => StepLineParser.ParseArguments(stepLine));
+
+    [Fact]
+    public void Revit_2026_imperial_template_address_line_round_trips_as_python_repr()
+    {
+        // The Imperial Multi-discipline template's default address holds a newline; ggifc
+        // writes it as \X2\000A\X0\, ifcopenshell decodes it, Python repr escapes it back.
+        var p = PrimitiveProps(
+            "IfcPostalAddress",
+            @"#30=IFCPOSTALADDRESS($,$,$,$,('Enter address here\X2\000A\X0\Address Line 2'),$,'Boston','Boston',$,'MA');");
+        Assert.Equal(@"('Enter address here\nAddress Line 2',)", p["AddressLines"]);
+        Assert.Equal("Boston", p["Town"]);
     }
 }
